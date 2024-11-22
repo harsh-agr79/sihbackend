@@ -148,9 +148,7 @@ class AuthController extends Controller {
     }
 
     public function verifyEmail( Request $request ) {
-        $user = Student::where('email', $request->email)->first() 
-        ?? Mentor::where('email', $request->email)->first() 
-        ?? null;
+        $user = Mentor::where('email', $request->email)->first();
        
 
         if ( !$user ) {
