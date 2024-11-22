@@ -27,8 +27,8 @@ class AuthServiceProvider extends ServiceProvider
         $this->registerPolicies();
 
         // Bind Sanctum to use the Student model for personal access tokens
-        // Sanctum::usePersonalAccessTokenModel(Student::class);
-        // Sanctum::usePersonalAccessTokenModel(Mentor::class);
+        Sanctum::usePersonalAccessTokenModel(Student::class);
+        Sanctum::usePersonalAccessTokenModel(Mentor::class);
         Sanctum::usePersonalAccessTokenModel(\Laravel\Sanctum\PersonalAccessToken::class);
     }
 }
