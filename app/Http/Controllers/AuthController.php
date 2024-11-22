@@ -148,7 +148,16 @@ class AuthController extends Controller {
     }
 
     public function verifyEmail( Request $request, $id, $type, $hash ) {
-        $user = Student::find( $id ) ?? Mentor::find( $id );
+        if($type == "student"){
+            $user = Student::find( $id );
+        }
+        else if($type == "student"){
+            $user =  Mentor::find( $id );
+        }
+        else{
+            $user = NULL;
+            return response()->json( [ 'message' => 'Invalid or expired verification link.' ], 400 );
+        }
 
         if ( !$user || $hash != $user->verification_token ) {
             return response()->json( [ 'message' => 'Invalid or expired verification link.' ], 400 );
