@@ -27,7 +27,7 @@ class VerifyEmailNotification extends BaseVerifyEmail
         return (new MailMessage)
             ->subject('Verify Your Email')
             ->line('Please click the button below to verify your email address.')
-            ->action('Reset Password', $resetUrl)
+            ->action('Verify Email', $resetUrl)
             ->line('If you did not create an account, no further action is required.');
     }
 }
