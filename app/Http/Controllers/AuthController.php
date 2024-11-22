@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Password;
 
 class AuthController extends Controller {
     public function register( Request $request ) {
@@ -55,48 +56,41 @@ class AuthController extends Controller {
     }
 
     public function sendResetLinkEmail( Request $request ) {
-        $request->validate( [
-            'email' => 'required|email',
-        ] );
+        $request->validate( [ 'email' => 'required|email' ] );
 
-        $student = Student::where( 'email', $request->email )->first();
-
-        if ( !$student ) {
-            return response()->json( [ 'message' => "We can't find a user with that email address." ], 404 );
-        }
-
-        // Send reset link
-        $status = Password::sendResetLink(
-            [ 'email' => $request->email ]
+        $status = Password::broker( 'students' )->sendResetLink(
+            $request->only( 'email' )
         );
 
         return $status === Password::RESET_LINK_SENT
-        ? response()->json( [ 'message' => 'Reset link sent to your email.' ] )
-        : response()->json( [ 'message' => 'Unable to send reset link.' ], 500 );
+        ? response()->json( [ 'message' => 'Reset link sent to your email.' ], 200 )
+        : response()->json( [ 'message' => 'Unable to send reset link.' ], 400 );
     }
 
-    public function reset( Request $request ) {
-        $request->validate( [
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
             'email' => 'required|email',
             'token' => 'required',
-            'password' => 'required|string|min:8|confirmed',
-        ] );
-
-        $status = Password::reset(
-            $request->only( 'email', 'password', 'password_confirmation', 'token' ),
-
-            function ( $user, $password ) {
-                $user->forceFill( [
-                    'password' => Hash::make( $password ),
-                ] )->save();
+            'password' => 'required|confirmed|min:8',
+        ]);
+    
+        $status = Password::broker('students')->reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function ($student, $password) {
+                $student->forceFill([
+                    'password' => Hash::make($password),
+                ])->save();
+    
+                $student->tokens()->delete(); // Optionally revoke tokens if using Sanctum
             }
         );
-
+    
         return $status === Password::PASSWORD_RESET
-        ? response()->json( [ 'message' => __( $status ) ], 200 )
-        : response()->json( [ 'message' => __( $status ) ], 400 );
+            ? response()->json(['message' => 'Password reset successful.'], 200)
+            : response()->json(['message' => 'Invalid token or email.'], 400);
     }
-
+    
     public function sendVerificationEmail( Request $request ) {
         if ( $request->user()->hasVerifiedEmail() ) {
             return response()->json( [ 'message' => 'Email is already verified.' ], 400 );
