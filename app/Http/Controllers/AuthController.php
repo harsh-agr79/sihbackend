@@ -157,8 +157,8 @@ class AuthController extends Controller {
             return Redirect::to( env( 'FRONTEND_URL' ) . '/email-already-verified' );
         }
 
-        if ( $user->markEmailAsVerified() ) {
-            event( new Verified( $user ) );
+        if ($user->markEmailAsVerified()) {
+            event(new \Illuminate\Auth\Events\Verified($user));
         }
 
         return Redirect::to( env( 'FRONTEND_URL' ) . '/email-verified' );
