@@ -147,23 +147,28 @@ class AuthController extends Controller {
             : response()->json(['message' => 'Invalid token or email.'], 400);
     }
 
-    public function verifyEmail( Request $request ) {
-        $user = Mentor::where('email', $request->email)->first();
-       
-
-        if ( !$user ) {
-            return response()->json( [ 'message' => 'User not found.' ], 404 );
+    public function verifyEmail(Request $request) {
+        // Find user in both Student and Mentor models
+        $user = Student::where('email', $request->email)->first() 
+            ?? Mentor::where('email', $request->email)->first();
+    
+        if (!$user) {
+            return response()->json(['message' => 'User not found.'], 404);
         }
-
-        if ( $user->hasVerifiedEmail() ) {
-            return response()->json( [ 'message' => 'Email already verified.' ], 400 );
+    
+        // Check if the user has already verified their email
+        if ($user->hasVerifiedEmail()) {
+            return response()->json(['message' => 'Email already verified.'], 400);
         }
-
-        if ( $user->markEmailAsVerified() ) {
-            event( new \Illuminate\Auth\Events\Verified( $user ) );
-        }
-
-        return response()->json( [ 'message' => 'Email verified successfully.' ], 200 );
+    
+        // Mark the email as verified
+        $user->email_verified_at = now();
+        $user->save();
+    
+        // Fire the verified event
+        event(new \Illuminate\Auth\Events\Verified($user));
+    
+        return response()->json(['message' => 'Email verified successfully.'], 200);
     }
 
 }
