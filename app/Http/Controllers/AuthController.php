@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Password;
 use App\Notifications\VerifyEmailNotification;
 
 class AuthController extends Controller {
-    public function sendEmailVerificationNotification()
+    public function sendEmailVerificationNotifications()
     {
         $this->notify(new VerifyEmailNotification());
     }
@@ -43,7 +43,7 @@ class AuthController extends Controller {
         }
 
         // Send verification email
-        $user->sendEmailVerificationNotification();
+        $user->sendEmailVerificationNotifications();
 
         return response()->json( [ 'message' => $request->type.' registered successfully. Please verify your email.' ], 201 );
     }
