@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Student;
+use App\Models\Mentor;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -13,24 +14,33 @@ class AuthController extends Controller {
     public function register( Request $request ) {
         $validator = Validator::make( $request->all(), [
             'name' => 'required|string|max:255',
+            'type' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:students',
             'password' => [ 'required', 'string', 'min:8', 'regex:/[A-Za-z]/', 'regex:/[0-9]/', 'regex:/[@$!%*#?&]/' ],
-        ] );
+        ]);
 
         if ( $validator->fails() ) {
             return response()->json( $validator->errors(), 422 );
         }
-
-        $student = Student::create( [
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make( $request->password ),
-        ] );
+        if($request->type == "student"){
+            $user = Student::create( [
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make( $request->password ),
+            ]);
+        }
+        else if($request->type == "mentor"){
+            $user = Mentor::create( [
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make( $request->password ),
+            ]);
+        }
 
         // Send verification email
-        $student->sendEmailVerificationNotification();
+        $user->sendEmailVerificationNotification();
 
-        return response()->json( [ 'message' => 'Student registered successfully. Please verify your email.' ], 201 );
+        return response()->json( [ 'message' => $request->type.' registered successfully. Please verify your email.' ], 201 );
     }
 
     public function login( Request $request ) {
@@ -40,26 +50,51 @@ class AuthController extends Controller {
         ] );
 
         $student = Student::where( 'email', $request->email )->first();
-
-        if ( !$student || !Hash::check( $request->password, $student->password ) ) {
+        $mentor = Mentor::where('email', $request->email )->first();
+        $type = '';
+        if($student){
+            $user = $student;
+            $type = 'student';
+        }
+        else if($mentor){
+            $user = $mentor;
+            $type = 'mentor';
+        }
+        else{
             return response()->json( [ 'message' => 'Invalid credentials' ], 401 );
         }
 
-        if ( !$student->hasVerifiedEmail() ) {
+        if ( !$user || !Hash::check( $request->password, $user->password ) ) {
+            return response()->json( [ 'message' => 'Invalid credentials' ], 401 );
+        }
+
+        if ( !$user->hasVerifiedEmail() ) {
             return response()->json( [ 'message' => 'Please verify your email before logging in.' ], 403 );
         }
 
-        $token = $student->createToken( 'student-token' )->plainTextToken;
+        $token = $user->createToken( 'student-token' )->plainTextToken;
 
-        return response()->json( [ 'token' => $token ], 200 );
+        return response()->json( [ 'token' => $token, 'type'=>$type ], 200 );
     }
 
     public function sendResetLinkEmail( Request $request ) {
         $request->validate( [ 'email' => 'required|email' ] );
 
-        $status = Password::broker( 'students' )->sendResetLink(
-            $request->only( 'email' )
-        );
+        $student = Student::where( 'email', $request->email )->first();
+        $mentor = Mentor::where('email', $request->email )->first();
+
+        if($student){
+            $status = Password::broker( 'students' )->sendResetLink(
+                $request->only( 'email' )
+            );
+        }
+        else if($mentor){
+            $status = Password::broker( 'mentors' )->sendResetLink(
+                $request->only( 'email' )
+            );
+        }
+        
+
 
         return $status === Password::RESET_LINK_SENT
         ? response()->json( [ 'message' => 'Reset link sent to your email.' ], 200 )
@@ -73,15 +108,32 @@ class AuthController extends Controller {
             'token' => 'required',
             'password' => 'required|confirmed|min:8',
         ]);
+
+        $student_ = Student::where( 'email', $request->email )->first();
+        $mentor_ = Mentor::where('email', $request->email )->first();
+
+        if($student_){ 
+            $status = Password::broker('students')->reset(
+                $request->only('email', 'password', 'password_confirmation', 'token'),
+                function ($student, $password) {
+                    $student->forceFill([
+                        'password' => Hash::make($password),
+                    ])->save();
+                }
+            );
+        }
+        else if($mentor_) {
+            $status = Password::broker('mentors')->reset(
+                $request->only('email', 'password', 'password_confirmation', 'token'),
+                function ($mentor, $password) {
+                    $mentor->forceFill([
+                        'password' => Hash::make($password),
+                    ])->save();
+                }
+            );
+        }
     
-        $status = Password::broker('students')->reset(
-            $request->only('email', 'password', 'password_confirmation', 'token'),
-            function ($student, $password) {
-                $student->forceFill([
-                    'password' => Hash::make($password),
-                ])->save();
-            }
-        );
+       
     
         return $status === Password::PASSWORD_RESET
             ? response()->json(['message' => 'Password reset successful.'], 200)
@@ -89,7 +141,15 @@ class AuthController extends Controller {
     }
 
     public function verifyEmail( Request $request ) {
-        $user = Student::find( $request->route( 'id' ) );
+        $student_ = Student::where( 'email', $request->email )->first();
+        $mentor_ = Mentor::where('email', $request->email )->first();
+        if($student_){
+            $user = Student::find( $request->route( 'id' ) );
+        }
+        else if($mentor_){
+            $user = Mentor::find( $request->route( 'id' ) );
+        }
+       
 
         if ( !$user ) {
             return response()->json( [ 'message' => 'User not found.' ], 404 );
