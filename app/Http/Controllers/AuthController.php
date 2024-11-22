@@ -151,7 +151,7 @@ class AuthController extends Controller {
         if($type == "student"){
             $user = Student::find( $id );
         }
-        else if($type == "student"){
+        else if($type == "mentor"){
             $user =  Mentor::find( $id );
         }
         else{
