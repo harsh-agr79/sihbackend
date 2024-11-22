@@ -26,8 +26,8 @@ class Student extends Authenticatable implements MustVerifyEmail
         $this->notify(new ResetPasswordNotification($token));
     }
 
-    public function sendEmailVerificationNotifications()
+    public function sendEmailVerificationNotifications($token)
     {
-        $this->notify(new VerifyEmailNotification());
+        $this->notify(new VerifyEmailNotification($token));
     }
 }

@@ -7,15 +7,27 @@ use Illuminate\Auth\Notifications\VerifyEmail as BaseVerifyEmail;
 
 class VerifyEmailNotification extends BaseVerifyEmail
 {
+    public $token;
+
+    public function __construct($token)
+    {
+        $this->token = $token;
+    }
+
+    public function via($notifiable)
+    {
+        return ['mail'];
+    }
+
     public function toMail($notifiable)
     {
-        $type = $notifiable instanceof \App\Models\Student ? 'student' : 'mentor';
-        $verifyUrl = config('app.frontend_url') . "/verify-email?type={$type}&email=" . urlencode($notifiable->email);
+        // Explicitly construct the reset URL
+        $resetUrl = $this->token;
 
         return (new MailMessage)
-            ->subject('Verify Your Email Address')
+            ->subject('Verify Your Email')
             ->line('Please click the button below to verify your email address.')
-            ->action('Verify Email', $verifyUrl)
+            ->action('Reset Password', $resetUrl)
             ->line('If you did not create an account, no further action is required.');
     }
 }
