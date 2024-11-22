@@ -66,29 +66,6 @@ class AuthController extends Controller {
         : response()->json( [ 'message' => 'Unable to send reset link.' ], 400 );
     }
 
-    public function resetPassword(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email',
-            'token' => 'required',
-            'password' => 'required|confirmed|min:8',
-        ]);
-    
-        $status = Password::broker('students')->reset(
-            $request->only('email', 'password', 'password_confirmation', 'token'),
-            function ($student, $password) {
-                $student->forceFill([
-                    'password' => Hash::make($password),
-                ])->save();
-    
-                $student->tokens()->delete(); // Optionally revoke tokens if using Sanctum
-            }
-        );
-    
-        return $status === Password::PASSWORD_RESET
-            ? response()->json(['message' => 'Password reset successful.'], 200)
-            : response()->json(['message' => 'Invalid token or email.'], 400);
-    }
     
     public function sendVerificationEmail( Request $request ) {
         if ( $request->user()->hasVerifiedEmail() ) {
