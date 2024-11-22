@@ -159,6 +159,9 @@ class AuthController extends Controller {
         }
 
         if ($user->markEmailAsVerified()) {
+            $user->forceFill([
+                'verification_token' => Str::random(128)
+            ])->save();
             event(new \Illuminate\Auth\Events\Verified($user));
         }
 
