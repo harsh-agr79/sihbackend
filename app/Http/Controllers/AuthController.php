@@ -55,13 +55,24 @@ class AuthController extends Controller {
     }
 
     public function sendResetLinkEmail( Request $request ) {
-        $request->validate( [ 'email' => 'required|email' ] );
+        $request->validate( [
+            'email' => 'required|email',
+        ] );
 
-        $status = Password::sendResetLink( $request->only( 'email' ) );
+        $student = Student::where( 'email', $request->email )->first();
+
+        if ( !$student ) {
+            return response()->json( [ 'message' => "We can't find a user with that email address." ], 404 );
+        }
+
+        // Send reset link
+        $status = Password::sendResetLink(
+            [ 'email' => $request->email ]
+        );
 
         return $status === Password::RESET_LINK_SENT
-        ? response()->json( [ 'message' => __( $status ) ], 200 )
-        : response()->json( [ 'message' => __( $status ) ], 400 );
+        ? response()->json( [ 'message' => 'Reset link sent to your email.' ] )
+        : response()->json( [ 'message' => 'Unable to send reset link.' ], 500 );
     }
 
     public function reset( Request $request ) {
