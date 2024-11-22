@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Laravel\Sanctum\Sanctum;
 use App\Models\Student;
+use Illuminate\Auth\Passwords\PasswordBroker;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -26,7 +27,7 @@ class AuthServiceProvider extends ServiceProvider
         $this->registerPolicies();
 
         // Bind Sanctum to use the Student model for personal access tokens
-        // Sanctum::usePersonalAccessTokenModel(Student::class);
+        Sanctum::usePersonalAccessTokenModel(Student::class);
         Sanctum::usePersonalAccessTokenModel(\Laravel\Sanctum\PersonalAccessToken::class);
     }
 }
