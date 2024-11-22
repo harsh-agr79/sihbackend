@@ -152,10 +152,10 @@ class AuthController extends Controller {
         $mentor_ = Mentor::where('email', $request->email )->first();
        
         if($student_){
-            $user = Student::find( $request->route( 'id' ) );
+            $user = $student_;
         }
         else if($mentor_){
-            $user = Mentor::find( $request->route( 'id' ) );
+            $user = $mentor_;
         }
         else{
             $user = '';
