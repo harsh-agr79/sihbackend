@@ -14,11 +14,11 @@ class Student extends Authenticatable implements MustVerifyEmail
     use HasApiTokens, Notifiable;
 
     protected $fillable = [
-        'name', 'email', 'password',
+        'name', 'email', 'password','verification_token',
     ];
 
     protected $hidden = [
-        'password', 'remember_token',
+        'password', 'remember_token','verification_token',
     ];
 
     public function sendPasswordResetNotification($token)
