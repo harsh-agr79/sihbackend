@@ -34,3 +34,10 @@ Route::prefix('student')->group(function () {
         Route::post('/logout', [StudentController::class, 'logout']);
     });
 });
+
+Route::prefix('mentor')->group(function () {
+    Route::middleware(['auth:mentor', 'verified'])->group(function () {
+        Route::get('/profile', [MentorController::class, 'profile']);
+        Route::post('/logout', [MentorController::class, 'logout']);
+    });
+});
