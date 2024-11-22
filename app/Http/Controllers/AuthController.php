@@ -66,7 +66,6 @@ class AuthController extends Controller {
         : response()->json( [ 'message' => 'Unable to send reset link.' ], 400 );
     }
 
-    
     public function sendVerificationEmail( Request $request ) {
         if ( $request->user()->hasVerifiedEmail() ) {
             return response()->json( [ 'message' => 'Email is already verified.' ], 400 );
