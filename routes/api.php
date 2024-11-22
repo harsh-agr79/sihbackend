@@ -22,12 +22,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
-Route::post('/email/verification-notification', [AuthController::class, 'sendVerificationEmail'])
-        ->name('verification.send');
+Route::post('/email/verification-notification', [AuthController::class, 'sendVerificationEmail'])->name('verification.send');
+Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])->middleware(['signed'])->name('verification.verify');
 
-    // Route to handle email verification
-    Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])
-        ->middleware(['signed'])->name('verification.verify');
+Route::post('/forgot-password', [AuthController::class, 'sendResetLinkEmail']);
+Route::post('/reset-password', [AuthController::class, 'reset']);
 
 Route::prefix('student')->group(function () {
     Route::middleware(['auth:student', 'verified'])->group(function () {
