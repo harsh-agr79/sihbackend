@@ -66,14 +66,26 @@ class AuthController extends Controller {
         : response()->json( [ 'message' => 'Unable to send reset link.' ], 400 );
     }
 
-    public function sendVerificationEmail( Request $request ) {
-        if ( $request->user()->hasVerifiedEmail() ) {
-            return response()->json( [ 'message' => 'Email is already verified.' ], 400 );
-        }
-
-        $request->user()->sendEmailVerificationNotification();
-
-        return response()->json( [ 'message' => 'Verification email sent.' ], 200 );
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'token' => 'required',
+            'password' => 'required|confirmed|min:8',
+        ]);
+    
+        $status = Password::broker('students')->reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function ($student, $password) {
+                $student->forceFill([
+                    'password' => Hash::make($password),
+                ])->save();
+            }
+        );
+    
+        return $status === Password::PASSWORD_RESET
+            ? response()->json(['message' => 'Password reset successful.'], 200)
+            : response()->json(['message' => 'Invalid token or email.'], 400);
     }
 
     public function verifyEmail( Request $request ) {

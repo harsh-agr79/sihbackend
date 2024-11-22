@@ -26,7 +26,7 @@ Route::post('/email/verification-notification', [AuthController::class, 'sendVer
 Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])->middleware(['signed'])->name('verification.verify');
 
 Route::post('/forgot-password', [AuthController::class, 'sendResetLinkEmail']);
-Route::post('/reset-password', [AuthController::class, 'reset']);
+Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
 Route::prefix('student')->group(function () {
     Route::middleware(['auth:student', 'verified'])->group(function () {
