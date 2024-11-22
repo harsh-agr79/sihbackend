@@ -24,4 +24,9 @@ class Mentor extends Authenticatable implements MustVerifyEmail
     {
         $this->notify(new ResetPasswordNotification($token));
     }
+
+    public function sendEmailVerificationNotifications()
+    {
+        $this->notify(new VerifyEmailNotification());
+    }
 }

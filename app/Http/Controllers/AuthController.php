@@ -12,10 +12,7 @@ use Illuminate\Support\Facades\Password;
 use App\Notifications\VerifyEmailNotification;
 
 class AuthController extends Controller {
-    public function sendEmailVerificationNotifications()
-    {
-        $this->notify(new VerifyEmailNotification());
-    }
+    
     public function register( Request $request ) {
         $validator = Validator::make( $request->all(), [
             'name' => 'required|string|max:255',
