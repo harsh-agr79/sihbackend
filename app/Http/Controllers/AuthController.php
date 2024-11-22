@@ -9,8 +9,13 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Password;
+use App\Notifications\VerifyEmailNotification;
 
 class AuthController extends Controller {
+    public function sendEmailVerificationNotification()
+    {
+        $this->notify(new VerifyEmailNotification());
+    }
     public function register( Request $request ) {
         $validator = Validator::make( $request->all(), [
             'name' => 'required|string|max:255',
@@ -147,29 +152,32 @@ class AuthController extends Controller {
             : response()->json(['message' => 'Invalid token or email.'], 400);
     }
 
-    public function verifyEmail(Request $request) {
-        // Find user in both Student and Mentor models
-        $user = Student::where('email', $request->email)->first() 
-            ?? Mentor::where('email', $request->email)->first();
+    public function verifyEmail(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'type' => 'required|in:student,mentor',
+        ]);
+    
+        $model = $request->type === 'student' ? Student::class : Mentor::class;
+        $user = $model::where('email', $request->email)->first();
     
         if (!$user) {
             return response()->json(['message' => 'User not found.'], 404);
         }
     
-        // Check if the user has already verified their email
         if ($user->hasVerifiedEmail()) {
             return response()->json(['message' => 'Email already verified.'], 400);
         }
     
-        // Mark the email as verified
         $user->email_verified_at = now();
         $user->save();
     
-        // Fire the verified event
         event(new \Illuminate\Auth\Events\Verified($user));
     
         return response()->json(['message' => 'Email verified successfully.'], 200);
     }
+    
 
 }
 
