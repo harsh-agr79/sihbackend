@@ -6,6 +6,7 @@ use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvid
 use Laravel\Sanctum\Sanctum;
 use App\Models\Student;
 use App\Models\Mentor;
+use App\Models\Company;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -29,6 +30,7 @@ class AuthServiceProvider extends ServiceProvider
         // Bind Sanctum to use the Student model for personal access tokens
         Sanctum::usePersonalAccessTokenModel(Student::class);
         Sanctum::usePersonalAccessTokenModel(Mentor::class);
+        Sanctum::usePersonalAccessTokenModel(Company::class);
         Sanctum::usePersonalAccessTokenModel(\Laravel\Sanctum\PersonalAccessToken::class);
     }
 }

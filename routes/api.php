@@ -42,3 +42,10 @@ Route::prefix('mentor')->group(function () {
         Route::post('/logout', [MentorController::class, 'logout']);
     });
 });
+
+Route::prefix('company')->group(function () {
+    Route::middleware(['auth:company', 'verified'])->group(function () {
+        Route::get('/profile', [MentorController::class, 'profile']);
+        Route::post('/logout', [MentorController::class, 'logout']);
+    });
+});

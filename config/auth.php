@@ -48,6 +48,10 @@ return [
             'driver' => 'sanctum',
             'provider' => 'mentors',
         ],
+        'company' => [
+            'driver' => 'sanctum',
+            'provider' => 'companies',
+        ],
     ],
 
     /*
@@ -79,6 +83,10 @@ return [
         'mentors' => [
             'driver' => 'eloquent',
             'model' => App\Models\Mentor::class,
+        ],
+        'companies' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Company::class,
         ],
 
         // 'users' => [
@@ -121,6 +129,12 @@ return [
         ],
         'mentors' => [
             'provider' => 'mentors',
+            'table' => 'password_resets',
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+        'companies' => [
+            'provider' => 'companies',
             'table' => 'password_resets',
             'expire' => 60,
             'throttle' => 60,

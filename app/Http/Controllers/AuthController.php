@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Student;
 use App\Models\Mentor;
+use App\Models\Company;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -18,7 +19,7 @@ class AuthController extends Controller {
         $validator = Validator::make( $request->all(), [
             'name' => 'required|string|max:255',
             'type' => 'required|string|in:student,mentor',
-            'email' => 'required|string|email|max:255|unique:students,email|unique:mentors,email',
+            'email' => 'required|string|email|max:255|unique:students,email|unique:mentors,email|unique:companies,email',
             'password' => 'required|string|min:8|regex:/[A-Za-z]/|regex:/[0-9]/|regex:/[@$!%*#?&]/',
         ] );
 
@@ -43,6 +44,14 @@ class AuthController extends Controller {
                 'verification_token' => $verificationToken,
             ] );
         }
+        else if ( $request->type === 'company' ) {
+            $user = Company::create( [
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make( $request->password ),
+                'verification_token' => $verificationToken,
+            ] );
+        }
 
         // Send Verification Email
         $verificationUrl = url( "https://sih.startuplair.com/api/email/verify/{$user->id}/{$request->type}/{$verificationToken}" );
@@ -59,6 +68,7 @@ class AuthController extends Controller {
 
         $student = Student::where( 'email', $request->email )->first();
         $mentor = Mentor::where( 'email', $request->email )->first();
+        $company = Company::where( 'email', $request->email )->first();
         $type = '';
         if ( $student ) {
             $user = $student;
@@ -66,6 +76,9 @@ class AuthController extends Controller {
         } else if ( $mentor ) {
             $user = $mentor;
             $type = 'mentor';
+        } else if ( $company ) {
+            $user = $company;
+            $type = 'company';
         } else {
             $user = '';
             return response()->json( [ 'message' => 'Invalid credentials' ], 401 );
@@ -89,6 +102,7 @@ class AuthController extends Controller {
 
         $student = Student::where( 'email', $request->email )->first();
         $mentor = Mentor::where( 'email', $request->email )->first();
+        $company = Company::where( 'email', $request->email )->first();
 
         if ( $student ) {
             $status = Password::broker( 'students' )->sendResetLink(
@@ -96,6 +110,10 @@ class AuthController extends Controller {
             );
         } else if ( $mentor ) {
             $status = Password::broker( 'mentors' )->sendResetLink(
+                $request->only( 'email' )
+            );
+        } else if ( $company ) {
+            $status = Password::broker( 'companies' )->sendResetLink(
                 $request->only( 'email' )
             );
         } else {
@@ -116,6 +134,7 @@ class AuthController extends Controller {
 
         $student_ = Student::where( 'email', $request->email )->first();
         $mentor_ = Mentor::where( 'email', $request->email )->first();
+        $company_ = Company::where( 'email', $request->email )->first();
 
         if ( $student_ ) {
 
@@ -138,6 +157,16 @@ class AuthController extends Controller {
                     ] )->save();
                 }
             );
+        } else if ( $company_ ) {
+            $status = Password::broker( 'companies' )->reset(
+                $request->only( 'email', 'password', 'password_confirmation', 'token' ),
+
+                function ( $company, $password ) {
+                    $mentor->forceFill( [
+                        'password' => Hash::make( $password ),
+                    ] )->save();
+                }
+            );
         } else {
             $status = '';
         }
@@ -153,6 +182,9 @@ class AuthController extends Controller {
         }
         else if($type == "mentor"){
             $user =  Mentor::find( $id );
+        }
+        else if($type == "company"){
+            $user =  Company::find( $id );
         }
         else{
             $user = NULL;
