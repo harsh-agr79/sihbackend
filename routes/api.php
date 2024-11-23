@@ -19,50 +19,54 @@ use App\Http\Controllers\InstituteController;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
-
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
-
-Route::post('/email/verification-notification', [AuthController::class, 'sendVerificationEmail'])->name('verification.send');
 Route::get('/email/verify/{id}/{type}/{hash}', [AuthController::class, 'verifyEmail'])->name('verification.verify');
 
-Route::post('/forgot-password', [AuthController::class, 'sendResetLinkEmail']);
-Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
-Route::prefix('student')->group(function () {
-    Route::middleware(['auth:student', 'verified'])->group(function () {
-        Route::get('/profile', [StudentController::class, 'profile']);
-        Route::post('/logout', [StudentController::class, 'logout']);
+
+
+Route::group(['middleware'=>'api_key'], function () { 
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/login', [AuthController::class, 'login']);
+
+    Route::post('/email/verification-notification', [AuthController::class, 'sendVerificationEmail'])->name('verification.send');
+    
+    Route::post('/forgot-password', [AuthController::class, 'sendResetLinkEmail']);
+    Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+
+    Route::prefix('student')->group(function () {
+        Route::middleware(['auth:student', 'verified'])->group(function () {
+            Route::get('/profile', [StudentController::class, 'profile']);
+            Route::post('/logout', [StudentController::class, 'logout']);
+        });
+    });
+    
+    Route::prefix('mentor')->group(function () {
+        Route::middleware(['auth:mentor', 'verified'])->group(function () {
+            Route::get('/profile', [MentorController::class, 'profile']);
+            Route::post('/logout', [MentorController::class, 'logout']);
+        });
+    });
+    
+    Route::prefix('company')->group(function () {
+        Route::middleware(['auth:company', 'verified'])->group(function () {
+            Route::get('/profile', [CompanyController::class, 'profile']);
+            Route::post('/logout', [CompanyController::class, 'logout']);
+        });
+    });
+    
+    Route::prefix('teacher')->group(function () {
+        Route::middleware(['auth:teacher', 'verified'])->group(function () {
+            Route::get('/profile', [TeacherController::class, 'profile']);
+            Route::post('/logout', [TeacherController::class, 'logout']);
+        });
+    });
+    
+    Route::prefix('institute')->group(function () {
+        Route::middleware(['auth:institute', 'verified'])->group(function () {
+            Route::get('/profile', [InstituteController::class, 'profile']);
+            Route::post('/logout', [InstituteController::class, 'logout']);
+        });
     });
 });
 
-Route::prefix('mentor')->group(function () {
-    Route::middleware(['auth:mentor', 'verified'])->group(function () {
-        Route::get('/profile', [MentorController::class, 'profile']);
-        Route::post('/logout', [MentorController::class, 'logout']);
-    });
-});
 
-Route::prefix('company')->group(function () {
-    Route::middleware(['auth:company', 'verified'])->group(function () {
-        Route::get('/profile', [CompanyController::class, 'profile']);
-        Route::post('/logout', [CompanyController::class, 'logout']);
-    });
-});
-
-Route::prefix('teacher')->group(function () {
-    Route::middleware(['auth:teacher', 'verified'])->group(function () {
-        Route::get('/profile', [TeacherController::class, 'profile']);
-        Route::post('/logout', [TeacherController::class, 'logout']);
-    });
-});
-
-Route::prefix('institute')->group(function () {
-    Route::middleware(['auth:institute', 'verified'])->group(function () {
-        Route::get('/profile', [InstituteController::class, 'profile']);
-        Route::post('/logout', [InstituteController::class, 'logout']);
-    });
-});
