@@ -162,7 +162,7 @@ class AuthController extends Controller {
                 $request->only( 'email', 'password', 'password_confirmation', 'token' ),
 
                 function ( $company, $password ) {
-                    $mentor->forceFill( [
+                    $company->forceFill( [
                         'password' => Hash::make( $password ),
                     ] )->save();
                 }
