@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Student;
 use App\Models\Mentor;
 use App\Models\Company;
+use App\Models\Teacher;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -18,8 +19,8 @@ class AuthController extends Controller {
     public function register( Request $request ) {
         $validator = Validator::make( $request->all(), [
             'name' => 'required|string|max:255',
-            'type' => 'required|string|in:student,mentor,company',
-            'email' => 'required|string|email|max:255|unique:students,email|unique:mentors,email|unique:companies,email',
+            'type' => 'required|string|in:student,mentor,company,teacher',
+            'email' => 'required|string|email|max:255|unique:students,email|unique:mentors,email|unique:companies,email|unique:teachers,email',
             'password' => 'required|string|min:8|regex:/[A-Za-z]/|regex:/[0-9]/|regex:/[@$!%*#?&]/',
         ] );
 
@@ -52,6 +53,14 @@ class AuthController extends Controller {
                 'verification_token' => $verificationToken,
             ] );
         }
+        else if ( $request->type === 'teacher' ) {
+            $user = Teacher::create( [
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make( $request->password ),
+                'verification_token' => $verificationToken,
+            ] );
+        }
 
         // Send Verification Email
         $verificationUrl = url( "https://sih.startuplair.com/api/email/verify/{$user->id}/{$request->type}/{$verificationToken}" );
@@ -69,6 +78,7 @@ class AuthController extends Controller {
         $student = Student::where( 'email', $request->email )->first();
         $mentor = Mentor::where( 'email', $request->email )->first();
         $company = Company::where( 'email', $request->email )->first();
+        $teacher = Teacher::where( 'email', $request->email )->first();
         $type = '';
         if ( $student ) {
             $user = $student;
@@ -79,6 +89,9 @@ class AuthController extends Controller {
         } else if ( $company ) {
             $user = $company;
             $type = 'company';
+        } else if ( $teacher ) {
+            $user = $teacher;
+            $type = 'teacher';
         } else {
             $user = '';
             return response()->json( [ 'message' => 'Invalid credentials' ], 401 );
@@ -103,6 +116,7 @@ class AuthController extends Controller {
         $student = Student::where( 'email', $request->email )->first();
         $mentor = Mentor::where( 'email', $request->email )->first();
         $company = Company::where( 'email', $request->email )->first();
+        $teacher = Teacher::where( 'email', $request->email )->first();
 
         if ( $student ) {
             $status = Password::broker( 'students' )->sendResetLink(
@@ -114,6 +128,10 @@ class AuthController extends Controller {
             );
         } else if ( $company ) {
             $status = Password::broker( 'companies' )->sendResetLink(
+                $request->only( 'email' )
+            );
+        } else if ( $teacher ) {
+            $status = Password::broker( 'teachers' )->sendResetLink(
                 $request->only( 'email' )
             );
         } else {
@@ -135,6 +153,7 @@ class AuthController extends Controller {
         $student_ = Student::where( 'email', $request->email )->first();
         $mentor_ = Mentor::where( 'email', $request->email )->first();
         $company_ = Company::where( 'email', $request->email )->first();
+        $teacher_ = Teacher::where( 'email', $request->email )->first();
 
         if ( $student_ ) {
 
@@ -167,6 +186,16 @@ class AuthController extends Controller {
                     ] )->save();
                 }
             );
+        } else if ( $teacher_ ) {
+            $status = Password::broker( 'teachers' )->reset(
+                $request->only( 'email', 'password', 'password_confirmation', 'token' ),
+
+                function ( $teacher, $password ) {
+                    $teacher->forceFill( [
+                        'password' => Hash::make( $password ),
+                    ] )->save();
+                }
+            );
         } else {
             $status = '';
         }
@@ -185,6 +214,9 @@ class AuthController extends Controller {
         }
         else if($type == "company"){
             $user =  Company::find( $id );
+        }
+        else if($type == "teacher"){
+            $user =  Teacher::find( $id );
         }
         else{
             $user = NULL;

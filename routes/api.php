@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\MentorController;
+use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\TeacherController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -45,7 +47,14 @@ Route::prefix('mentor')->group(function () {
 
 Route::prefix('company')->group(function () {
     Route::middleware(['auth:company', 'verified'])->group(function () {
-        Route::get('/profile', [MentorController::class, 'profile']);
-        Route::post('/logout', [MentorController::class, 'logout']);
+        Route::get('/profile', [CompanyController::class, 'profile']);
+        Route::post('/logout', [CompanyController::class, 'logout']);
+    });
+});
+
+Route::prefix('teacher')->group(function () {
+    Route::middleware(['auth:teacher', 'verified'])->group(function () {
+        Route::get('/profile', [TeacherController::class, 'profile']);
+        Route::post('/logout', [TeacherController::class, 'logout']);
     });
 });
