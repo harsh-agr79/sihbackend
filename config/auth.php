@@ -162,7 +162,7 @@ return [
             'throttle' => 60,
         ],
         'institutes' => [
-            'provider' => 'institues',
+            'provider' => 'institutes',
             'table' => 'password_resets',
             'expire' => 60,
             'throttle' => 60,
