@@ -8,6 +8,7 @@ use App\Models\Student;
 use App\Models\Mentor;
 use App\Models\Company;
 use App\Models\Teacher;
+use App\Models\Institute;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -33,6 +34,7 @@ class AuthServiceProvider extends ServiceProvider
         Sanctum::usePersonalAccessTokenModel(Mentor::class);
         Sanctum::usePersonalAccessTokenModel(Company::class);
         Sanctum::usePersonalAccessTokenModel(Teacher::class);
+        Sanctum::usePersonalAccessTokenModel(Institute::class);
         Sanctum::usePersonalAccessTokenModel(\Laravel\Sanctum\PersonalAccessToken::class);
     }
 }

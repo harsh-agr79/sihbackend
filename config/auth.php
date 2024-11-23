@@ -56,6 +56,10 @@ return [
             'driver' => 'sanctum',
             'provider' => 'teachers',
         ],
+        'institute' => [
+            'driver' => 'sanctum',
+            'provider' => 'institutes',
+        ],
     ],
 
     /*
@@ -95,6 +99,10 @@ return [
         'teachers' => [
             'driver' => 'eloquent',
             'model' => App\Models\Teacher::class,
+        ],
+        'institutes' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Institute::class,
         ],
 
         // 'users' => [
@@ -149,6 +157,12 @@ return [
         ],
         'teachers' => [
             'provider' => 'teachers',
+            'table' => 'password_resets',
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+        'institutes' => [
+            'provider' => 'institues',
             'table' => 'password_resets',
             'expire' => 60,
             'throttle' => 60,

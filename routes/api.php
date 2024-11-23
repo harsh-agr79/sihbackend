@@ -7,6 +7,7 @@ use App\Http\Controllers\StudentController;
 use App\Http\Controllers\MentorController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\TeacherController;
+use App\Http\Controllers\InstituteController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -56,5 +57,12 @@ Route::prefix('teacher')->group(function () {
     Route::middleware(['auth:teacher', 'verified'])->group(function () {
         Route::get('/profile', [TeacherController::class, 'profile']);
         Route::post('/logout', [TeacherController::class, 'logout']);
+    });
+});
+
+Route::prefix('institute')->group(function () {
+    Route::middleware(['auth:institute', 'verified'])->group(function () {
+        Route::get('/profile', [InstituteController::class, 'profile']);
+        Route::post('/logout', [InstituteController::class, 'logout']);
     });
 });
