@@ -14,7 +14,7 @@ class Company extends Authenticatable implements MustVerifyEmail
     use HasApiTokens, Notifiable;
 
     protected $fillable = [
-        'name', 'email', 'password','verification_token',
+        'name', 'email', 'password','verification_token','email_verified_at',
     ];
 
     protected $hidden = [
