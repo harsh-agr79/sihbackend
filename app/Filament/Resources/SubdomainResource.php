@@ -19,6 +19,8 @@ class SubdomainResource extends Resource
     protected static ?string $model = Subdomain::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?int $navigationSort = 7;
+    protected static ?string $navigationGroup = 'Domain & Subdomain';
 
     public static function form(Form $form): Form
     {
