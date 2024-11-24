@@ -120,7 +120,7 @@ class AuthController extends Controller {
 
         $token = $user->createToken( 'student-token' )->plainTextToken;
 
-        return response()->json( [ 'token' => $token, 'type'=>$type ], 200 );
+        return response()->json( [ 'token' => $token, 'type'=>$type, 'user'=>$user ], 200 );
     }
 
     public function sendResetLinkEmail( Request $request ) {
