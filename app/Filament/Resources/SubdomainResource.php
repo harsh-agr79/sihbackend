@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\SubdomainResource\Pages;
 use App\Filament\Resources\SubdomainResource\RelationManagers;
 use App\Models\Subdomain;
+use App\Models\Domain;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
