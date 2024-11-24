@@ -28,22 +28,4 @@ class Handler extends ExceptionHandler
             //
         });
     }
-
-    /**
-     * Handle unauthenticated requests.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Illuminate\Auth\AuthenticationException  $exception
-     * @return \Illuminate\Http\Response
-     */
-    protected function unauthenticated($request, AuthenticationException $exception)
-    {
-        // Check if the request expects JSON
-        if ($request->expectsJson()) {
-            return response()->json(['message' => 'Unauthenticated'], 401);
-        }
-
-        // For web requests, redirect to the login page
-        return redirect()->guest(route('login'));
-    }
 }
