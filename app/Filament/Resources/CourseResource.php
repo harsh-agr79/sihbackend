@@ -24,18 +24,18 @@ class CourseResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('title')
-                    ->label('Title')
-                    ->required(),
-                Forms\Components\Textarea::make('description')
-                    ->label('Description')
-                    ->required(),
-                Forms\Components\Select::make('mentor_id')
-                    ->label('Mentor')
-                    ->relationship('mentor', 'name')
-                    ->required(),
-                Forms\Components\Toggle::make('verified')
-                    ->label('Verified')
-                    ->default(false),
+                ->label('Title')
+                ->required(),
+            Forms\Components\Textarea::make('description')
+                ->label('Description')
+                ->required(),
+            Forms\Components\Select::make('mentor_id')
+                ->label('Mentor')
+                ->relationship('mentor', 'name')
+                ->required(),
+            Forms\Components\Toggle::make('verified')
+                ->label('Verified')
+                ->default(false),
             ]);
     }
 
@@ -44,15 +44,15 @@ class CourseResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('title')
-                ->label('Title')
-                ->sortable()
-                ->searchable(),
-            Tables\Columns\TextColumn::make('mentor.name')
-                ->label('Mentor'),
-            Tables\Columns\BooleanColumn::make('verified')
-                ->label('Verified')
-                ->trueIcon('heroicon-s-check-circle')
-                ->falseIcon('heroicon-s-x-circle'),
+                    ->label('Title')
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('mentor.name')
+                    ->label('Mentor'),
+                Tables\Columns\BooleanColumn::make('verified')
+                    ->label('Verified')
+                    ->trueIcon('heroicon-s-check-circle')
+                    ->falseIcon('heroicon-s-x-circle'),
             ])
             ->filters([
                 //
@@ -75,12 +75,20 @@ class CourseResource extends Resource
         ];
     }
 
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Infolists\Components\TextEntry::make('title'),
+                Infolists\Components\TextEntry::make('description')->columnSpanFull(),
+            ]);
+    }
+
     public static function getPages(): array
     {
         return [
             'index' => Pages\ListCourses::route('/'),
             'create' => Pages\CreateCourse::route('/create'),
-            'view' => Pages\ViewCourse::route('/{record}'),
             'edit' => Pages\EditCourse::route('/{record}/edit'),
         ];
     }
