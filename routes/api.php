@@ -8,6 +8,7 @@ use App\Http\Controllers\MentorController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\InstituteController;
+use App\Http\Controllers\CourseController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -44,6 +45,8 @@ Route::group(['middleware'=>'api_key'], function () {
         Route::middleware(['auth:mentor', 'verified'])->group(function () {
             Route::get('/profile', [MentorController::class, 'profile']);
             Route::post('/logout', [MentorController::class, 'logout']);
+
+            Route::post('/course/add', [CourseController::class, 'createCourse']);
         });
     });
     
