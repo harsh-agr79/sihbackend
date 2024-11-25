@@ -117,7 +117,7 @@ class CourseResource extends Resource
                                             ->label('Due Date'),
                                     ]),
                             ]),
-                    ])->columns(2),
+                    ]),
             ]);
     }
 
