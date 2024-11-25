@@ -72,5 +72,10 @@ class Course extends Model
     {
         return $this->hasMany(Enrollment::class);
     }
+
+    public function ungroupedModules()
+    {
+        return $this->modules()->whereNull('module_group_id')->get();
+    }
 }
 
