@@ -108,6 +108,7 @@ class CourseResource extends Resource {
             RepeatableEntry::make( 'ungroupedModules' )
             ->label( 'Ungrouped Modules' )
             ->grid( 2 )
+            ->columnSpanFull()
             ->schema( [
                 TextEntry::make( 'title' )
                 ->label( 'Module Title' ),
