@@ -4,9 +4,9 @@ namespace App\Filament\Resources\CourseResource\Pages;
 
 use App\Filament\Resources\CourseResource;
 use Filament\Forms\Components\Toggle;
-use Filament\Resources\Pages\ViewRecord;
+use Filament\Resources\Pages\Page;
 
-class ViewCourse extends ViewRecord
+class ViewCourse extends Page
 {
     protected static string $resource = CourseResource::class;
 
