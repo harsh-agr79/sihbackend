@@ -48,6 +48,7 @@ Route::group(['middleware'=>'api_key'], function () {
 
             Route::post('/course/add', [CourseController::class, 'createCourse']);
             Route::post('/course/modulegroup/add', [CourseController::class, 'createModuleGroup']);
+            Route::post('/course/module/add', [CourseController::class, ' createModule']);
         });
     });
     
