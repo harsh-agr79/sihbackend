@@ -75,7 +75,7 @@ class Course extends Model
 
     public function ungroupedModules()
     {
-        return $this->modules()->whereNull('module_group_id')->get();
+        return $this->modules()->whereNull('group_id')->get();
     }
 }
 
