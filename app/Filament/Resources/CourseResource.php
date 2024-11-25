@@ -123,7 +123,7 @@ class CourseResource extends Resource {
                     TextEntry::make( 'due_date' )
                     ->label( 'Due Date' ),
                 ] ),
-            ] )->data(fn ($record) => $record->ungroupedModules()),
+            ] ),
         ] );
     }
 
