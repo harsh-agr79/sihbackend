@@ -93,17 +93,18 @@ class CourseResource extends Resource
                 TextEntry::make('verified')
                     ->label('Verified')
                     ->formatStateUsing(fn ($state) => $state ? 'Yes' : 'No'),
-                Repeater::make('moduleGroups')
+
+                RepeatableEntry::make('moduleGroups')
                     ->label('Module Groups')
                     ->schema([
                         TextEntry::make('title')
                             ->label('Group Title'),
-                        Repeater::make('modules')
+                        RepeatableEntry::make('modules')
                             ->label('Modules')
                             ->schema([
                                 TextEntry::make('title')
                                     ->label('Module Title'),
-                                Repeater::make('assignmentsQuizzes')
+                                RepeatableEntry::make('assignmentsQuizzes')
                                     ->label('Assignments/Quizzes')
                                     ->schema([
                                         TextEntry::make('title')
@@ -116,7 +117,8 @@ class CourseResource extends Resource
                                             ->label('Due Date'),
                                     ]),
                             ]),
-                    ]),
+                    ])
+                    ->columns(2), // Display 2 columns in the modal for module groups
             ]);
     }
 
