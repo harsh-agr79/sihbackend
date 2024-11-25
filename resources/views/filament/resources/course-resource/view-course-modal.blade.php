@@ -1,5 +1,5 @@
 <div class="space-y-6">
-    <h2 class="text-lg font-bold">{{ $record->title }}</h2>
+    {{-- <h2 class="text-lg font-bold">{{ $record->title }}</h2>
 
     <div>
         <p><strong>Description:</strong> {{ $record->description }}</p>
@@ -36,5 +36,5 @@
         @empty
             <p>No module groups found.</p>
         @endforelse
-    </div>
+    </div> --}}
 </div>
