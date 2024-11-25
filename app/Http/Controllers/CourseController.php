@@ -63,6 +63,98 @@ class CourseController extends Controller {
     }
 
     /**
+    * Edit an existing course.
+    *
+    * @param Request $request
+    * @param int $courseId
+    * @return \Illuminate\Http\JsonResponse
+    */
+
+    public function editCourse( Request $request, $courseId ) {
+        $user = $request->user();
+
+        // Ensure the user is authenticated and is a mentor
+        if ( !$user ) {
+            return response()->json( [ 'error' => 'Unauthorized or invalid user type' ], 403 );
+        }
+
+        $mentor = Mentor::find( $user->id );
+
+        if ( !$mentor ) {
+            return response()->json( [ 'error' => 'Mentor not found' ], 404 );
+        }
+
+        // Fetch the course and validate ownership
+        $course = Course::where( 'id', $courseId )
+        ->where( 'mentor_id', $user->id )
+        ->first();
+
+        if ( !$course ) {
+            return response()->json( [ 'error' => 'Course not found or you do not have permission to modify it' ], 404 );
+        }
+
+        // Validate the incoming data
+        $validatedData = $request->validate( [
+            'title' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'level' => 'nullable|string|max:255',
+            'domain_id' => 'nullable|exists:domains,id',
+            'subdomains' => 'nullable|array',
+            'subdomains.*' => 'exists:subdomains,id',
+        ] );
+
+        try {
+            $course->update( $validatedData );
+
+            return response()->json( [
+                'message' => 'Course updated successfully',
+                'course' => $course,
+            ], 200 );
+        } catch ( \Exception $e ) {
+            return response()->json( [ 'error' => 'Failed to update course', 'details' => $e->getMessage() ], 500 );
+        }
+    }
+
+    /**
+    * Delete a course.
+    *
+    * @param int $courseId
+    * @return \Illuminate\Http\JsonResponse
+    */
+
+    public function deleteCourse( $courseId ) {
+        $user = $request->user();
+
+        // Ensure the user is authenticated and is a mentor
+        if ( !$user ) {
+            return response()->json( [ 'error' => 'Unauthorized or invalid user type' ], 403 );
+        }
+
+        $mentor = Mentor::find( $user->id );
+
+        if ( !$mentor ) {
+            return response()->json( [ 'error' => 'Mentor not found' ], 404 );
+        }
+
+        // Fetch the course and validate ownership
+        $course = Course::where( 'id', $courseId )
+        ->where( 'mentor_id', $user->id )
+        ->first();
+
+        if ( !$course ) {
+            return response()->json( [ 'error' => 'Course not found or you do not have permission to delete it' ], 404 );
+        }
+
+        try {
+            $course->delete();
+
+            return response()->json( [ 'message' => 'Course deleted successfully' ], 200 );
+        } catch ( \Exception $e ) {
+            return response()->json( [ 'error' => 'Failed to delete course', 'details' => $e->getMessage() ], 500 );
+        }
+    }
+
+    /**
     * Create a new module group within a course.
     *
     * @param Request $request
@@ -116,6 +208,91 @@ class CourseController extends Controller {
             ], 201 );
         } catch ( \Exception $e ) {
             return response()->json( [ 'error' => 'Failed to create module group', 'details' => $e->getMessage() ], 500 );
+        }
+    }
+
+    /**
+    * Edit an existing module group.
+    *
+    * @param Request $request
+    * @param int $moduleGroupId
+    * @return \Illuminate\Http\JsonResponse
+    */
+
+    public function editModuleGroup( Request $request, $moduleGroupId ) {
+        $user = $request->user();
+
+        // Ensure the user is authenticated and is a mentor
+        if ( !$user ) {
+            return response()->json( [ 'error' => 'Unauthorized or invalid user type' ], 403 );
+        }
+
+        $mentor = Mentor::find( $user->id );
+
+        if ( !$mentor ) {
+            return response()->json( [ 'error' => 'Mentor not found' ], 404 );
+        }
+
+        // Fetch the module group and validate ownership
+        $moduleGroup = ModuleGroup::find( $moduleGroupId );
+
+        if ( !$moduleGroup || $moduleGroup->course->mentor_id !== $user->id ) {
+            return response()->json( [ 'error' => 'Module group not found or you do not have permission to modify it' ], 404 );
+        }
+
+        // Validate the incoming data
+        $validatedData = $request->validate( [
+            'title' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'position' => 'nullable|integer|min:1',
+        ] );
+
+        try {
+            $moduleGroup->update( $validatedData );
+
+            return response()->json( [
+                'message' => 'Module group updated successfully',
+                'module_group' => $moduleGroup,
+            ], 200 );
+        } catch ( \Exception $e ) {
+            return response()->json( [ 'error' => 'Failed to update module group', 'details' => $e->getMessage() ], 500 );
+        }
+    }
+
+    /**
+    * Delete a module group.
+    *
+    * @param int $moduleGroupId
+    * @return \Illuminate\Http\JsonResponse
+    */
+
+    public function deleteModuleGroup( $moduleGroupId ) {
+        $user = $request->user();
+
+        // Ensure the user is authenticated and is a mentor
+        if ( !$user ) {
+            return response()->json( [ 'error' => 'Unauthorized or invalid user type' ], 403 );
+        }
+
+        $mentor = Mentor::find( $user->id );
+
+        if ( !$mentor ) {
+            return response()->json( [ 'error' => 'Mentor not found' ], 404 );
+        }
+
+        // Fetch the module group and validate ownership
+        $moduleGroup = ModuleGroup::find( $moduleGroupId );
+
+        if ( !$moduleGroup || $moduleGroup->course->mentor_id !== $user->id ) {
+            return response()->json( [ 'error' => 'Module group not found or you do not have permission to delete it' ], 404 );
+        }
+
+        try {
+            $moduleGroup->delete();
+
+            return response()->json( [ 'message' => 'Module group deleted successfully' ], 200 );
+        } catch ( \Exception $e ) {
+            return response()->json( [ 'error' => 'Failed to delete module group', 'details' => $e->getMessage() ], 500 );
         }
     }
 
@@ -188,6 +365,101 @@ class CourseController extends Controller {
             ], 201 );
         } catch ( \Exception $e ) {
             return response()->json( [ 'error' => 'Failed to create module', 'details' => $e->getMessage() ], 500 );
+        }
+    }
+
+    /**
+    * Edit an existing module.
+    *
+    * @param Request $request
+    * @param int $moduleId
+    * @return \Illuminate\Http\JsonResponse
+    */
+
+    public function editModule( Request $request, $moduleId ) {
+        $user = $request->user();
+
+        // Ensure the user is authenticated and is a mentor
+        if ( !$user ) {
+            return response()->json( [ 'error' => 'Unauthorized or invalid user type' ], 403 );
+        }
+
+        $mentor = Mentor::find( $user->id );
+
+        if ( !$mentor ) {
+            return response()->json( [ 'error' => 'Mentor not found' ], 404 );
+        }
+
+        // Fetch the module and validate ownership
+        $module = Module::find( $moduleId );
+
+        if ( !$module || $module->course->mentor_id !== $user->id ) {
+            return response()->json( [ 'error' => 'Module not found or you do not have permission to modify it' ], 404 );
+        }
+
+        // Validate the incoming data
+        $validatedData = $request->validate( [
+            'group_id' => 'nullable|exists:module_groups,id',
+            'title' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'video_url' => 'nullable|url',
+            'transcript' => 'nullable|string',
+            'material_links' => 'nullable|array',
+            'material_links.*' => 'url',
+            'position' => 'nullable|integer|min:1',
+        ] );
+
+        // If group_id is provided, validate that it belongs to the same course
+        if ( $validatedData[ 'group_id' ] && $module->course->moduleGroups()->where( 'id', $validatedData[ 'group_id' ] )->doesntExist() ) {
+            return response()->json( [ 'error' => 'Invalid module group for the specified course' ], 400 );
+        }
+
+        try {
+            $module->update( $validatedData );
+
+            return response()->json( [
+                'message' => 'Module updated successfully',
+                'module' => $module,
+            ], 200 );
+        } catch ( \Exception $e ) {
+            return response()->json( [ 'error' => 'Failed to update module', 'details' => $e->getMessage() ], 500 );
+        }
+    }
+
+    /**
+    * Delete a module.
+    *
+    * @param int $moduleId
+    * @return \Illuminate\Http\JsonResponse
+    */
+
+    public function deleteModule( $moduleId ) {
+        $user = $request->user();
+
+        // Ensure the user is authenticated and is a mentor
+        if ( !$user ) {
+            return response()->json( [ 'error' => 'Unauthorized or invalid user type' ], 403 );
+        }
+
+        $mentor = Mentor::find( $user->id );
+
+        if ( !$mentor ) {
+            return response()->json( [ 'error' => 'Mentor not found' ], 404 );
+        }
+
+        // Fetch the module and validate ownership
+        $module = Module::find( $moduleId );
+
+        if ( !$module || $module->course->mentor_id !== $user->id ) {
+            return response()->json( [ 'error' => 'Module not found or you do not have permission to delete it' ], 404 );
+        }
+
+        try {
+            $module->delete();
+
+            return response()->json( [ 'message' => 'Module deleted successfully' ], 200 );
+        } catch ( \Exception $e ) {
+            return response()->json( [ 'error' => 'Failed to delete module', 'details' => $e->getMessage() ], 500 );
         }
     }
 

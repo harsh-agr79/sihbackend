@@ -49,6 +49,14 @@ Route::group(['middleware'=>'api_key'], function () {
             Route::post('/course/add', [CourseController::class, 'createCourse']);
             Route::post('/course/modulegroup/add', [CourseController::class, 'createModuleGroup']);
             Route::post('/course/module/add', [CourseController::class, 'createModule']);
+
+            Route::put('/courses/{courseId}', [CourseController::class, 'editCourse']); // For full updates
+            Route::put('/course/modulegroup/{moduleGroupId}', [CourseController::class, 'editModuleGroup']);
+            Route::put('/course/module/{moduleId}', [CourseController::class, 'editModule']);
+
+            Route::delete('/courses/{courseId}', [CourseController::class, 'deleteCourse']);
+            Route::delete('/course/modulegroup/{moduleGroupId}', [CourseController::class, 'deleteModuleGroup']);
+            Route::delete('/course/module/{moduleId}', [CourseController::class, 'deleteModule']);
         });
     });
     
