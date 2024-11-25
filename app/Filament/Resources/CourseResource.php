@@ -86,6 +86,7 @@ class CourseResource extends Resource
 
                 RepeatableEntry::make('moduleGroups')
                     ->label('Module Groups')
+                    ->grid(2)
                     ->schema([
                         TextEntry::make('title')
                             ->label('Group Title'),
@@ -108,7 +109,7 @@ class CourseResource extends Resource
                                     ]),
                             ]),
                     ]),
-            ])->grid(2);
+            ]);
     }
 
     public static function getPages(): array
