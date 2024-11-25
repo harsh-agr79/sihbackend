@@ -236,7 +236,7 @@ class CourseController extends Controller {
         // Fetch the module group and validate ownership
         $moduleGroup = ModuleGroup::find( $moduleGroupId );
 
-        if ( !$moduleGroup || $moduleGroup->course->mentor_id !== $user->id ) {
+        if ( !$moduleGroup || (int)$moduleGroup->course->mentor_id !== (int)$user->id ) {
             return response()->json( [ 'error' => 'Module group not found or you do not have permission to modify it'.$user->id.$moduleGroup->course->mentor_id ], 404 );
         }
 
@@ -283,7 +283,7 @@ class CourseController extends Controller {
         // Fetch the module group and validate ownership
         $moduleGroup = ModuleGroup::find( $moduleGroupId );
 
-        if ( !$moduleGroup || $moduleGroup->course->mentor_id !== $user->id ) {
+        if ( !$moduleGroup || (int)$moduleGroup->course->mentor_id !== (int)$user->id ) {
             return response()->json( [ 'error' => 'Module group not found or you do not have permission to delete it' ], 404 );
         }
 
@@ -393,7 +393,7 @@ class CourseController extends Controller {
         // Fetch the module and validate ownership
         $module = Module::find( $moduleId );
 
-        if ( !$module || $module->course->mentor_id !== $user->id ) {
+        if ( !$module || (int)$module->course->mentor_id !== (int)$user->id) {
             return response()->json( [ 'error' => 'Module not found or you do not have permission to modify it' ], 404 );
         }
 
@@ -450,7 +450,7 @@ class CourseController extends Controller {
         // Fetch the module and validate ownership
         $module = Module::find( $moduleId );
 
-        if ( !$module || $module->course->mentor_id !== $user->id ) {
+        if ( !$module || (int)$module->course->mentor_id !== (int)$user->id ) {
             return response()->json( [ 'error' => 'Module not found or you do not have permission to delete it' ], 404 );
         }
 
