@@ -21,6 +21,11 @@ class Institute extends Authenticatable implements MustVerifyEmail
         'password', 'remember_token','verification_token',
     ];
 
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+    ];
+
     public function sendPasswordResetNotification($token)
     {
         $this->notify(new ResetPasswordNotification($token));
