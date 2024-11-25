@@ -7,6 +7,7 @@ use App\Models\Course;
 use App\Models\Mentor;
 use App\Models\ModuleGroup;
 use App\Models\Module;
+use App\Models\AssignmentQuiz;
 
 class CourseController extends Controller {
     /**
