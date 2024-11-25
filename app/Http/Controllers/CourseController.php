@@ -496,7 +496,7 @@ class CourseController extends Controller {
 
         // Validate that the module belongs to a course owned by the mentor
         $module = Module::with( 'course' )->find( $validatedData[ 'module_id' ] );
-        if ( !$module || $module->course->mentor_id !== $user->id ) {
+        if ( !$module || ( int )$module->course->mentor_id !== ( int )$user->id ) {
             return response()->json( [ 'error' => 'Module not found or you do not have permission to modify it' ], 403 );
         }
 
@@ -538,7 +538,7 @@ class CourseController extends Controller {
         // Fetch the assignment/quiz and validate ownership
         $assignmentQuiz = AssignmentQuiz::with( 'module.course' )->find( $assignmentQuizId );
 
-        if ( !$assignmentQuiz || $assignmentQuiz->module->course->mentor_id !== $user->id ) {
+        if ( !$assignmentQuiz || (int)$assignmentQuiz->module->course->mentor_id !== (int)$user->id ) {
             return response()->json( [ 'error' => 'Assignment/Quiz not found or you do not have permission to modify it' ], 403 );
         }
 
@@ -587,7 +587,7 @@ class CourseController extends Controller {
         // Fetch the assignment/quiz and validate ownership
         $assignmentQuiz = AssignmentQuiz::with( 'module.course' )->find( $assignmentQuizId );
 
-        if ( !$assignmentQuiz || $assignmentQuiz->module->course->mentor_id !== $user->id ) {
+        if ( !$assignmentQuiz || (int)$assignmentQuiz->module->course->mentor_id !== (int)$user->id ) {
             return response()->json( [ 'error' => 'Assignment/Quiz not found or you do not have permission to delete it' ], 403 );
         }
 
