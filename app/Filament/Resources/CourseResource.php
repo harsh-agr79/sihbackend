@@ -75,9 +75,16 @@ class CourseResource extends Resource {
             ->columnSpanFull(),
             TextEntry::make( 'mentor.name' )
             ->label( 'Mentor Name' ),
-            TextEntry::make( 'verified' )
-            ->label( 'Verified' )
-            ->formatStateUsing( fn ( $state ) => $state ? 'Yes' : 'No' ),
+            TextEntry::make('verified')
+            ->label('Verified')
+            ->formatStateUsing(fn ($state) => $state ? 'Yes' : 'No')
+            ->suffixAction(
+                Action::make('toggleVerified')
+                    ->label('Toggle Verified')
+                    ->action(function ($record) {
+                        $record->update(['verified' => !$record->verified]);
+                    })
+            ),
 
             RepeatableEntry::make( 'moduleGroups' )
             ->label( 'Module Groups' )
