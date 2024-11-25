@@ -23,10 +23,7 @@ class CourseResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Toggle::make('verified')
-                ->label('Verified')
-                ->inline(false)
-                ->default(false),
+                //
             ]);
     }
 
@@ -34,18 +31,12 @@ class CourseResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('title')->sortable()->searchable(),
-                Tables\Columns\TextColumn::make('mentor.name')->label('Mentor'),
-                Tables\Columns\BooleanColumn::make('verified')
-                    ->label('Verified')
-                    ->trueIcon('heroicon-s-check-circle')
-                    ->falseIcon('heroicon-s-x-circle'),
+                //
             ])
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(), // Add the View action
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
@@ -68,7 +59,6 @@ class CourseResource extends Resource
             'index' => Pages\ListCourses::route('/'),
             'create' => Pages\CreateCourse::route('/create'),
             'edit' => Pages\EditCourse::route('/{record}/edit'),
-            'view' => Pages\ViewCourse::route('/{record}'),
         ];
     }
 }
