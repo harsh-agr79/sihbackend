@@ -48,40 +48,12 @@ class CourseResource extends Resource
         ])
         ->actions([
             ViewAction::make()
-                ->label('View')
-                ->modalHeading(fn ($record) => "Details for {$record->title}")
-                ->modalWidth('xl')
-                ->view('filament.resources.course-resource.view-course-modal')
-                ->mutateRecordDataUsing(function (array $data): array {
-                    $data['module_groups'] = Course::find($data['id']) // Retrieve the course and its relationships
-                        ->moduleGroups()
-                        ->with(['modules.assignmentsQuizzes'])
-                        ->get()
-                        ->map(function ($group) {
-                            return [
-                                'id' => $group->id,
-                                'title' => $group->title,
-                                'modules' => $group->modules->map(function ($module) {
-                                    return [
-                                        'id' => $module->id,
-                                        'title' => $module->title,
-                                        'assignments_quizzes' => $module->assignmentsQuizzes->map(function ($assignment) {
-                                            return [
-                                                'id' => $assignment->id,
-                                                'type' => $assignment->type,
-                                                'title' => $assignment->title,
-                                                'description' => $assignment->description,
-                                                'content' => $assignment->content,
-                                                'due_date' => $assignment->due_date,
-                                            ];
-                                        }),
-                                    ];
-                                }),
-                            ];
-                        });
-
-                    return $data;
-                }),
+            ->label('View')
+            ->modalHeading(fn ($record) => "Details for {$record->title}")
+            ->modalWidth('xl')
+            ->view('filament.resources.course-resource.view-course-modal')
+            ->record(fn ($record) => $record), // Pass the record explicitly
+            Tables\Actions\EditAction::make(),
         ])
         ->bulkActions([
             Tables\Actions\DeleteBulkAction::make(),
