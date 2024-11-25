@@ -85,7 +85,7 @@ class CourseResource extends Resource {
                 ->label('Update Verified Status')
                 ->modalHeading('Change Verified Status')
                 ->form([
-                    Toggle::make('verified')
+                    Forms\Components\Toggle::make('verified')
                         ->label('Verified')
                         ->default(fn ($record) => $record->verified),
                 ])
