@@ -68,7 +68,6 @@ class CourseResource extends Resource
             'index' => Pages\ListCourses::route('/'),
             'create' => Pages\CreateCourse::route('/create'),
             'edit' => Pages\EditCourse::route('/{record}/edit'),
-            'view' => Pages\ViewCourse::route('/{record}'),
         ];
     }
 }
