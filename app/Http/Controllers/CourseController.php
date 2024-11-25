@@ -20,7 +20,7 @@ class CourseController extends Controller
         $user = $request->user();
 
         // Ensure the user is authenticated and their type is 'mentor'
-        if (!$user || $user->type !== 'mentor') {
+        if (!$user) {
             return response()->json(['error' => 'Unauthorized or invalid user type'], 403);
         }
 
