@@ -41,6 +41,7 @@ Route::group(['middleware'=>'api_key'], function () {
             Route::post('/logout', [StudentController::class, 'logout']);
 
             Route::get('/getcourses', [CourseController::class, 'getCourses']);
+            Route::get('/courses/details/{courseId}', [CourseController::class, 'getCourseDetails']);
         });
     });
     

@@ -641,5 +641,62 @@ class CourseController extends Controller {
         }
     }
 
+    /**
+     * Get course details in a detailed format.
+     *
+     * @param int $courseId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getCourseDetails($courseId)
+    {
+        try {
+            // Fetch the course with relationships
+            $course = Course::with([
+                'mentor:id,name', // Fetch mentor details
+                'moduleGroups.modules:id,group_id,title as module_name', // Fetch module groups and their modules
+            ])
+            ->withCount([
+                'enrollments as enrolled' => function ($query) {
+                    $query->whereNull('completed_at'); // Enrolled students
+                },
+                'enrollments as completed' => function ($query) {
+                    $query->whereNotNull('completed_at'); // Completed students
+                },
+            ])
+            ->find($courseId);
+
+            // If the course is not found
+            if (!$course) {
+                return response()->json(['error' => 'Course not found'], 404);
+            }
+
+            // Format the course data
+            $formattedCourse = [
+                'id' => $course->id,
+                'courseName' => $course->title,
+                'courseBy' => $course->mentor->name,
+                'completed' => $course->completed,
+                'enrolled' => $course->enrolled,
+                'description' => $course->description,
+                'module_groups' => $course->moduleGroups->map(function ($group) {
+                    return [
+                        'id' => $group->id,
+                        'modules' => $group->modules->map(function ($module) {
+                            return [
+                                'id' => $module->id,
+                                'module_name' => $module->module_name,
+                            ];
+                        }),
+                    ];
+                }),
+            ];
+
+            return response()->json($formattedCourse, 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to fetch course details', 'details' => $e->getMessage()], 500);
+        }
+    }
+
+
 
 }
