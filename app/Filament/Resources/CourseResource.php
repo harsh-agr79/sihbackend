@@ -47,9 +47,10 @@ class CourseResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make()
                 ->label('View')
-                ->modalHeading(fn (Course $record) => "Details for {$record->title}")
+                ->modalHeading(fn ($record) => "Details for {$record->title}")
                 ->modalWidth('xl')
-                ->view('filament.resources.course-resource.view-course-modal'),
+                ->view('filament.resources.course-resource.view-course-modal')
+                ->using(fn ($record) => ['record' => $record]),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
