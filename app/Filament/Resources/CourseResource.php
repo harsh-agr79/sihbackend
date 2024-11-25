@@ -117,8 +117,7 @@ class CourseResource extends Resource
                                             ->label('Due Date'),
                                     ]),
                             ]),
-                    ])
-                    ->columns(2), // Display 2 columns in the modal for module groups
+                    ]),
             ]);
     }
 
