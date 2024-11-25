@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Infolists;
 use Filament\Infolists\Infolist;
 use Filament\Infolists\Components\TextEntry;
-use Filament\Infolists\Components\Repeater;
+use Filament\Infolists\Components\RepeatableEntry;
 
 class CourseResource extends Resource
 {
