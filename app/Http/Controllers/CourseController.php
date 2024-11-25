@@ -266,7 +266,7 @@ class CourseController extends Controller {
     * @return \Illuminate\Http\JsonResponse
     */
 
-    public function deleteModuleGroup( $moduleGroupId ) {
+    public function deleteModuleGroup(  Request $request, $moduleGroupId ) {
         $user = $request->user();
 
         // Ensure the user is authenticated and is a mentor
@@ -433,7 +433,7 @@ class CourseController extends Controller {
     * @return \Illuminate\Http\JsonResponse
     */
 
-    public function deleteModule( $moduleId ) {
+    public function deleteModule(  Request $request,$moduleId ) {
         $user = $request->user();
 
         // Ensure the user is authenticated and is a mentor
