@@ -12,6 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Tables\Actions\ViewAction;
 
 class CourseResource extends Resource
 {
@@ -33,31 +34,58 @@ class CourseResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->columns([
-                Tables\Columns\TextColumn::make('title')->sortable()->searchable(),
-                Tables\Columns\TextColumn::make('mentor.name')->label('Mentor'),
-                Tables\Columns\BooleanColumn::make('verified')
-                    ->label('Verified')
-                    ->trueIcon('heroicon-s-check-circle')
-                    ->falseIcon('heroicon-s-x-circle'),
-            ])
-            ->filters([
-                //
-            ])
-            ->actions([
-                Tables\Actions\ViewAction::make()
+        ->columns([
+            Tables\Columns\TextColumn::make('title')
+                ->label('Title')
+                ->sortable()
+                ->searchable(),
+            Tables\Columns\TextColumn::make('mentor.name')
+                ->label('Mentor'),
+            Tables\Columns\BooleanColumn::make('verified')
+                ->label('Verified')
+                ->trueIcon('heroicon-s-check-circle')
+                ->falseIcon('heroicon-s-x-circle'),
+        ])
+        ->actions([
+            ViewAction::make()
                 ->label('View')
                 ->modalHeading(fn ($record) => "Details for {$record->title}")
                 ->modalWidth('xl')
                 ->view('filament.resources.course-resource.view-course-modal')
-                ->using(fn ($record) => ['record' => $record]),
-                Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
+                ->mutateRecordDataUsing(function (array $data): array {
+                    $data['module_groups'] = Course::find($data['id']) // Retrieve the course and its relationships
+                        ->moduleGroups()
+                        ->with(['modules.assignmentsQuizzes'])
+                        ->get()
+                        ->map(function ($group) {
+                            return [
+                                'id' => $group->id,
+                                'title' => $group->title,
+                                'modules' => $group->modules->map(function ($module) {
+                                    return [
+                                        'id' => $module->id,
+                                        'title' => $module->title,
+                                        'assignments_quizzes' => $module->assignmentsQuizzes->map(function ($assignment) {
+                                            return [
+                                                'id' => $assignment->id,
+                                                'type' => $assignment->type,
+                                                'title' => $assignment->title,
+                                                'description' => $assignment->description,
+                                                'content' => $assignment->content,
+                                                'due_date' => $assignment->due_date,
+                                            ];
+                                        }),
+                                    ];
+                                }),
+                            ];
+                        });
+
+                    return $data;
+                }),
+        ])
+        ->bulkActions([
+            Tables\Actions\DeleteBulkAction::make(),
+        ]);
     }
 
     public static function getRelations(): array
