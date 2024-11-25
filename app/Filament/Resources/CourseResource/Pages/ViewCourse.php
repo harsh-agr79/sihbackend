@@ -11,7 +11,6 @@ class ViewCourse extends ViewRecord
 
     protected function mutateRecordDataBeforeFill(array $data): array
     {
-        // Load related module groups, modules, and assignments/quizzes
         $data['module_groups'] = $this->record->moduleGroups()
             ->with(['modules.assignmentsQuizzes'])
             ->get()

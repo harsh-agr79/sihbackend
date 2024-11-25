@@ -55,7 +55,7 @@ class Module extends Model
      */
     public function assignmentsQuizzes()
     {
-        return $this->hasMany(AssignmentQuiz::class);
+        return $this->hasMany(AssignmentQuiz::class, 'module_id');
     }
 
     /**
