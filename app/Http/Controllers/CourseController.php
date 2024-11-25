@@ -122,7 +122,7 @@ class CourseController extends Controller {
     * @return \Illuminate\Http\JsonResponse
     */
 
-    public function deleteCourse( $courseId ) {
+    public function deleteCourse( Request $request, $courseId ) {
         $user = $request->user();
 
         // Ensure the user is authenticated and is a mentor
