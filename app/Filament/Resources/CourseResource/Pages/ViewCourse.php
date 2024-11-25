@@ -3,56 +3,60 @@
 namespace App\Filament\Resources\CourseResource\Pages;
 
 use App\Filament\Resources\CourseResource;
-use Filament\Resources\Pages\ViewRecord;
 use Filament\Forms\Components\Toggle;
-use Filament\Resources\Pages\Page;
+use Filament\Resources\Pages\ViewRecord;
 
-class ViewCourse extends Page
+class ViewCourse extends ViewRecord
 {
     protected static string $resource = CourseResource::class;
 
-    protected static string $view = 'filament.resources.course-resource.pages.view-course';
-
-    protected function getHeaderWidgets(): array
-    {
-        return [];
-    }
-
+    /**
+     * Mutate the record data to include module groups, modules, and assignments.
+     *
+     * @param array $data
+     * @return array
+     */
     protected function mutateRecordDataBeforeFill(array $data): array
     {
-        // Include related data for module groups, modules, and assignments
-        $data['module_groups'] = $this->record->moduleGroups()->with(['modules.assignmentsQuizzes'])->get()->map(function ($group) {
-            return [
-                'id' => $group->id,
-                'title' => $group->title,
-                'modules' => $group->modules->map(function ($module) {
-                    return [
-                        'id' => $module->id,
-                        'title' => $module->title,
-                        'assignments_quizzes' => $module->assignmentsQuizzes->map(function ($assignment) {
-                            return [
-                                'id' => $assignment->id,
-                                'type' => $assignment->type,
-                                'title' => $assignment->title,
-                                'description' => $assignment->description,
-                                'content' => $assignment->content,
-                                'due_date' => $assignment->due_date,
-                            ];
-                        }),
-                    ];
-                }),
-            ];
-        });
+        $data['module_groups'] = $this->record->moduleGroups()
+            ->with(['modules.assignmentsQuizzes'])
+            ->get()
+            ->map(function ($group) {
+                return [
+                    'id' => $group->id,
+                    'title' => $group->title,
+                    'modules' => $group->modules->map(function ($module) {
+                        return [
+                            'id' => $module->id,
+                            'title' => $module->title,
+                            'assignments_quizzes' => $module->assignmentsQuizzes->map(function ($assignment) {
+                                return [
+                                    'id' => $assignment->id,
+                                    'type' => $assignment->type,
+                                    'title' => $assignment->title,
+                                    'description' => $assignment->description,
+                                    'content' => $assignment->content,
+                                    'due_date' => $assignment->due_date,
+                                ];
+                            }),
+                        ];
+                    }),
+                ];
+            });
 
         return $data;
     }
 
+    /**
+     * Define the schema for the verification toggle.
+     *
+     * @return array
+     */
     protected function getFormSchema(): array
     {
         return [
             Toggle::make('verified')
                 ->label('Verified')
-                ->inline(false)
                 ->helperText('Toggle to verify this course.')
                 ->default($this->record->verified)
                 ->afterStateUpdated(fn (bool $state) => $this->record->update(['verified' => $state]))
@@ -60,11 +64,11 @@ class ViewCourse extends Page
         ];
     }
 
-    public function mount($record): void
-    {
-        parent::mount($record);
-    }
-
+    /**
+     * Return the record title for display.
+     *
+     * @return string
+     */
     public function getRecordTitle(): string
     {
         return $this->record->title;
