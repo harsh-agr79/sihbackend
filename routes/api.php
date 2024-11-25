@@ -57,6 +57,10 @@ Route::group(['middleware'=>'api_key'], function () {
             Route::delete('/course/{courseId}', [CourseController::class, 'deleteCourse']);
             Route::delete('/course/modulegroup/{moduleGroupId}', [CourseController::class, 'deleteModuleGroup']);
             Route::delete('/course/module/{moduleId}', [CourseController::class, 'deleteModule']);
+
+            Route::post('/course/assignment-quizzes/add', [CourseController::class, 'createAssignmentQuiz']);
+            Route::put('/course/assignment-quizzes/{assignmentQuizId}', [CourseController::class, 'updateAssignmentQuiz']);
+            Route::delete('/course/assignment-quizzes/{assignmentQuizId}', [CourseController::class, 'deleteAssignmentQuiz']);
         });
     });
     

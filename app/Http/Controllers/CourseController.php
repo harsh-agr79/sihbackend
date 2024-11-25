@@ -236,7 +236,7 @@ class CourseController extends Controller {
         // Fetch the module group and validate ownership
         $moduleGroup = ModuleGroup::find( $moduleGroupId );
 
-        if ( !$moduleGroup || (int)$moduleGroup->course->mentor_id !== (int)$user->id ) {
+        if ( !$moduleGroup || ( int )$moduleGroup->course->mentor_id !== ( int )$user->id ) {
             return response()->json( [ 'error' => 'Module group not found or you do not have permission to modify it'.$user->id.$moduleGroup->course->mentor_id ], 404 );
         }
 
@@ -266,7 +266,7 @@ class CourseController extends Controller {
     * @return \Illuminate\Http\JsonResponse
     */
 
-    public function deleteModuleGroup(  Request $request, $moduleGroupId ) {
+    public function deleteModuleGroup( Request $request, $moduleGroupId ) {
         $user = $request->user();
 
         // Ensure the user is authenticated and is a mentor
@@ -283,7 +283,7 @@ class CourseController extends Controller {
         // Fetch the module group and validate ownership
         $moduleGroup = ModuleGroup::find( $moduleGroupId );
 
-        if ( !$moduleGroup || (int)$moduleGroup->course->mentor_id !== (int)$user->id ) {
+        if ( !$moduleGroup || ( int )$moduleGroup->course->mentor_id !== ( int )$user->id ) {
             return response()->json( [ 'error' => 'Module group not found or you do not have permission to delete it' ], 404 );
         }
 
@@ -393,7 +393,7 @@ class CourseController extends Controller {
         // Fetch the module and validate ownership
         $module = Module::find( $moduleId );
 
-        if ( !$module || (int)$module->course->mentor_id !== (int)$user->id) {
+        if ( !$module || ( int )$module->course->mentor_id !== ( int )$user->id ) {
             return response()->json( [ 'error' => 'Module not found or you do not have permission to modify it' ], 404 );
         }
 
@@ -433,7 +433,7 @@ class CourseController extends Controller {
     * @return \Illuminate\Http\JsonResponse
     */
 
-    public function deleteModule(  Request $request,$moduleId ) {
+    public function deleteModule( Request $request, $moduleId ) {
         $user = $request->user();
 
         // Ensure the user is authenticated and is a mentor
@@ -450,7 +450,7 @@ class CourseController extends Controller {
         // Fetch the module and validate ownership
         $module = Module::find( $moduleId );
 
-        if ( !$module || (int)$module->course->mentor_id !== (int)$user->id ) {
+        if ( !$module || ( int )$module->course->mentor_id !== ( int )$user->id ) {
             return response()->json( [ 'error' => 'Module not found or you do not have permission to delete it' ], 404 );
         }
 
@@ -460,6 +460,144 @@ class CourseController extends Controller {
             return response()->json( [ 'message' => 'Module deleted successfully' ], 200 );
         } catch ( \Exception $e ) {
             return response()->json( [ 'error' => 'Failed to delete module', 'details' => $e->getMessage() ], 500 );
+        }
+    }
+
+    /**
+    * Create a new assignment or quiz for a module.
+    *
+    * @param Request $request
+    * @return \Illuminate\Http\JsonResponse
+    */
+
+    public function createAssignmentQuiz( Request $request ) {
+        $user = $request->user();
+
+        // Ensure the user is authenticated and is a mentor
+        if ( !$user ) {
+            return response()->json( [ 'error' => 'Unauthorized or invalid user type' ], 403 );
+        }
+
+        $mentor = Mentor::find( $user->id );
+
+        if ( !$mentor ) {
+            return response()->json( [ 'error' => 'Mentor not found' ], 404 );
+        }
+
+        // Validate the request
+        $validatedData = $request->validate( [
+            'module_id' => 'required|exists:modules,id',
+            'type' => 'required|in:assignment,quiz',
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'content' => 'required|array', // Content as JSON
+            'due_date' => 'nullable|date|after:now',
+        ] );
+
+        // Validate that the module belongs to a course owned by the mentor
+        $module = Module::with( 'course' )->find( $validatedData[ 'module_id' ] );
+        if ( !$module || $module->course->mentor_id !== $user->id ) {
+            return response()->json( [ 'error' => 'Module not found or you do not have permission to modify it' ], 403 );
+        }
+
+        try {
+            // Create the assignment or quiz
+            $assignmentQuiz = $module->assignmentsQuizzes()->create( $validatedData );
+
+            return response()->json( [
+                'message' => 'Assignment/Quiz created successfully',
+                'assignment_quiz' => $assignmentQuiz,
+            ], 201 );
+        } catch ( \Exception $e ) {
+            return response()->json( [ 'error' => 'Failed to create assignment/quiz', 'details' => $e->getMessage() ], 500 );
+        }
+    }
+
+    /**
+    * Update an existing assignment or quiz.
+    *
+    * @param Request $request
+    * @param int $assignmentQuizId
+    * @return \Illuminate\Http\JsonResponse
+    */
+
+    public function updateAssignmentQuiz( Request $request, $assignmentQuizId ) {
+        $user = $request->user();
+
+        // Ensure the user is authenticated and is a mentor
+        if ( !$user ) {
+            return response()->json( [ 'error' => 'Unauthorized or invalid user type' ], 403 );
+        }
+
+        $mentor = Mentor::find( $user->id );
+
+        if ( !$mentor ) {
+            return response()->json( [ 'error' => 'Mentor not found' ], 404 );
+        }
+
+        // Fetch the assignment/quiz and validate ownership
+        $assignmentQuiz = AssignmentQuiz::with( 'module.course' )->find( $assignmentQuizId );
+
+        if ( !$assignmentQuiz || $assignmentQuiz->module->course->mentor_id !== $user->id ) {
+            return response()->json( [ 'error' => 'Assignment/Quiz not found or you do not have permission to modify it' ], 403 );
+        }
+
+        // Validate the request
+        $validatedData = $request->validate( [
+            'title' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'content' => 'nullable|array', // Partial update for content
+            'due_date' => 'nullable|date|after:now',
+        ] );
+
+        try {
+            // Update the assignment or quiz
+            $assignmentQuiz->update( $validatedData );
+
+            return response()->json( [
+                'message' => 'Assignment/Quiz updated successfully',
+                'assignment_quiz' => $assignmentQuiz,
+            ], 200 );
+        } catch ( \Exception $e ) {
+            return response()->json( [ 'error' => 'Failed to update assignment/quiz', 'details' => $e->getMessage() ], 500 );
+        }
+    }
+
+    /**
+    * Delete an assignment or quiz.
+    *
+    * @param int $assignmentQuizId
+    * @return \Illuminate\Http\JsonResponse
+    */
+
+    public function deleteAssignmentQuiz( Request $request, $assignmentQuizId ) {
+        $user = $request->user();
+
+        // Ensure the user is authenticated and is a mentor
+        if ( !$user ) {
+            return response()->json( [ 'error' => 'Unauthorized or invalid user type' ], 403 );
+        }
+
+        $mentor = Mentor::find( $user->id );
+
+        if ( !$mentor ) {
+            return response()->json( [ 'error' => 'Mentor not found' ], 404 );
+        }
+
+        // Fetch the assignment/quiz and validate ownership
+        $assignmentQuiz = AssignmentQuiz::with( 'module.course' )->find( $assignmentQuizId );
+
+        if ( !$assignmentQuiz || $assignmentQuiz->module->course->mentor_id !== $user->id ) {
+            return response()->json( [ 'error' => 'Assignment/Quiz not found or you do not have permission to delete it' ], 403 );
+        }
+
+        try {
+            // Delete the assignment or quiz
+            $assignmentQuiz->delete();
+
+            return response()->json( [ 'message' => 'Assignment/Quiz deleted successfully' ], 200 );
+        } catch ( \Exception $e ) {
+            return response()->json( [ 'error' => 'Failed to delete assignment/quiz', 'details' => $e->getMessage() ], 500 );
         }
     }
 
