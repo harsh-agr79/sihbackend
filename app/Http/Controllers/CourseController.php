@@ -35,7 +35,7 @@ class CourseController extends Controller
         $validatedData = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'category' => 'nullable|string|max:255',
+            'level' => 'nullable|string|max:255',
             'domain_id' => 'required|exists:domains,id',
             'subdomains' => 'nullable|array',
             'subdomains.*' => 'exists:subdomains,id', // Validate each subdomain ID
@@ -47,7 +47,7 @@ class CourseController extends Controller
                 'mentor_id' => $mentor->id, // Associate the mentor ID with the course
                 'title' => $validatedData['title'],
                 'description' => $validatedData['description'],
-                'category' => $validatedData['category'] ?? null,
+                'level' => $validatedData['level'],
                 'domain_id' => $validatedData['domain_id'],
                 'subdomains' => $validatedData['subdomains'] ?? [],
             ]);
