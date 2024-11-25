@@ -1,4 +1,4 @@
-<x-filament-panels::page>
+<x-filament::page>
     <h2 class="text-lg font-bold mb-4">{{ $record->title }}</h2>
 
     <div class="mb-6">
@@ -13,4 +13,35 @@
             {{ $this->form }}
         </x-filament::card>
     </x-filament::form>
-</x-filament-panels::page>
+
+    <div class="mt-6">
+        <h3 class="text-lg font-bold">Module Groups</h3>
+
+        @forelse ($record->module_groups as $group)
+            <div class="mb-4 border p-4 rounded">
+                <h4 class="font-bold">{{ $group['title'] }}</h4>
+
+                @forelse ($group['modules'] as $module)
+                    <div class="ml-4 mt-2">
+                        <p class="font-semibold">Module: {{ $module['title'] }}</p>
+
+                        @forelse ($module['assignments_quizzes'] as $assignment)
+                            <div class="ml-4 mt-1">
+                                <p><strong>{{ ucfirst($assignment['type']) }}:</strong> {{ $assignment['title'] }}</p>
+                                <p>{{ $assignment['description'] }}</p>
+                                <p><strong>Due Date:</strong> {{ $assignment['due_date'] }}</p>
+                                <p><strong>Content:</strong> {{ json_encode($assignment['content'], JSON_PRETTY_PRINT) }}</p>
+                            </div>
+                        @empty
+                            <p class="ml-4">No assignments or quizzes found.</p>
+                        @endforelse
+                    </div>
+                @empty
+                    <p>No modules found in this group.</p>
+                @endforelse
+            </div>
+        @empty
+            <p>No module groups found.</p>
+        @endforelse
+    </div>
+</x-filament::page>

@@ -13,6 +13,40 @@ class ViewCourse extends Page
 
     protected static string $view = 'filament.resources.course-resource.pages.view-course';
 
+    protected function getHeaderWidgets(): array
+    {
+        return [];
+    }
+
+    protected function mutateRecordDataBeforeFill(array $data): array
+    {
+        // Include related data for module groups, modules, and assignments
+        $data['module_groups'] = $this->record->moduleGroups()->with(['modules.assignmentsQuizzes'])->get()->map(function ($group) {
+            return [
+                'id' => $group->id,
+                'title' => $group->title,
+                'modules' => $group->modules->map(function ($module) {
+                    return [
+                        'id' => $module->id,
+                        'title' => $module->title,
+                        'assignments_quizzes' => $module->assignmentsQuizzes->map(function ($assignment) {
+                            return [
+                                'id' => $assignment->id,
+                                'type' => $assignment->type,
+                                'title' => $assignment->title,
+                                'description' => $assignment->description,
+                                'content' => $assignment->content,
+                                'due_date' => $assignment->due_date,
+                            ];
+                        }),
+                    ];
+                }),
+            ];
+        });
+
+        return $data;
+    }
+
     protected function getFormSchema(): array
     {
         return [
