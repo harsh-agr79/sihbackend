@@ -77,12 +77,44 @@ class CourseResource extends Resource
         ];
     }
 
-    public static function infolist(Infolist $infolist): Infolist
+    public static function infolist(\Filament\Infolists\Infolist $infolist): \Filament\Infolists\Infolist
     {
         return $infolist
             ->schema([
-                Infolists\Components\TextEntry::make('title'),
-                Infolists\Components\TextEntry::make('description')->columnSpanFull(),
+                TextEntry::make('title')
+                    ->label('Course Title'),
+                TextEntry::make('description')
+                    ->label('Description')
+                    ->columnSpanFull(),
+                TextEntry::make('mentor.name')
+                    ->label('Mentor Name'),
+                TextEntry::make('verified')
+                    ->label('Verified')
+                    ->formatStateUsing(fn ($state) => $state ? 'Yes' : 'No'),
+                Repeater::make('moduleGroups')
+                    ->label('Module Groups')
+                    ->schema([
+                        TextEntry::make('title')
+                            ->label('Group Title'),
+                        Repeater::make('modules')
+                            ->label('Modules')
+                            ->schema([
+                                TextEntry::make('title')
+                                    ->label('Module Title'),
+                                Repeater::make('assignmentsQuizzes')
+                                    ->label('Assignments/Quizzes')
+                                    ->schema([
+                                        TextEntry::make('title')
+                                            ->label('Title'),
+                                        TextEntry::make('type')
+                                            ->label('Type'),
+                                        TextEntry::make('description')
+                                            ->label('Description'),
+                                        TextEntry::make('due_date')
+                                            ->label('Due Date'),
+                                    ]),
+                            ]),
+                    ]),
             ]);
     }
 
