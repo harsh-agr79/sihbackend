@@ -27,19 +27,9 @@ class CourseResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('title')
-                ->label('Title')
-                ->required(),
-            Forms\Components\Textarea::make('description')
-                ->label('Description')
-                ->required(),
-            Forms\Components\Select::make('mentor_id')
-                ->label('Mentor')
-                ->relationship('mentor', 'name')
-                ->required(),
-            Forms\Components\Toggle::make('verified')
-                ->label('Verified')
-                ->default(false),
+                Forms\Components\Toggle::make('verified')
+                    ->label('Verified')
+                    ->default(false),
             ]);
     }
 
