@@ -602,4 +602,44 @@ class CourseController extends Controller {
         }
     }
 
+
+    /**
+     * Get courses with enrolled and completed counts.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getCourses()
+    {
+        try {
+            $courses = Course::with([
+                'mentor:id,name', // Fetch mentor details
+            ])
+            ->withCount([
+                'enrollments as enrolled' => function ($query) {
+                    $query->whereNull('completed_at'); // Enrolled students
+                },
+                'enrollments as completed' => function ($query) {
+                    $query->whereNotNull('completed_at'); // Completed students
+                },
+            ])
+            ->get();
+
+            // Transform the courses into the required format
+            $formattedCourses = $courses->map(function ($course) {
+                return [
+                    'id' => $course->id,
+                    'courseName' => $course->title,
+                    'courseBy' => $course->mentor->name,
+                    'completed' => $course->completed,
+                    'enrolled' => $course->enrolled,
+                ];
+            });
+
+            return response()->json($formattedCourses, 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to fetch courses', 'details' => $e->getMessage()], 500);
+        }
+    }
+
+
 }

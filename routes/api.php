@@ -33,11 +33,14 @@ Route::group(['middleware'=>'api_key'], function () {
     
     Route::post('/forgot-password', [AuthController::class, 'sendResetLinkEmail']);
     Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+    
 
     Route::prefix('student')->group(function () {
         Route::middleware(['auth:student', 'verified'])->group(function () {
             Route::get('/profile', [StudentController::class, 'profile']);
             Route::post('/logout', [StudentController::class, 'logout']);
+
+            Route::get('/getcourses', [CourseController::class, 'getCourses']);
         });
     });
     
