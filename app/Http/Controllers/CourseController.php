@@ -237,7 +237,7 @@ class CourseController extends Controller {
         $moduleGroup = ModuleGroup::find( $moduleGroupId );
 
         if ( !$moduleGroup || $moduleGroup->course->mentor_id !== $user->id ) {
-            return response()->json( [ 'error' => 'Module group not found or you do not have permission to modify it' ], 404 );
+            return response()->json( [ 'error' => 'Module group not found or you do not have permission to modify it'.$user->id.$moduleGroup->course->mentor_id ], 404 );
         }
 
         // Validate the incoming data
