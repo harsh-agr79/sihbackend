@@ -47,7 +47,7 @@ class CourseResource extends Resource
                 ->falseIcon('heroicon-s-x-circle'),
         ])
         ->actions([
-            ViewAction::make()
+            Tables\Actions\ViewAction::make()
             ->label('View')
             ->modalHeading(fn ($record) => "Details for {$record->title}")
             ->modalWidth('xl')
