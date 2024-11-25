@@ -21,6 +21,7 @@ class Course extends Model
         'domain_id',
         'subdomains',
         'level',
+        'verified',
     ];
 
     /**
