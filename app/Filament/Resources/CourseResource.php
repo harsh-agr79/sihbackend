@@ -16,6 +16,7 @@ use Filament\Infolists;
 use Filament\Infolists\Infolist;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Components\RepeatableEntry;
+use Filament\Tables\Actions\CreateAction;
 
 class CourseResource extends Resource {
     protected static ?string $model = Course::class;
@@ -76,16 +77,22 @@ class CourseResource extends Resource {
             TextEntry::make( 'mentor.name' )
             ->label( 'Mentor Name' ),
             TextEntry::make('verified')
-            ->label('Verified')
-            ->formatStateUsing(fn ($state) => $state ? 'Yes' : 'No')
-            ->suffixAction(
-                Action::make('toggleVerified')
-                    ->label('Toggle Verified')
-                    ->action(function ($record) {
-                        $record->update(['verified' => !$record->verified]);
-                    })
-            ),
-
+                ->label('Verified')
+                ->formatStateUsing(fn ($state) => $state ? 'Yes' : 'No'),
+        ])
+        ->actions([
+            CreateAction::make('verify')
+                ->label('Update Verified Status')
+                ->modalHeading('Change Verified Status')
+                ->form([
+                    Toggle::make('verified')
+                        ->label('Verified')
+                        ->default(fn ($record) => $record->verified),
+                ])
+                ->action(function (array $data, $record) {
+                    $record->update(['verified' => $data['verified']]);
+                })
+                ->successNotificationTitle('Verified status updated successfully'),
             RepeatableEntry::make( 'moduleGroups' )
             ->label( 'Module Groups' )
             ->grid( 2 )
