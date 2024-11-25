@@ -108,7 +108,7 @@ class CourseResource extends Resource
                                     ]),
                             ]),
                     ]),
-            ])->columns(2);
+            ])->grid(2);
     }
 
     public static function getPages(): array
