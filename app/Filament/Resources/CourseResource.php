@@ -23,7 +23,10 @@ class CourseResource extends Resource
     {
         return $form
             ->schema([
-                //
+                Toggle::make('verified')
+                ->label('Verified')
+                ->inline(false)
+                ->default(false),
             ]);
     }
 
@@ -31,7 +34,12 @@ class CourseResource extends Resource
     {
         return $table
             ->columns([
-                //
+               TextColumn::make('title')->sortable()->searchable(),
+                TextColumn::make('mentor.name')->label('Mentor'),
+                BooleanColumn::make('verified')
+                    ->label('Verified')
+                    ->trueIcon('heroicon-s-check-circle')
+                    ->falseIcon('heroicon-s-x-circle'),
             ])
             ->filters([
                 //
