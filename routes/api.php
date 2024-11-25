@@ -47,6 +47,7 @@ Route::group(['middleware'=>'api_key'], function () {
             Route::post('/logout', [MentorController::class, 'logout']);
 
             Route::post('/course/add', [CourseController::class, 'createCourse']);
+            Route::post('/course/modulegroup/add', [CourseController::class, 'createModuleGroup']);
         });
     });
     
