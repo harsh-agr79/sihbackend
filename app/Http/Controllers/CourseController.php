@@ -644,7 +644,7 @@ class CourseController extends Controller {
         }
     }
 
-    public function getCourseList()
+    public function getCourseList(Request $request)
     {
         try {
             // Get the authenticated user (mentor)
