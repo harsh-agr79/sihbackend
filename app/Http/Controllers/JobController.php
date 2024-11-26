@@ -7,7 +7,7 @@ use App\Models\Company;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
-class JobListingController extends Controller
+class JobController extends Controller
 {
     /**
      * Create a new job listing.
