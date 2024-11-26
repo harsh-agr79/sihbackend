@@ -697,6 +697,58 @@ class CourseController extends Controller {
         }
     }
 
+    public function enrollStudent(Request $request)
+    {
+        // Validate the incoming request
+        $validated = $request->validate([
+            'course_id' => 'required|exists:courses,id',
+        ]);
+    
+        // Get the authenticated student (ensure the correct auth guard is used)
+       
 
+        $user = $request->user();
+
+        // Ensure the user is authenticated and is a mentor
+        if ( !$user ) {
+            return response()->json( [ 'error' => 'Unauthorized or invalid user type' ], 403 );
+        }
+
+        $student = Student::find( $user->id );
+
+        if ( !$student ) {
+            return response()->json( [ 'error' => 'Student not found' ], 404 );
+        }
+    
+        // Check if the course exists and is verified
+        $course = Course::where('id', $validated['course_id'])
+            ->where('verified', true)
+            ->first();
+    
+        if (!$course) {
+            return response()->json(['error' => 'Course not found or not verified.'], 404);
+        }
+    
+        // Check if the student is already enrolled in the course
+        $existingEnrollment = Enrollment::where('student_id', $student->id)
+            ->where('course_id', $course->id)
+            ->first();
+    
+        if ($existingEnrollment) {
+            return response()->json(['error' => 'You are already enrolled in this course.'], 400);
+        }
+    
+        // Enroll the student in the course
+        $enrollment = Enrollment::create([
+            'student_id' => $student->id,
+            'course_id' => $course->id,
+            'enrollment_date' => now(),
+        ]);
+    
+        return response()->json([
+            'message' => 'You have been successfully enrolled in the course.',
+            'enrollment' => $enrollment,
+        ], 201);
+    }
 
 }
