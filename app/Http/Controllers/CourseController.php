@@ -765,12 +765,12 @@ class CourseController extends Controller {
                 },
             ])
             ->find($courseId);
-
+    
             // If the course is not found
             if (!$course) {
                 return response()->json(['error' => 'Course not found'], 404);
             }
-
+    
             // Format module groups
             $moduleGroups = $course->moduleGroups->map(function ($group) {
                 return [
@@ -781,7 +781,7 @@ class CourseController extends Controller {
                     'position' => $group->position,
                 ];
             });
-
+    
             // Combine grouped and ungrouped modules into a single array
             $modules = $course->moduleGroups->flatMap(function ($group) {
                 return $group->modules->map(function ($module) use ($group) {
@@ -812,22 +812,38 @@ class CourseController extends Controller {
                     ];
                 })
             )->sortBy('position')->values(); // Combine, sort by position, and reindex
-
-            // Extract all assignments into a single array
-            $assignmentsQuizzes = $modules->flatMap(function ($module) {
-                return $module['assignmentsQuizzes'] ?? [];
-            })->map(function ($assignment) {
-                return [
-                    'id' => $assignment['id'],
-                    'module_id' => $assignment['module_id'],
-                    'type' => $assignment['type'],
-                    'title' => $assignment['title'],
-                    'description' => $assignment['description'],
-                    'content' => $assignment['content'],
-                    'due_date' => $assignment['due_date'],
-                ];
-            });
-
+    
+            // Extract all assignments into a separate array
+            $assignmentsQuizzes = $course->moduleGroups->flatMap(function ($group) {
+                return $group->modules->flatMap(function ($module) {
+                    return $module->assignmentsQuizzes->map(function ($assignment) {
+                        return [
+                            'id' => $assignment->id,
+                            'module_id' => $assignment->module_id,
+                            'type' => $assignment->type,
+                            'title' => $assignment->title,
+                            'description' => $assignment->description,
+                            'content' => $assignment->content,
+                            'due_date' => $assignment->due_date,
+                        ];
+                    });
+                });
+            })->merge(
+                $course->ungroupedModules->flatMap(function ($module) {
+                    return $module->assignmentsQuizzes->map(function ($assignment) {
+                        return [
+                            'id' => $assignment->id,
+                            'module_id' => $assignment->module_id,
+                            'type' => $assignment->type,
+                            'title' => $assignment->title,
+                            'description' => $assignment->description,
+                            'content' => $assignment->content,
+                            'due_date' => $assignment->due_date,
+                        ];
+                    });
+                })
+            )->values(); // Combine and reindex
+    
             // Return the formatted data
             return response()->json([
                 'id' => $course->id,
