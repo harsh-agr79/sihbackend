@@ -35,4 +35,9 @@ class Student extends Authenticatable implements MustVerifyEmail
     {
         $this->notify(new VerifyEmailNotification($token));
     }
+
+    public function applications()
+    {
+        return $this->hasMany(Application::class);
+    }
 }

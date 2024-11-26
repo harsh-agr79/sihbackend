@@ -35,4 +35,9 @@ class Company extends Authenticatable implements MustVerifyEmail
     {
         $this->notify(new VerifyEmailNotification($token));
     }
+
+    public function jobListings()
+    {
+        return $this->hasMany(JobListing::class);
+    }
 }

@@ -656,7 +656,12 @@ class CourseController extends Controller {
             // Fetch the course with relationships
             $course = Course::with([
                 'mentor:id,name', // Fetch mentor details
-                'moduleGroups.modules:id,group_id,title as module_name', // Fetch module groups and their modules
+                'moduleGroups.modules.assignmentsQuizzes' => function ($query) {
+                    $query->select('id', 'module_id', 'type', 'title', 'description', 'content', 'due_date');
+                }, // Fetch assignments within modules
+                'ungroupedModules.assignmentsQuizzes' => function ($query) {
+                    $query->select('id', 'module_id', 'type', 'title', 'description', 'content', 'due_date');
+                }, // Fetch ungrouped modules and their assignments
             ])
             ->withCount([
                 'enrollments as enrolled' => function ($query) {
@@ -667,12 +672,12 @@ class CourseController extends Controller {
                 },
             ])
             ->find($courseId);
-
+    
             // If the course is not found
             if (!$course) {
                 return response()->json(['error' => 'Course not found'], 404);
             }
-
+    
             // Format the course data
             $formattedCourse = [
                 'id' => $course->id,
@@ -684,21 +689,61 @@ class CourseController extends Controller {
                 'module_groups' => $course->moduleGroups->map(function ($group) {
                     return [
                         'id' => $group->id,
+                        'title' => $group->title,
+                        'description' => $group->description,
+                        'position' => $group->position,
                         'modules' => $group->modules->map(function ($module) {
                             return [
                                 'id' => $module->id,
-                                'module_name' => $module->module_name,
+                                'module_name' => $module->title,
+                                'video_url' => $module->video_url,
+                                'description' => $module->description,
+                                'transcript' => $module->transcript,
+                                'material_links' => $module->material_links,
+                                'position' => $module->position,
+                                'assignments' => $module->assignmentsQuizzes->map(function ($assignment) {
+                                    return [
+                                        'id' => $assignment->id,
+                                        'type' => $assignment->type,
+                                        'title' => $assignment->title,
+                                        'description' => $assignment->description,
+                                        'content' => $assignment->content,
+                                        'due_date' => $assignment->due_date,
+                                    ];
+                                }),
+                            ];
+                        }),
+                    ];
+                }),
+                'ungrouped_modules' => $course->ungroupedModules->map(function ($module) {
+                    return [
+                        'id' => $module->id,
+                        'module_name' => $module->title,
+                        'video_url' => $module->video_url,
+                        'description' => $module->description,
+                        'transcript' => $module->transcript,
+                        'material_links' => $module->material_links,
+                        'position' => $module->position,
+                        'assignments' => $module->assignmentsQuizzes->map(function ($assignment) {
+                            return [
+                                'id' => $assignment->id,
+                                'type' => $assignment->type,
+                                'title' => $assignment->title,
+                                'description' => $assignment->description,
+                                'content' => $assignment->content,
+                                'due_date' => $assignment->due_date,
                             ];
                         }),
                     ];
                 }),
             ];
-
+    
             return response()->json($formattedCourse, 200);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Failed to fetch course details', 'details' => $e->getMessage()], 500);
         }
     }
+    
 
     public function enrollStudent(Request $request)
     {
