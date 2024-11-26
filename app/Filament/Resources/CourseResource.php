@@ -26,9 +26,7 @@ class CourseResource extends Resource {
     public static function form( Form $form ): Form {
         return $form
         ->schema( [
-            Forms\Components\Toggle::make( 'verified' )
-            ->label( 'Verified' )
-            ->default( false ),
+        
         ] );
     }
 
@@ -62,11 +60,11 @@ class CourseResource extends Resource {
                 ->modalHeading(fn ($record) => $record->verified ? 'Unverify Course' : 'Verify Course')
                 ->modalSubheading('Are you sure you want to update the verified status?')
                 ->successNotificationTitle(fn ($record) => $record->verified ? 'Course Unverified' : 'Course Verified'),
-            Tables\Actions\EditAction::make(),
+           
         ] )
         ->bulkActions( [
             Tables\Actions\BulkActionGroup::make( [
-                Tables\Actions\DeleteBulkAction::make(),
+                
             ] ),
         ] );
     }
@@ -143,8 +141,8 @@ class CourseResource extends Resource {
     public static function getPages(): array {
         return [
             'index' => Pages\ListCourses::route( '/' ),
-            'create' => Pages\CreateCourse::route( '/create' ),
-            'edit' => Pages\EditCourse::route( '/{record}/edit' ),
+            // 'create' => Pages\CreateCourse::route( '/create' ),
+            //'edit' => Pages\EditCourse::route( '/{record}/edit' ),
         ];
     }
 }
