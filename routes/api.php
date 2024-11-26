@@ -9,6 +9,7 @@ use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\InstituteController;
 use App\Http\Controllers\CourseController;
+use App\Http\Controllers\JobController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -77,6 +78,8 @@ Route::group(['middleware'=>'api_key'], function () {
         Route::middleware(['auth:company', 'verified'])->group(function () {
             Route::get('/profile', [CompanyController::class, 'profile']);
             Route::post('/logout', [CompanyController::class, 'logout']);
+
+            Route::post('/job/add', [JobListingController::class, 'createJobListing']);
         });
     });
     
