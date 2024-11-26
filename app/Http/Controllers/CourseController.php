@@ -845,12 +845,7 @@ class CourseController extends Controller {
             return response()->json(['error' => 'Unauthorized access.'], 401);
         }
 
-        $course = $assignment->module->course; // Assuming the assignment belongs to a module, and module belongs to a course
-        $isEnrolled = $course->enrollments()->where('student_id', $student->id)->exists();
-
-        if (!$isEnrolled) {
-            return response()->json(['error' => 'You are not enrolled in this course.'], 403);
-        }
+       
 
         $submission = Submission::where('id', $validated['submission_id'])
             ->where('student_id', $student->id)
@@ -865,6 +860,13 @@ class CourseController extends Controller {
 
         if (!$assignment) {
             return response()->json(['error' => 'Assignment or Quiz not found.'], 404);
+        }
+
+        $course = $assignment->module->course; // Assuming the assignment belongs to a module, and module belongs to a course
+        $isEnrolled = $course->enrollments()->where('student_id', $student->id)->exists();
+
+        if (!$isEnrolled) {
+            return response()->json(['error' => 'You are not enrolled in this course.'], 403);
         }
 
         // Process answers
