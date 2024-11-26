@@ -757,7 +757,7 @@ class CourseController extends Controller {
     {
         // Validate the request
         $validated = $request->validate([
-            'assignment_id' => 'required|exists:assignments_quizzes,id',
+            'assignment_id' => 'required|exists:assignment_quizzes,id',
             'submission_content' => 'required|array',
             'submission_content.answers' => 'required|array',
             'submission_content.answers.*.id' => 'required|integer',
