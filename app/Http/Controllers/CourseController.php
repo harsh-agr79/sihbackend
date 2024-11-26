@@ -10,6 +10,7 @@ use App\Models\ModuleGroup;
 use App\Models\Module;
 use App\Models\AssignmentQuiz;
 use App\Models\Enrollment;
+use App\Models\Submission;
 
 class CourseController extends Controller {
     /**
