@@ -20,6 +20,7 @@ class Application extends Model
     ];
 
     protected $casts = [
+        'additional_files' => 'array',
         'shortlisted' => 'boolean',
         'final_selected' => 'boolean',
     ];

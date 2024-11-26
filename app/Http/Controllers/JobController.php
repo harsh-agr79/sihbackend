@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\JobListing;
 use App\Models\Company;
+use App\Models\Application;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use App\Models\Student;
+use Illuminate\Support\Facades\Storage;
 
 class JobController extends Controller
 {
@@ -81,6 +84,94 @@ class JobController extends Controller
             // Handle any other errors
             return response()->json([
                 'error' => 'Failed to create job listing',
+                'details' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Allow a student to apply to a job listing.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param int $jobListingId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function applyToJobListing(Request $request, $jobListingId)
+    {
+        // Retrieve the authenticated user
+        $user = $request->user();
+
+        // Ensure the user is authenticated and their type is 'student'
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized or invalid user type'], 403);
+        }
+
+        // Fetch the student record associated with the authenticated user
+        $student = Student::find($user->id);
+
+        if (!$student) {
+            return response()->json(['error' => 'Student not found'], 404);
+        }
+
+        // Fetch the job listing
+        $jobListing = JobListing::find($jobListingId);
+
+        if (!$jobListing) {
+            return response()->json(['error' => 'Job listing not found'], 404);
+        }
+
+        // Validate the incoming request data
+        try {
+            $validatedData = $request->validate([
+                'cover_letter' => 'required|string',
+                'additional_files.*' => 'nullable|file|mimes:pdf,doc,docx,png,jpg|max:2048', // Validate file types and size
+            ]);
+
+            // Check if the student has already applied to the job listing
+            $existingApplication = Application::where('job_listing_id', $jobListing->id)
+                ->where('student_id', $student->id)
+                ->first();
+
+            if ($existingApplication) {
+                return response()->json(['error' => 'You have already applied to this job listing'], 409);
+            }
+
+            // Handle file uploads
+            $uploadedFiles = [];
+            if ($request->hasFile('additional_files')) {
+                foreach ($request->file('additional_files') as $file) {
+                    // Store file in the `applications` directory
+                    $path = $file->store('applications', 'public');
+                    $uploadedFiles[] = $path;
+                }
+            }
+
+            // Create the application
+            $application = Application::create([
+                'job_listing_id' => $jobListing->id,
+                'student_id' => $student->id,
+                'cover_letter' => $validatedData['cover_letter'],
+                'additional_files' => json_encode($uploadedFiles), // Store file paths as JSON
+                'status' => 'pending',
+                'shortlisted' => false,
+                'final_selected' => false,
+            ]);
+
+            return response()->json([
+                'message' => 'Application submitted successfully',
+                'application' => $application,
+            ], 201);
+
+        } catch (ValidationException $e) {
+            // Return validation error messages
+            return response()->json([
+                'error' => 'Validation failed',
+                'messages' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            // Handle any other errors
+            return response()->json([
+                'error' => 'Failed to submit application',
                 'details' => $e->getMessage(),
             ], 500);
         }
