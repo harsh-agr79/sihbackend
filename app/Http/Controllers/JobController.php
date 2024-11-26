@@ -25,7 +25,7 @@ class JobController extends Controller
             return response()->json(['error' => 'Unauthorized or invalid user type'], 403);
         }
 
-        return response()->json([ $request->post() ]);
+       
 
         // Fetch the company record associated with the authenticated user
         $company = Company::find($user->id);
@@ -33,6 +33,8 @@ class JobController extends Controller
         if (!$company) {
             return response()->json(['error' => 'Company not found'], 404);
         }
+
+        return response()->json([ $request->post() ]);
 
         // Validate the incoming request data
         $validatedData = $request->validate([
