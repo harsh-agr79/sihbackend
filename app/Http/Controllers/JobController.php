@@ -331,4 +331,141 @@ class JobController extends Controller
             'job_listings' => $jobListings,
         ]);
     }
+
+    /**
+     * Get applicants where both shortlist and select are false.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param int $jobListingId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getUnprocessedApplicants(Request $request, $jobListingId)
+    {
+        $user = $request->user();
+
+        // Ensure the user is authenticated and their type is 'company'
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized or invalid user type'], 403);
+        }
+
+        // Fetch the company record associated with the authenticated user
+        $company = Company::find($user->id);
+
+        if (!$company) {
+            return response()->json(['error' => 'Company not found'], 404);
+        }
+
+        // Validate that the job listing belongs to the authenticated company
+        $jobListing = JobListing::where('id', $jobListingId)
+            ->where('company_id', $user->id)
+            ->first();
+
+        if (!$jobListing) {
+            return response()->json(['error' => 'Job listing not found or unauthorized access'], 404);
+        }
+
+        // Get applicants where both shortlist and select are false
+        $applicants = $jobListing->applications()
+            ->where('shortlisted', false)
+            ->where('final_selected', false)
+            ->with('student:id,name') // Include student name
+            ->get();
+
+        return response()->json([
+            'message' => 'Unprocessed applicants retrieved successfully',
+            'applicants' => $applicants,
+        ]);
+    }
+
+    /**
+     * Get applicants where shortlist is true and select is false.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param int $jobListingId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getShortlistedApplicants(Request $request, $jobListingId)
+    {
+        $user = $request->user();
+
+        // Ensure the user is authenticated and their type is 'company'
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized or invalid user type'], 403);
+        }
+
+        // Fetch the company record associated with the authenticated user
+        $company = Company::find($user->id);
+
+        if (!$company) {
+            return response()->json(['error' => 'Company not found'], 404);
+        }
+
+        // Validate that the job listing belongs to the authenticated company
+        $jobListing = JobListing::where('id', $jobListingId)
+            ->where('company_id', $user->id)
+            ->first();
+
+        if (!$jobListing) {
+            return response()->json(['error' => 'Job listing not found or unauthorized access'], 404);
+        }
+
+        // Get applicants where shortlist is true and select is false
+        $applicants = $jobListing->applications()
+            ->where('shortlisted', true)
+            ->where('final_selected', false)
+            ->with('student:id,name') // Include student name
+            ->get();
+
+        return response()->json([
+            'message' => 'Shortlisted applicants retrieved successfully',
+            'applicants' => $applicants,
+        ]);
+    }
+
+    /**
+     * Get applicants where both shortlist and select are true.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param int $jobListingId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getFinalSelectedApplicants(Request $request, $jobListingId)
+    {
+        $user = $request->user();
+
+        // Ensure the user is authenticated and their type is 'company'
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized or invalid user type'], 403);
+        }
+
+        // Fetch the company record associated with the authenticated user
+        $company = Company::find($user->id);
+
+        if (!$company) {
+            return response()->json(['error' => 'Company not found'], 404);
+        }
+
+        // Validate that the job listing belongs to the authenticated company
+        $jobListing = JobListing::where('id', $jobListingId)
+            ->where('company_id', $user->id)
+            ->first();
+
+        if (!$jobListing) {
+            return response()->json(['error' => 'Job listing not found or unauthorized access'], 404);
+        }
+
+        // Get applicants where both shortlist and select are true
+        $applicants = $jobListing->applications()
+            ->where('shortlisted', true)
+            ->where('final_selected', true)
+            ->with('student:id,name') // Include student name
+            ->get();
+
+        return response()->json([
+            'message' => 'Final selected applicants retrieved successfully',
+            'applicants' => $applicants,
+        ]);
+    }
+
+
 }

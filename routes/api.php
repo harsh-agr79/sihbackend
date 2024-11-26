@@ -87,6 +87,10 @@ Route::group(['middleware'=>'api_key'], function () {
             Route::post('/job/add', [JobController::class, 'createJobListing']);
             Route::put('/job/{applicationId}/shortlist', [JobController::class, 'shortlistCandidate']);
             Route::put('/job/{applicationId}/select', [JobController::class, 'selectCandidate']);
+
+            Route::get('/job/{jobListingId}/applicants/unprocessed', [JobController::class, 'getUnprocessedApplicants']);
+            Route::get('/job/{jobListingId}/applicants/shortlisted', [JobController::class, 'getShortlistedApplicants']);
+            Route::get('/job/{jobListingId}/applicants/final-selected', [JobController::class, 'getFinalSelectedApplicants']);
         });
     });
     
