@@ -830,6 +830,8 @@ class CourseController extends Controller {
     }
     public function editSubmission(Request $request)
     {
+        return response()->json([ 'data'=>$request->post()]);
+        
         $validated = $request->validate([
             'submission_id' => 'required|exists:submissions,id',
             'submission_content' => 'required|array',
@@ -839,7 +841,7 @@ class CourseController extends Controller {
             'submission_content.answers.*.file' => 'nullable|file|mimes:pdf,jpg,png,doc,docx,txt|max:2048',
         ]);
 
-        return response()->json([ 'data'=>$request->post()]);
+       
 
         $student = $request->user();
 
