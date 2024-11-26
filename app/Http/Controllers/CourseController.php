@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Course;
 use App\Models\Mentor;
+use App\Models\Student;
 use App\Models\ModuleGroup;
 use App\Models\Module;
 use App\Models\AssignmentQuiz;
+use App\Models\Enrollment;
 
 class CourseController extends Controller {
     /**
