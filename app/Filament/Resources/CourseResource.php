@@ -16,6 +16,7 @@ use Filament\Infolists;
 use Filament\Infolists\Infolist;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Components\RepeatableEntry;
+use Filament\Tables\Actions\Action;
 
 class CourseResource extends Resource {
     protected static ?string $model = Course::class;
@@ -50,6 +51,17 @@ class CourseResource extends Resource {
         ] )
         ->actions( [
             Tables\Actions\ViewAction::make(),
+            Action::make('toggleVerified')
+                ->label(fn ($record) => $record->verified ? 'Unverify' : 'Verify')
+                ->icon(fn ($record) => $record->verified ? 'heroicon-s-x-circle' : 'heroicon-s-check-circle')
+                ->color(fn ($record) => $record->verified ? 'danger' : 'success')
+                ->action(function ($record) {
+                    $record->update(['verified' => !$record->verified]);
+                })
+                ->requiresConfirmation()
+                ->modalHeading(fn ($record) => $record->verified ? 'Unverify Course' : 'Verify Course')
+                ->modalSubheading('Are you sure you want to update the verified status?')
+                ->successNotificationTitle(fn ($record) => $record->verified ? 'Course Unverified' : 'Course Verified'),
             Tables\Actions\EditAction::make(),
         ] )
         ->bulkActions( [
