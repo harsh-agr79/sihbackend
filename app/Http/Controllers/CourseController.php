@@ -839,6 +839,8 @@ class CourseController extends Controller {
             'submission_content.answers.*.file' => 'nullable|file|mimes:pdf,jpg,png,doc,docx,txt|max:2048',
         ]);
 
+        return response()->json([ 'data'=>$request->post()]);
+
         $student = $request->user();
 
         if (!$student) {
