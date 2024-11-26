@@ -47,6 +47,7 @@ Route::group(['middleware'=>'api_key'], function () {
             Route::post('/course/assignment/submit', [CourseController::class, 'submitAssignment']);
             Route::post('/course/assignment/editsubmit', [CourseController::class, 'editSubmission']);
 
+            Route::get('/jobs/active', [JobController::class, 'getActiveJobListings']);
             Route::post('/job/{id}/apply', [JobController::class, 'applyToJobListing']);
         });
     });
@@ -81,6 +82,7 @@ Route::group(['middleware'=>'api_key'], function () {
             Route::get('/profile', [CompanyController::class, 'profile']);
             Route::post('/logout', [CompanyController::class, 'logout']);
 
+            Route::get('/job', [JobController::class, 'getCompanyListings']);
             Route::post('/job/add', [JobController::class, 'createJobListing']);
             Route::put('/job/{applicationId}/shortlist', [JobController::class, 'shortlistCandidate']);
             Route::put('/job/{applicationId}/select', [JobController::class, 'selectCandidate']);

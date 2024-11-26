@@ -276,4 +276,59 @@ class JobController extends Controller
         ]);
     }
 
+
+    /**
+     * Get all active job listings with application deadlines greater than or equal to today.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getActiveJobListings(Request $request)
+    {
+        // Get the current date
+        $today = now()->toDateString();
+
+        // Retrieve job listings where application_deadline is greater than or equal to today
+        $activeJobs = JobListing::where('application_deadline', '>=', $today)
+            ->get();
+
+        return response()->json([
+            'message' => 'Active job listings retrieved successfully',
+            'jobs' => $activeJobs,
+        ]);
+    }
+
+    /**
+     * Get all job listings of the authenticated company sorted by application deadline (latest first).
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getCompanyListings(Request $request)
+    {
+        // Retrieve the authenticated user
+        $user = $request->user();
+
+        // Ensure the user is authenticated and their type is 'company'
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized or invalid user type'], 403);
+        }
+
+        // Fetch the company record associated with the authenticated user
+        $company = Company::find($user->id);
+
+        if (!$company) {
+            return response()->json(['error' => 'Company not found'], 404);
+        }
+
+        // Get all job listings for the authenticated company, sorted by application deadline (latest first)
+        $jobListings = $company->jobListings()
+            ->orderBy('application_deadline', 'desc')
+            ->get();
+
+        return response()->json([
+            'message' => 'Job listings retrieved successfully',
+            'job_listings' => $jobListings,
+        ]);
+    }
 }
