@@ -151,7 +151,7 @@ class JobController extends Controller
                 'job_listing_id' => $jobListing->id,
                 'student_id' => $student->id,
                 'cover_letter' => $validatedData['cover_letter'],
-                'additional_files' => json_encode($uploadedFiles, JSON_UNESCAPED_SLASHES),
+                'additional_files' => $uploadedFiles,
                 'status' => 'pending',
                 'shortlisted' => false,
                 'final_selected' => false,
