@@ -66,7 +66,7 @@ class CourseResource extends Resource {
             Tables\Actions\BulkActionGroup::make( [
                 
             ] ),
-        ] );
+        ] )->headerActions([]);
     }
 
     public static function getRelations(): array {
