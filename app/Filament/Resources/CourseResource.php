@@ -75,6 +75,12 @@ class CourseResource extends Resource {
         ];
     }
 
+    public static function canCreate(): bool
+        {
+            return false;
+        }
+
+
     public static function infolist( \Filament\Infolists\Infolist $infolist ): \Filament\Infolists\Infolist {
         return $infolist
         ->schema( [
