@@ -208,7 +208,7 @@ class JobController extends Controller
         }
 
         // Ensure the job listing belongs to the authenticated company
-        if ($application->jobListing->company_id !== $company->id) {
+        if ((int)$application->jobListing->company_id !== (int)$company->id) {
             return response()->json(['error' => 'Unauthorized action'], 403);
         }
 
@@ -255,7 +255,7 @@ class JobController extends Controller
         }
 
         // Ensure the job listing belongs to the authenticated company
-        if ($application->jobListing->company_id !== $company->id) {
+        if ((int)$application->jobListing->company_id !== (int)$company->id) {
             return response()->json(['error' => 'Unauthorized action'], 403);
         }
 
