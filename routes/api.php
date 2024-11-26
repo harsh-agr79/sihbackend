@@ -47,7 +47,7 @@ Route::group(['middleware'=>'api_key'], function () {
             Route::post('/course/assignment/submit', [CourseController::class, 'submitAssignment']);
             Route::post('/course/assignment/editsubmit', [CourseController::class, 'editSubmission']);
 
-            Route::post('/job/apply', [JobController::class, 'applyToJobListing']);
+            Route::post('/job/{id}/apply', [JobController::class, 'applyToJobListing']);
         });
     });
     
