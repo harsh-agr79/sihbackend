@@ -176,4 +176,104 @@ class JobController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Shortlist a candidate for a job listing.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param int $applicationId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function shortlistCandidate(Request $request, $applicationId)
+    {
+        $user = $request->user();
+
+        // Ensure the user is authenticated and their type is 'company'
+        if (!$user || $user->user_type !== 'company') {
+            return response()->json(['error' => 'Unauthorized or invalid user type'], 403);
+        }
+
+        // Fetch the company record associated with the authenticated user
+        $company = Company::find($user->id);
+
+        if (!$company) {
+            return response()->json(['error' => 'Company not found'], 404);
+        }
+
+        // Find the application
+        $application = Application::find($applicationId);
+
+        if (!$application) {
+            return response()->json(['error' => 'Application not found'], 404);
+        }
+
+        // Ensure the job listing belongs to the authenticated company
+        if ($application->jobListing->company_id !== $company->id) {
+            return response()->json(['error' => 'Unauthorized action'], 403);
+        }
+
+        // Mark the application as shortlisted
+        $application->update([
+            'status' => 'shortlisted',
+            'shortlisted' => true,
+        ]);
+
+        return response()->json([
+            'message' => 'Candidate successfully shortlisted',
+            'application' => $application,
+        ]);
+    }
+
+    /**
+     * Final select a candidate for a job listing.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param int $applicationId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function selectCandidate(Request $request, $applicationId)
+    {
+        $user = $request->user();
+
+        // Ensure the user is authenticated and their type is 'company'
+        if (!$user || $user->user_type !== 'company') {
+            return response()->json(['error' => 'Unauthorized or invalid user type'], 403);
+        }
+
+        // Fetch the company record associated with the authenticated user
+        $company = Company::find($user->id);
+
+        if (!$company) {
+            return response()->json(['error' => 'Company not found'], 404);
+        }
+
+        // Find the application
+        $application = Application::find($applicationId);
+
+        if (!$application) {
+            return response()->json(['error' => 'Application not found'], 404);
+        }
+
+        // Ensure the job listing belongs to the authenticated company
+        if ($application->jobListing->company_id !== $company->id) {
+            return response()->json(['error' => 'Unauthorized action'], 403);
+        }
+
+        // Ensure the candidate is already shortlisted before final selection
+        if (!$application->shortlisted) {
+            return response()->json(['error' => 'Candidate must be shortlisted before final selection'], 422);
+        }
+
+        // Mark the application as final selected
+        $application->update([
+            'status' => 'final_selected',
+            'final_selected' => true,
+        ]);
+
+        return response()->json([
+            'message' => 'Candidate successfully selected',
+            'application' => $application,
+        ]);
+    }
+
 }

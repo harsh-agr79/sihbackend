@@ -82,6 +82,8 @@ Route::group(['middleware'=>'api_key'], function () {
             Route::post('/logout', [CompanyController::class, 'logout']);
 
             Route::post('/job/add', [JobController::class, 'createJobListing']);
+            Route::put('/job/{applicationId}/shortlist', [JobController::class, 'shortlistCandidate']);
+            Route::put('/job/{applicationId}/select', [JobController::class, 'selectCandidate']);
         });
     });
     
