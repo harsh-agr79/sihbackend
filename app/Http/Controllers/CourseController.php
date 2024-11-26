@@ -743,6 +743,108 @@ class CourseController extends Controller {
             return response()->json(['error' => 'Failed to fetch course details', 'details' => $e->getMessage()], 500);
         }
     }
+
+    public function manageCourseDetails($courseId)
+    {
+        try {
+            // Fetch the course with relationships
+            $course = Course::with([
+                'mentor:id,name', // Fetch mentor details
+                'moduleGroups:id,course_id,title,description,position', // Fetch module groups
+                'moduleGroups.modules:id,group_id,course_id,title,video_url,description,transcript,material_links,position', // Fetch grouped modules
+                'ungroupedModules:id,course_id,title,video_url,description,transcript,material_links,position', // Fetch ungrouped modules
+                'moduleGroups.modules.assignmentsQuizzes:id,module_id,type,title,description,content,due_date', // Assignments for grouped modules
+                'ungroupedModules.assignmentsQuizzes:id,module_id,type,title,description,content,due_date', // Assignments for ungrouped modules
+            ])
+            ->withCount([
+                'enrollments as enrolled' => function ($query) {
+                    $query->whereNull('completed_at'); // Enrolled students
+                },
+                'enrollments as completed' => function ($query) {
+                    $query->whereNotNull('completed_at'); // Completed students
+                },
+            ])
+            ->find($courseId);
+
+            // If the course is not found
+            if (!$course) {
+                return response()->json(['error' => 'Course not found'], 404);
+            }
+
+            // Format module groups
+            $moduleGroups = $course->moduleGroups->map(function ($group) {
+                return [
+                    'id' => $group->id,
+                    'course_id' => $group->course_id,
+                    'title' => $group->title,
+                    'description' => $group->description,
+                    'position' => $group->position,
+                ];
+            });
+
+            // Combine grouped and ungrouped modules into a single array
+            $modules = $course->moduleGroups->flatMap(function ($group) {
+                return $group->modules->map(function ($module) use ($group) {
+                    return [
+                        'id' => $module->id,
+                        'group_id' => $group->id, // Include group_id
+                        'course_id' => $module->course_id,
+                        'title' => $module->title,
+                        'video_url' => $module->video_url,
+                        'description' => $module->description,
+                        'transcript' => $module->transcript,
+                        'material_links' => $module->material_links,
+                        'position' => $module->position,
+                    ];
+                });
+            })->merge(
+                $course->ungroupedModules->map(function ($module) {
+                    return [
+                        'id' => $module->id,
+                        'group_id' => null, // Ungrouped modules have no group_id
+                        'course_id' => $module->course_id,
+                        'title' => $module->title,
+                        'video_url' => $module->video_url,
+                        'description' => $module->description,
+                        'transcript' => $module->transcript,
+                        'material_links' => $module->material_links,
+                        'position' => $module->position,
+                    ];
+                })
+            )->sortBy('position')->values(); // Combine, sort by position, and reindex
+
+            // Extract all assignments into a single array
+            $assignmentsQuizzes = $modules->flatMap(function ($module) {
+                return $module['assignmentsQuizzes'] ?? [];
+            })->map(function ($assignment) {
+                return [
+                    'id' => $assignment['id'],
+                    'module_id' => $assignment['module_id'],
+                    'type' => $assignment['type'],
+                    'title' => $assignment['title'],
+                    'description' => $assignment['description'],
+                    'content' => $assignment['content'],
+                    'due_date' => $assignment['due_date'],
+                ];
+            });
+
+            // Return the formatted data
+            return response()->json([
+                'id' => $course->id,
+                'courseName' => $course->title,
+                'courseBy' => $course->mentor->name,
+                'completed' => $course->completed,
+                'enrolled' => $course->enrolled,
+                'description' => $course->description,
+                'module_groups' => $moduleGroups, // Separate array for module groups
+                'modules' => $modules, // Unified array of modules
+                'assignmentsQuizzes' => $assignmentsQuizzes, // Unified array of assignments/quizzes
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to fetch course details', 'details' => $e->getMessage()], 500);
+        }
+    }
+
     
 
     public function enrollStudent(Request $request)
