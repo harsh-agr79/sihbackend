@@ -830,7 +830,6 @@ class CourseController extends Controller {
     }
     public function editSubmission(Request $request)
     {
-        return response()->json([ 'data'=>$request->post()]);
 
         $validated = $request->validate([
             'submission_id' => 'required|exists:submissions,id',
