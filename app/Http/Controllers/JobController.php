@@ -189,7 +189,7 @@ class JobController extends Controller
         $user = $request->user();
 
         // Ensure the user is authenticated and their type is 'company'
-        if (!$user || $user->user_type !== 'company') {
+        if (!$user) {
             return response()->json(['error' => 'Unauthorized or invalid user type'], 403);
         }
 
@@ -236,7 +236,7 @@ class JobController extends Controller
         $user = $request->user();
 
         // Ensure the user is authenticated and their type is 'company'
-        if (!$user || $user->user_type !== 'company') {
+        if (!$user) {
             return response()->json(['error' => 'Unauthorized or invalid user type'], 403);
         }
 
