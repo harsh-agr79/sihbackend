@@ -43,6 +43,8 @@ Route::group(['middleware'=>'api_key'], function () {
             Route::get('/getcourses', [CourseController::class, 'getCourses']);
             Route::get('/courses/details/{courseId}', [CourseController::class, 'getCourseDetails']);
             Route::post('/courses/enroll', [CourseController::class, 'enrollStudent']);
+            ROute::post('/course/assignment/submit', [CourseController::class, 'submitAssignment']);
+            ROute::put('/course/assignment/editsubmit', [CourseController::class, 'editSubmission']);
         });
     });
     

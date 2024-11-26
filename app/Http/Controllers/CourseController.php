@@ -752,5 +752,141 @@ class CourseController extends Controller {
             'enrollment' => $enrollment,
         ], 201);
     }
+    public function submitAssignment(Request $request)
+    {
+        // Validate the request
+        $validated = $request->validate([
+            'assignment_id' => 'required|exists:assignments_quizzes,id',
+            'submission_content' => 'required|array', // Ensure content is an array
+            'submission_content.answers' => 'required|array', // Ensure answers array exists
+            'submission_content.answers.*.id' => 'required|integer', // Validate question IDs
+            'submission_content.answers.*.answer' => 'nullable|string', // For text answers
+            'submission_content.answers.*.file' => 'nullable|file|mimes:pdf,jpg,png,doc,docx,txt|max:2048', // For file uploads
+        ]);
 
+        // Get the authenticated student
+        $student = $request->user();
+
+        if (!$student) {
+            return response()->json(['error' => 'Unauthorized access.'], 401);
+        }
+
+        // Fetch the assignment or quiz
+        $assignment = AssignmentQuiz::find($validated['assignment_id']);
+
+        if (!$assignment) {
+            return response()->json(['error' => 'Assignment or Quiz not found.'], 404);
+        }
+
+        // Check if the student has already submitted
+        $existingSubmission = Submission::where('assignment_id', $assignment->id)
+            ->where('student_id', $student->id)
+            ->first();
+
+        if ($existingSubmission) {
+            return response()->json(['error' => 'You have already submitted this assignment or quiz.'], 400);
+        }
+
+        // Process answers
+        $answers = [];
+        foreach ($validated['submission_content']['answers'] as $answer) {
+            if ($assignment->type === 'assignment' && isset($answer['file'])) {
+                // Handle file upload for assignment
+                $filePath = $answer['file']->store('submissions', 'public');
+                $answers[] = [
+                    'id' => $answer['id'],
+                    'answer' => null,
+                    'file_path' => $filePath,
+                ];
+            } elseif ($assignment->type === 'quiz' || isset($answer['answer'])) {
+                // Handle text-based answers for quizzes and assignments
+                $answers[] = [
+                    'id' => $answer['id'],
+                    'answer' => $answer['answer'],
+                    'file_path' => null,
+                ];
+            }
+        }
+
+        // Create the submission
+        $submission = Submission::create([
+            'assignment_id' => $assignment->id,
+            'student_id' => $student->id,
+            'submission_content' => json_encode(['answers' => $answers]),
+            'submitted_at' => now(),
+        ]);
+
+        return response()->json([
+            'message' => ucfirst($assignment->type) . ' submitted successfully.',
+            'submission' => $submission,
+        ], 201);
+    }
+
+    public function editSubmission(Request $request)
+    {
+        // Validate the request
+        $validated = $request->validate([
+            'submission_id' => 'required|exists:submissions,id',
+            'submission_content' => 'required|array', // Ensure content is an array
+            'submission_content.answers' => 'required|array', // Ensure answers array exists
+            'submission_content.answers.*.id' => 'required|integer', // Validate question IDs
+            'submission_content.answers.*.answer' => 'nullable|string', // For text answers
+            'submission_content.answers.*.file' => 'nullable|file|mimes:pdf,jpg,png,doc,docx,txt|max:2048', // For file uploads
+        ]);
+
+        // Get the authenticated student
+        $student = $request->user();
+
+        if (!$student) {
+            return response()->json(['error' => 'Unauthorized access.'], 401);
+        }
+
+        // Retrieve the submission
+        $submission = Submission::where('id', $validated['submission_id'])
+            ->where('student_id', $student->id)
+            ->first();
+
+        if (!$submission) {
+            return response()->json(['error' => 'Submission not found or you do not have permission to edit this submission.'], 404);
+        }
+
+        // Fetch the assignment or quiz
+        $assignment = AssignmentQuiz::find($submission->assignment_id);
+
+        if (!$assignment) {
+            return response()->json(['error' => 'Assignment or Quiz not found.'], 404);
+        }
+
+        // Process answers
+        $answers = [];
+        foreach ($validated['submission_content']['answers'] as $answer) {
+            if ($assignment->type === 'assignment' && isset($answer['file'])) {
+                // Handle file upload for assignment
+                $filePath = $answer['file']->store('submissions', 'public');
+                $answers[] = [
+                    'id' => $answer['id'],
+                    'answer' => null,
+                    'file_path' => $filePath,
+                ];
+            } elseif ($assignment->type === 'quiz' || isset($answer['answer'])) {
+                // Handle text-based answers for quizzes and assignments
+                $answers[] = [
+                    'id' => $answer['id'],
+                    'answer' => $answer['answer'],
+                    'file_path' => null,
+                ];
+            }
+        }
+
+        // Update the submission
+        $submission->update([
+            'submission_content' => json_encode(['answers' => $answers]),
+            'submitted_at' => now(), // Update submission time
+        ]);
+
+        return response()->json([
+            'message' => ucfirst($assignment->type) . ' submission updated successfully.',
+            'submission' => $submission,
+        ]);
+    }
 }
