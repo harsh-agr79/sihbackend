@@ -16,7 +16,7 @@ class JobController extends Controller
      */
     public function createJobListing(Request $request)
     {
-        return response()->json([ $request->post() ]);
+       
         // Retrieve the authenticated user
         $user = $request->user();
 
@@ -24,6 +24,8 @@ class JobController extends Controller
         if (!$user) {
             return response()->json(['error' => 'Unauthorized or invalid user type'], 403);
         }
+
+        return response()->json([ $request->post() ]);
 
         // Fetch the company record associated with the authenticated user
         $company = Company::find($user->id);
