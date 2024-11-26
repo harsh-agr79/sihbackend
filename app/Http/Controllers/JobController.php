@@ -34,7 +34,7 @@ class JobController extends Controller
             return response()->json(['error' => 'Company not found'], 404);
         }
 
-        return response()->json([ $request->post() ]);
+       
 
         // Validate the incoming request data
         $validatedData = $request->validate([
@@ -52,6 +52,8 @@ class JobController extends Controller
             'skills_required' => 'nullable|array',
             'skills_required.*' => 'string|max:255',
         ]);
+
+        return response()->json([ $request->post() ]);
 
         try {
             // Create the job listing
