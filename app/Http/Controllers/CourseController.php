@@ -644,6 +644,52 @@ class CourseController extends Controller {
         }
     }
 
+    public function getCourseList()
+    {
+        try {
+            // Get the authenticated user (mentor)
+            $user = $request->user();
+
+            // Ensure the user is authenticated and is a mentor
+            if ( !$user ) {
+                return response()->json( [ 'error' => 'Unauthorized or invalid user type' ], 403 );
+            }
+    
+            $mentor = Mentor::find( $user->id );
+    
+            if ( !$mentor ) {
+                return response()->json( [ 'error' => 'Mentor not found' ], 404 );
+            }
+    
+            // Fetch the courses for the mentor
+            $courses = Course::where('mentor_id', $mentor->id)
+                ->withCount([
+                    'enrollments as enrolled' => function ($query) {
+                        $query->whereNull('completed_at'); // Count currently enrolled students
+                    },
+                    'enrollments as completed' => function ($query) {
+                        $query->whereNotNull('completed_at'); // Count completed students
+                    },
+                ])
+                ->get();
+    
+            // Format the data
+            $formattedCourses = $courses->map(function ($course) {
+                return [
+                    'id' => $course->id,
+                    'courseName' => $course->title,
+                    'courseBy' => $course->mentor->name, // Assuming the mentor name is stored in the related mentor model
+                    'completed' => $course->completed,
+                    'enrolled' => $course->enrolled,
+                ];
+            });
+    
+            return response()->json($formattedCourses, 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to fetch courses.', 'details' => $e->getMessage()], 500);
+        }
+    }
+
     /**
      * Get course details in a detailed format.
      *

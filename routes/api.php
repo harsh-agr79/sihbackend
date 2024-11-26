@@ -57,6 +57,7 @@ Route::group(['middleware'=>'api_key'], function () {
             Route::get('/profile', [MentorController::class, 'profile']);
             Route::post('/logout', [MentorController::class, 'logout']);
 
+            Route::get('/course', [CourseController::Class, 'getCourseList']);
             Route::get('/course/{courseid}', [CourseController::Class, 'manageCourseDetails']);
 
             Route::post('/course/add', [CourseController::class, 'createCourse']);
