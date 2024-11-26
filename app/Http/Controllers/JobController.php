@@ -16,6 +16,7 @@ class JobController extends Controller
      */
     public function createJobListing(Request $request)
     {
+        return response()->json([ $request->post() ]);
         // Retrieve the authenticated user
         $user = $request->user();
 
