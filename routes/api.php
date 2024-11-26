@@ -79,7 +79,7 @@ Route::group(['middleware'=>'api_key'], function () {
             Route::get('/profile', [CompanyController::class, 'profile']);
             Route::post('/logout', [CompanyController::class, 'logout']);
 
-            Route::post('/job/add', [JobListingController::class, 'createJobListing']);
+            Route::post('/job/add', [JobController::class, 'createJobListing']);
         });
     });
     
