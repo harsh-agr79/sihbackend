@@ -56,6 +56,8 @@ Route::group(['middleware'=>'api_key'], function () {
             Route::put('/community/update/{id}', [CommunityController::class, 'UpdateCommunity']);
             Route::delete('/community/delete/{id}', [CommunityController::class, 'destroy']);
             Route::get('/community/{id}', [CommunityController::class, 'getCommunityDetails']);
+
+            Route::post('/community/{communityId}/join', [CommunityController::class, 'joinCommunity']);
         });
     });
     
@@ -84,6 +86,11 @@ Route::group(['middleware'=>'api_key'], function () {
             Route::delete('/course/assignment-quizzes/{assignmentQuizId}', [CourseController::class, 'deleteAssignmentQuiz']);
 
             Route::post('/community/create', [CommunityController::class, 'CreateCommunity']);
+            Route::put('/community/update/{id}', [CommunityController::class, 'UpdateCommunity']);
+            Route::delete('/community/delete/{id}', [CommunityController::class, 'destroy']);
+            Route::get('/community/{id}', [CommunityController::class, 'getCommunityDetails']);
+
+            Route::post('/community/{communityId}/join', [CommunityController::class, 'joinCommunity']);
         });
     });
     
