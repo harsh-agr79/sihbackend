@@ -99,6 +99,8 @@ class CommunityController extends Controller
             'cover_photo' => 'nullable|image|max:2048',
         ]);
 
+        return response()->json([ $request->post() ]);
+
         // Update each field explicitly
         if ($request->has('name')) {
             $community->name = $request->input('name');
