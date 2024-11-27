@@ -63,4 +63,40 @@ class CommunityController extends Controller
         return response()->json(['message' => 'Community created successfully', 'community' => $community]);
     }
 
+    public function getCommunityDetails($id)
+    {
+        // Fetch the community with its creator and members
+        $community = Community::with('creator')->find($id);
+
+        if (!$community) {
+            return response()->json(['error' => 'Community not found'], 404);
+        }
+
+        // Format the creator's data
+        $creator = $community->creator;
+
+        // Format the response
+        $response = [
+            'id' => $community->id,
+            'name' => $community->name,
+            'description' => $community->description,
+            'profile_photo' => $community->profile_photo,
+            'cover_photo' => $community->cover_photo,
+            'created_at' => $community->created_at,
+            'updated_at' => $community->updated_at,
+            'creator' => [
+                'id' => $creator->id,
+                'type' => class_basename($community->creator_type), // Extract the class name (e.g., 'Student' or 'Mentor')
+                'name' => $creator->name,
+                'email' => $creator->email,
+                'joined_at' => $community->members()
+                    ->where('memberable_id', $creator->id)
+                    ->where('memberable_type', $community->creator_type)
+                    ->value('joined_at'),
+            ],
+        ];
+
+        return response()->json($response);
+    }
+
 }

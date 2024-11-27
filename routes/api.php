@@ -53,6 +53,7 @@ Route::group(['middleware'=>'api_key'], function () {
             Route::post('/job/{id}/apply', [JobController::class, 'applyToJobListing']);
 
             Route::post('/community/create', [CommunityController::class, 'CreateCommunity']);
+            Route::get('/community/{id}', [CommunityController::class, 'getCommunityDetails']);
         });
     });
     
