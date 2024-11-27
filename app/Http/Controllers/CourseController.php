@@ -962,6 +962,56 @@ class CourseController extends Controller {
             'enrollment' => $enrollment,
         ], 201);
     }
+
+    public function getStudentEnrolledCourses(Request $request)
+    {
+        try {
+            // Get the authenticated user (student)
+            $user = $request->user();
+
+            // Ensure the user is authenticated and is a mentor
+            if ( !$user ) {
+                return response()->json( [ 'error' => 'Unauthorized or invalid user type' ], 403 );
+            }
+    
+            $student = Student::find( $user->id );
+    
+            if ( !$student ) {
+                return response()->json( [ 'error' => 'Student not found' ], 404 );
+            }
+
+            // Fetch courses the student is enrolled in
+            $enrolledCourses = Course::whereHas('enrollments', function ($query) use ($student) {
+                $query->where('student_id', $student->id);
+            })
+            ->withCount([
+                'enrollments as enrolled' => function ($query) {
+                    $query->whereNull('completed_at'); // Count students currently enrolled
+                },
+                'enrollments as completed' => function ($query) {
+                    $query->whereNotNull('completed_at'); // Count students who completed
+                },
+            ])
+            ->with('mentor:id,name') // Include mentor information
+            ->get();
+
+            // Format the response
+            $formattedCourses = $enrolledCourses->map(function ($course) {
+                return [
+                    'id' => $course->id,
+                    'courseName' => $course->title,
+                    'courseBy' => $course->mentor->name,
+                    'completed' => $course->completed,
+                    'enrolled' => $course->enrolled,
+                ];
+            });
+
+            return response()->json($formattedCourses, 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to fetch enrolled courses.', 'details' => $e->getMessage()], 500);
+        }
+    }
+
     public function submitAssignment(Request $request)
     {
         // Validate the request
