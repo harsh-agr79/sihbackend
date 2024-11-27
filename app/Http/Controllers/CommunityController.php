@@ -184,4 +184,42 @@ class CommunityController extends Controller
         return response()->json($response);
     }
 
+    public function destroy(Request $request, $id)
+    {
+        // Find the community
+        $community = Community::find($id);
+
+        if (!$community) {
+            return response()->json(['error' => 'Community not found'], 404);
+        }
+
+        // Get the authenticated user
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        // Check if the user is an admin of this community
+        $isAdmin = $community->members()
+            ->where('community_users.member_id', $user->id)
+            ->where('community_users.member_type', get_class($user)) // Match Student or Mentor
+            ->where('community_users.role', 'admin')
+            ->exists();
+
+        if (!$isAdmin) {
+            return response()->json(['error' => 'You are not authorized to delete this community'], 403);
+        }
+
+        // Delete related resources (optional, if needed)
+        // Example: Delete posts, members, etc., if cascades are not set in the database
+        $community->posts()->delete();
+        \DB::table('community_users')->where('community_id', $community->id)->delete();
+
+        // Delete the community
+        $community->delete();
+
+        return response()->json(['message' => 'Community deleted successfully']);
+    }
+
 }
