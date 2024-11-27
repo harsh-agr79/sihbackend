@@ -63,6 +63,74 @@ class CommunityController extends Controller
         return response()->json(['message' => 'Community created successfully', 'community' => $community]);
     }
 
+    public function UpdateCommunity(Request $request, $id)
+    {
+        // Find the community
+        $community = Community::find($id);
+    
+        if (!$community) {
+            return response()->json(['error' => 'Community not found'], 404);
+        }
+    
+        // Get the authenticated user
+        $user = $request->user();
+    
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+    
+        // Check if the user is an admin of this community
+        $isAdmin = \DB::table('community_users')
+            ->where('community_id', $community->id)
+            ->where('member_id', $user->id)
+            ->where('member_type', get_class($user)) // Dynamically match Student or Mentor
+            ->where('role', 'admin')
+            ->exists();
+    
+        if (!$isAdmin) {
+            return response()->json(['error' => 'You are not authorized to update this community'], 403);
+        }
+    
+        // Validate the incoming request
+        $validated = $request->validate([
+            'name' => 'sometimes|required|string|max:255',
+            'description' => 'nullable|string',
+            'profile_photo' => 'nullable|image|max:2048',
+            'cover_photo' => 'nullable|image|max:2048',
+        ]);
+    
+        // Handle profile photo upload if provided
+        if ($request->hasFile('profile_photo')) {
+            // Delete the old profile photo if it exists
+            if ($community->profile_photo) {
+                \Storage::delete($community->profile_photo);
+            }
+    
+            // Save the new profile photo
+            $validated['profile_photo'] = $request->file('profile_photo')->store('profile_photos');
+        }
+    
+        // Handle cover photo upload if provided
+        if ($request->hasFile('cover_photo')) {
+            // Delete the old cover photo if it exists
+            if ($community->cover_photo) {
+                \Storage::delete($community->cover_photo);
+            }
+    
+            // Save the new cover photo
+            $validated['cover_photo'] = $request->file('cover_photo')->store('cover_photos');
+        }
+    
+        // Update the community with validated data
+        $community->update($validated);
+    
+        // Return the updated community data
+        return response()->json([
+            'message' => 'Community updated successfully',
+            'community' => $community,
+        ]);
+    }
+    
     public function getCommunityDetails($id)
     {
         // Fetch the community with its creator and members
