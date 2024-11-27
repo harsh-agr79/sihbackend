@@ -26,9 +26,11 @@ class CommunityController extends Controller
             return response()->json(['error' => 'User must be a valid Student or Mentor'], 403);
         }
 
-        // Set creator_type and creator_id based on the user type
-        $creatorType = $student ? Student::class : Mentor::class;
-        $creatorId = $user->id;
+        $relationship = $user instanceof Student ? 'students' : ($user instanceof Mentor ? 'mentors' : null);
+
+        if (!$relationship) {
+            return response()->json(['error' => 'User must be a valid Student or Mentor'], 403);
+        }
 
         // Validate the request
         $validated = $request->validate([
@@ -49,18 +51,19 @@ class CommunityController extends Controller
 
         // Create the community
         $community = Community::create(array_merge($validated, [
-            'creator_type' => $creatorType,
-            'creator_id' => $creatorId,
+            'creator_type' => get_class($user),
+            'creator_id' => $user->id,
         ]));
 
         // Automatically add the creator as an admin member
-        $community->members()->attach($creatorId, [
-            'member_type' => $creatorType,
+        $community->$relationship()->attach($user->id, [
+            'member_type' => get_class($user),
             'role' => 'admin',
             'joined_at' => now(),
         ]);
 
         return response()->json(['message' => 'Community created successfully', 'community' => $community]);
+
     }
 
     public function UpdateCommunity(Request $request, $id)
