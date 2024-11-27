@@ -201,14 +201,15 @@ class CommunityController extends Controller
         }
 
         // Check if the user is an admin of this community
-        $isAdmin = $community->members()
-            ->where('community_users.member_id', $user->id)
-            ->where('community_users.member_type', get_class($user)) // Match Student or Mentor
-            ->where('community_users.role', 'admin')
-            ->exists();
+        $isAdmin = \DB::table('community_users')
+        ->where('community_id', $community->id)
+        ->where('member_id', $user->id)
+        ->where('member_type', get_class($user)) // Dynamically match Student or Mentor
+        ->where('role', 'admin')
+        ->exists();
 
         if (!$isAdmin) {
-            return response()->json(['error' => 'You are not authorized to delete this community'], 403);
+            return response()->json(['error' => 'You are not authorized to update this community'], 403);
         }
 
         // Delete related resources (optional, if needed)
