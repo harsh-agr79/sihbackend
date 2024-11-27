@@ -58,6 +58,7 @@ Route::group(['middleware'=>'api_key'], function () {
             Route::get('/community/{id}', [CommunityController::class, 'getCommunityDetails']);
 
             Route::post('/community/{communityId}/join', [CommunityController::class, 'joinCommunity']);
+            Route::delete('/community/{communityId}/leave', [CommunityController::class, 'leaveCommunity']);
         });
     });
     
@@ -91,6 +92,7 @@ Route::group(['middleware'=>'api_key'], function () {
             Route::get('/community/{id}', [CommunityController::class, 'getCommunityDetails']);
 
             Route::post('/community/{communityId}/join', [CommunityController::class, 'joinCommunity']);
+            Route::delete('/community/{communityId}/leave', [CommunityController::class, 'leaveCommunity']);
         });
     });
     

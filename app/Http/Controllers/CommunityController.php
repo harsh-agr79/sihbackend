@@ -261,4 +261,43 @@ class CommunityController extends Controller
         return response()->json(['message' => 'You have successfully joined the community']);
     }
     
+    public function leaveCommunity(Request $request, $communityId)
+    {
+        // Ensure the user is authenticated
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        // Determine if the user is a Student or Mentor
+        $relationship = $user instanceof Student ? 'students' : ($user instanceof Mentor ? 'mentors' : null);
+
+        if (!$relationship) {
+            return response()->json(['error' => 'User must be a valid Student or Mentor'], 403);
+        }
+
+        // Find the community
+        $community = Community::find($communityId);
+
+        if (!$community) {
+            return response()->json(['error' => 'Community not found'], 404);
+        }
+
+        // Check if the user is a member of the community
+        $isMember = $community->$relationship()
+            ->where('community_users.member_id', $user->id)
+            ->where('community_users.member_type', get_class($user))
+            ->exists();
+
+        if (!$isMember) {
+            return response()->json(['error' => 'You are not a member of this community'], 409);
+        }
+
+        // Remove the user from the community
+        $community->$relationship()->detach($user->id);
+
+        return response()->json(['message' => 'You have successfully left the community']);
+    }
+
 }
