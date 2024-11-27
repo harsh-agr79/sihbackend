@@ -38,7 +38,7 @@ class Mentor extends Authenticatable implements MustVerifyEmail
 
     public function communities()
     {
-        return $this->morphToMany(Community::class, 'memberable', 'community_users', 'member_id', 'community_id')
+        return $this->morphToMany(Community::class, 'member', 'community_users', 'member_id', 'community_id')
                     ->withPivot('role', 'joined_at')
                     ->withTimestamps();
     }

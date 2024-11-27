@@ -22,21 +22,21 @@ class Community extends Model {
 
     public function students()
     {
-        return $this->morphedByMany(Student::class, 'memberable', 'community_users', 'community_id', 'member_id')
+        return $this->morphedByMany(Student::class, 'member', 'community_users', 'community_id', 'member_id')
                     ->withPivot('role', 'joined_at')
                     ->withTimestamps();
     }
     
     public function mentors()
     {
-        return $this->morphedByMany(Mentor::class, 'memberable', 'community_users', 'community_id', 'member_id')
+        return $this->morphedByMany(Mentor::class, 'member', 'community_users', 'community_id', 'member_id')
                     ->withPivot('role', 'joined_at')
                     ->withTimestamps();
     }
     
     public function members()
     {
-        return $this->morphToMany(User::class, 'memberable', 'community_users', 'community_id', 'member_id')
+        return $this->morphToMany(User::class, 'member', 'community_users', 'community_id', 'member_id')
                     ->withPivot('member_type', 'role', 'joined_at')
                     ->withTimestamps();
     }
