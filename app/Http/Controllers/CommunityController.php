@@ -333,18 +333,24 @@ class CommunityController extends Controller
             return response()->json(['error' => 'You are not a member of this community'], 403);
         }
 
-        // Validate input with custom rule
+        // Validate input
         $validator = \Validator::make($request->all(), [
             'caption' => 'nullable|string|max:255',
             'content' => 'nullable|file|max:20480', // Max 20MB for content like images or videos
             'original_post_id' => 'nullable|exists:posts,id', // For reposting
         ]);
 
-        // Custom validation: Ensure either 'caption' or 'content' is provided if not a repost
+        // Custom validation logic
         $validator->after(function ($validator) use ($request) {
+            // Ensure either caption or content is provided if not a repost
             if (!$request->input('original_post_id') && !$request->filled('caption') && !$request->hasFile('content')) {
                 $validator->errors()->add('caption', 'Either caption or content must be provided if not reposting.');
                 $validator->errors()->add('content', 'Either caption or content must be provided if not reposting.');
+            }
+
+            // Ensure content is null if reposting
+            if ($request->input('original_post_id') && $request->hasFile('content')) {
+                $validator->errors()->add('content', 'Content must be null when reposting.');
             }
         });
 
@@ -352,9 +358,9 @@ class CommunityController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        // Handle content upload if provided
+        // Handle content upload if provided and not a repost
         $contentPath = null;
-        if ($request->hasFile('content')) {
+        if (!$request->input('original_post_id') && $request->hasFile('content')) {
             $contentPath = $request->file('content')->store('posts', 'public');
         }
 
@@ -369,5 +375,49 @@ class CommunityController extends Controller
 
         return response()->json(['message' => 'Post created successfully', 'post' => $post]);
     }
+
+    public function deletePost(Request $request, $communityId, $postId)
+    {
+        // Ensure the user is authenticated
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        // Find the community
+        $community = Community::find($communityId);
+
+        if (!$community) {
+            return response()->json(['error' => 'Community not found'], 404);
+        }
+
+        // Find the post
+        $post = $community->posts()->find($postId);
+
+        if (!$post) {
+            return response()->json(['error' => 'Post not found in this community'], 404);
+        }
+
+        // Check if the user is the post creator
+        $isAuthor = $post->author_id === $user->id && $post->author_type === get_class($user);
+
+        // Check if the user is a community admin
+        $isAdmin = $community->members()
+            ->where('community_users.member_id', $user->id)
+            ->where('community_users.member_type', get_class($user))
+            ->where('community_users.role', 'admin')
+            ->exists();
+
+        if (!$isAuthor && !$isAdmin) {
+            return response()->json(['error' => 'You are not authorized to delete this post'], 403);
+        }
+
+        // Delete the post
+        $post->delete();
+
+        return response()->json(['message' => 'Post deleted successfully']);
+    }
+
 
 }

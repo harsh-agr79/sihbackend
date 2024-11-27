@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('author_type');
             $table->unsignedBigInteger('author_id');
             $table->string('caption')->nullable();
-            $table->text('content');
+            $table->text('content')->nullable();
             $table->unsignedBigInteger('original_post_id')->nullable();
             $table->timestamps();
 
