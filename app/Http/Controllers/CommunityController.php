@@ -75,12 +75,15 @@ class CommunityController extends Controller
         // Format the creator's data
         $creator = $community->creator;
 
-        $joinedAt = $community->members()
-        ->wherePivot('member_id', $creator->id)
-        ->wherePivot('member_type', $community->creator_type)
-        ->first()
-        ->pivot
-        ->joined_at ?? null;
+        $relationship = $community->creator_type === Student::class ? 'students' : 'mentors';
+
+        // Fetch joined_at from the correct relationship
+        $joinedAt = $community->$relationship()
+            ->where('community_users.member_id', $community->creator->id)
+            ->where('community_users.member_type', $community->creator_type)
+            ->first()
+            ->pivot
+            ->joined_at ?? null;
 
 
         // Format the response
