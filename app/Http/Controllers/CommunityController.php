@@ -414,7 +414,7 @@ class CommunityController extends Controller
             ->exists();
     
         // Check if the user is the author of the post
-        $isAuthor = $post->author_id === $user->id && $post->author_type === get_class($user);
+        $isAuthor = (int)$post->author_id === (int)$user->id && $post->author_type === get_class($user);
     
         // Only allow deletion if the user is either an admin or the post's author
         if (!$isAdmin && !$isAuthor) {
