@@ -40,4 +40,17 @@ class Student extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(Application::class);
     }
+
+    public function communities()
+    {
+        return $this->morphToMany(Community::class, 'memberable', 'community_users', 'member_id', 'community_id')
+                    ->withPivot('role', 'joined_at')
+                    ->withTimestamps();
+    }
+
+    // Communities created by the student
+    public function createdCommunities()
+    {
+        return $this->morphMany(Community::class, 'creator');
+    }
 }

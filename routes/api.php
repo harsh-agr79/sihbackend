@@ -10,6 +10,7 @@ use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\InstituteController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\JobController;
+use App\Http\Controllers\CommunityController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -50,6 +51,8 @@ Route::group(['middleware'=>'api_key'], function () {
 
             Route::get('/jobs/active', [JobController::class, 'getActiveJobListings']);
             Route::post('/job/{id}/apply', [JobController::class, 'applyToJobListing']);
+
+            Route::post('/community/create', [CommunityController::class, 'CreateCommunity']);
         });
     });
     
@@ -76,6 +79,8 @@ Route::group(['middleware'=>'api_key'], function () {
             Route::post('/course/assignment-quizzes/add', [CourseController::class, 'createAssignmentQuiz']);
             Route::put('/course/assignment-quizzes/{assignmentQuizId}', [CourseController::class, 'updateAssignmentQuiz']);
             Route::delete('/course/assignment-quizzes/{assignmentQuizId}', [CourseController::class, 'deleteAssignmentQuiz']);
+
+            Route::post('/community/create', [CommunityController::class, 'CreateCommunity']);
         });
     });
     
