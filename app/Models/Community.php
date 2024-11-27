@@ -36,9 +36,7 @@ class Community extends Model {
     
     public function members()
     {
-        return $this->morphToMany(User::class, 'member', 'community_users', 'community_id', 'member_id')
-                    ->withPivot('role', 'joined_at')
-                    ->withTimestamps();
+        return collect($this->students)->merge($this->mentors);
     }
 
     
