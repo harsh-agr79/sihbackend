@@ -426,5 +426,127 @@ class CommunityController extends Controller
     
         return response()->json(['message' => 'Post deleted successfully']);
     }
+
+    public function commentOnPost(Request $request, $communityId, $postId)
+    {
+        // Ensure the user is authenticated
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        // Find the community
+        $community = Community::find($communityId);
+
+        if (!$community) {
+            return response()->json(['error' => 'Community not found'], 404);
+        }
+
+        // Find the post
+        $post = $community->posts()->find($postId);
+
+        if (!$post) {
+            return response()->json(['error' => 'Post not found in this community'], 404);
+        }
+
+        // Determine if the user is a Student or Mentor
+        $relationship = $user instanceof Student ? 'students' : ($user instanceof Mentor ? 'mentors' : null);
+
+        if (!$relationship) {
+            return response()->json(['error' => 'User must be a valid Student or Mentor'], 403);
+        }
+
+        // Check if the user is a member of the community
+        $isMember = $community->$relationship()
+            ->where('community_users.member_id', $user->id)
+            ->where('community_users.member_type', get_class($user))
+            ->exists();
+
+        if (!$isMember) {
+            return response()->json(['error' => 'You are not a member of this community'], 403);
+        }
+
+        // Validate the comment content
+        $validated = $request->validate([
+            'content' => 'required|string|max:1000',
+            'parent_comment_id' => 'nullable|exists:comments,id', // For replies
+        ]);
+
+        // Create the comment
+        $comment = $post->comments()->create([
+            'author_id' => $user->id,
+            'author_type' => get_class($user),
+            'content' => $validated['content'],
+            'parent_comment_id' => $validated['parent_comment_id'] ?? null,
+        ]);
+
+        return response()->json(['message' => 'Comment added successfully', 'comment' => $comment]);
+    }
+
+
+    public function toggleLike(Request $request, $communityId, $postId)
+    {
+        // Ensure the user is authenticated
+        $user = $request->user();
+    
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+    
+        // Find the community
+        $community = Community::find($communityId);
+    
+        if (!$community) {
+            return response()->json(['error' => 'Community not found'], 404);
+        }
+    
+        // Find the post
+        $post = $community->posts()->find($postId);
+    
+        if (!$post) {
+            return response()->json(['error' => 'Post not found in this community'], 404);
+        }
+    
+        // Determine if the user is a Student or Mentor
+        $relationship = $user instanceof Student ? 'students' : ($user instanceof Mentor ? 'mentors' : null);
+    
+        if (!$relationship) {
+            return response()->json(['error' => 'User must be a valid Student or Mentor'], 403);
+        }
+    
+        // Check if the user is a member of the community
+        $isMember = $community->$relationship()
+            ->where('community_users.member_id', $user->id)
+            ->where('community_users.member_type', get_class($user))
+            ->exists();
+    
+        if (!$isMember) {
+            return response()->json(['error' => 'You are not a member of this community'], 403);
+        }
+    
+        // Check if the user has already liked the post
+        $like = $post->likes()
+            ->where('liker_id', $user->id)
+            ->where('liker_type', get_class($user))
+            ->first();
+    
+        if ($like) {
+            // Unlike the post if already liked
+            $like->delete();
+    
+            return response()->json(['message' => 'Post unliked successfully']);
+        } else {
+            // Like the post if not already liked
+            $post->likes()->create([
+                'liker_id' => $user->id,
+                'liker_type' => get_class($user),
+            ]);
+    
+            return response()->json(['message' => 'Post liked successfully']);
+        }
+    }
+    
+
     
 }

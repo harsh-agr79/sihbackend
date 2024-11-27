@@ -61,6 +61,8 @@ Route::group(['middleware'=>'api_key'], function () {
             Route::delete('/community/{communityId}/leave', [CommunityController::class, 'leaveCommunity']);
             Route::post('/community/{communityId}/post', [CommunityController::class, 'postInCommunity']);
             Route::delete('/community/{communityId}/post/{postId}', [CommunityController::class, 'deletePost']);
+            Route::post('/community/{communityId}/post/{postId}/like', [CommunityController::class, 'toggleLike']);
+            Route::post('/community/{communityId}/post/{postId}/comment', [CommunityController::class, 'commentOnPost']);
         });
     });
     
@@ -97,6 +99,8 @@ Route::group(['middleware'=>'api_key'], function () {
             Route::delete('/community/{communityId}/leave', [CommunityController::class, 'leaveCommunity']);
             Route::post('/community/{communityId}/post', [CommunityController::class, 'postInCommunity']);
             Route::delete('/community/{communityId}/post/{postId}', [CommunityController::class, 'deletePost']);
+            Route::post('/community/{communityId}/post/{postId}/like', [CommunityController::class, 'toggleLike']);
+            Route::post('/community/{communityId}/post/{postId}/comment', [CommunityController::class, 'commentOnPost']);
         });
     });
     
