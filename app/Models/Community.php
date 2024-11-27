@@ -36,10 +36,11 @@ class Community extends Model {
     
     public function members()
     {
-        return $this->morphToMany(User::class, 'member', 'community_users', 'community_id', 'member_id')
-                    ->withPivot('member_type', 'role', 'joined_at')
+        return $this->morphToMany(User::class, 'member', 'community_users', 'community_id', 'memberable_id')
+                    ->withPivot('role', 'joined_at')
                     ->withTimestamps();
     }
+
     
 
     // Get members by role
