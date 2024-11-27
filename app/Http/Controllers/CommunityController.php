@@ -188,39 +188,32 @@ class CommunityController extends Controller
     {
         // Find the community
         $community = Community::find($id);
-
+    
         if (!$community) {
             return response()->json(['error' => 'Community not found'], 404);
         }
-
+    
         // Get the authenticated user
         $user = $request->user();
-
+    
         if (!$user) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
-
-        // Check if the user is an admin of this community
-        $isAdmin = \DB::table('community_users')
-        ->where('community_id', $community->id)
-        ->where('member_id', $user->id)
-        ->where('member_type', get_class($user)) // Dynamically match Student or Mentor
-        ->where('role', 'admin')
-        ->exists();
-
-        if (!$isAdmin) {
-            return response()->json(['error' => 'You are not authorized to update this community'], 403);
+    
+        // Check if the user is the creator of the community
+        if ((int)$community->creator_id != (int)$user->id || $community->creator_type != get_class($user)) {
+            return response()->json(['error' => 'Only the creator of the community can delete it'], 403);
         }
-
-        // Delete related resources (optional, if needed)
-        // Example: Delete posts, members, etc., if cascades are not set in the database
+    
+        // Delete related resources if necessary (optional)
         $community->posts()->delete();
         \DB::table('community_users')->where('community_id', $community->id)->delete();
-
+    
         // Delete the community
         $community->delete();
-
+    
         return response()->json(['message' => 'Community deleted successfully']);
     }
+    
 
 }
