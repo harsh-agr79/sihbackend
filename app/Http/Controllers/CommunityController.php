@@ -299,5 +299,75 @@ class CommunityController extends Controller
 
         return response()->json(['message' => 'You have successfully left the community']);
     }
+    
+    public function postInCommunity(Request $request, $communityId)
+    {
+        // Ensure the user is authenticated
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        // Determine if the user is a Student or Mentor
+        $relationship = $user instanceof Student ? 'students' : ($user instanceof Mentor ? 'mentors' : null);
+
+        if (!$relationship) {
+            return response()->json(['error' => 'User must be a valid Student or Mentor'], 403);
+        }
+
+        // Find the community
+        $community = Community::find($communityId);
+
+        if (!$community) {
+            return response()->json(['error' => 'Community not found'], 404);
+        }
+
+        // Check if the user is a member of the community
+        $isMember = $community->$relationship()
+            ->where('community_users.member_id', $user->id)
+            ->where('community_users.member_type', get_class($user))
+            ->exists();
+
+        if (!$isMember) {
+            return response()->json(['error' => 'You are not a member of this community'], 403);
+        }
+
+        // Validate input with custom rule
+        $validator = \Validator::make($request->all(), [
+            'caption' => 'nullable|string|max:255',
+            'content' => 'nullable|file|max:20480', // Max 20MB for content like images or videos
+            'original_post_id' => 'nullable|exists:posts,id', // For reposting
+        ]);
+
+        // Custom validation: Ensure either 'caption' or 'content' is provided if not a repost
+        $validator->after(function ($validator) use ($request) {
+            if (!$request->input('original_post_id') && !$request->filled('caption') && !$request->hasFile('content')) {
+                $validator->errors()->add('caption', 'Either caption or content must be provided if not reposting.');
+                $validator->errors()->add('content', 'Either caption or content must be provided if not reposting.');
+            }
+        });
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        // Handle content upload if provided
+        $contentPath = null;
+        if ($request->hasFile('content')) {
+            $contentPath = $request->file('content')->store('posts');
+        }
+
+        // Create the post
+        $post = $community->posts()->create([
+            'author_type' => get_class($user),
+            'author_id' => $user->id,
+            'caption' => $request->input('caption'),
+            'content' => $contentPath,
+            'original_post_id' => $request->input('original_post_id'),
+        ]);
+
+        return response()->json(['message' => 'Post created successfully', 'post' => $post]);
+    }
 
 }
