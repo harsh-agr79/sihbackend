@@ -90,8 +90,8 @@ class CommunityController extends Controller
                 'name' => $creator->name,
                 'email' => $creator->email,
                 'joined_at' => $community->members()
-                    ->where('memberable_id', $creator->id)
-                    ->where('memberable_type', $community->creator_type)
+                    ->where('member_id', $creator->id)
+                    ->where('member_type', $community->creator_type)
                     ->value('joined_at'),
             ],
         ];
