@@ -380,44 +380,51 @@ class CommunityController extends Controller
     {
         // Ensure the user is authenticated
         $user = $request->user();
-
+    
         if (!$user) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
-
+    
         // Find the community
         $community = Community::find($communityId);
-
+    
         if (!$community) {
             return response()->json(['error' => 'Community not found'], 404);
         }
-
+    
         // Find the post
         $post = $community->posts()->find($postId);
-
+    
         if (!$post) {
             return response()->json(['error' => 'Post not found in this community'], 404);
         }
-
-        // Check if the user is the post creator
-        $isAuthor = $post->author_id === $user->id && $post->author_type === get_class($user);
-
-        // Check if the user is a community admin
-        $isAdmin = $community->members()
+    
+        // Check if the user is a Student or Mentor
+        $relationship = $user instanceof Student ? 'students' : ($user instanceof Mentor ? 'mentors' : null);
+    
+        if (!$relationship) {
+            return response()->json(['error' => 'User must be a valid Student or Mentor'], 403);
+        }
+    
+        // Check if the user is an admin
+        $isAdmin = $community->$relationship()
             ->where('community_users.member_id', $user->id)
             ->where('community_users.member_type', get_class($user))
             ->where('community_users.role', 'admin')
             ->exists();
-
-        if (!$isAuthor && !$isAdmin) {
+    
+        // Check if the user is the author of the post
+        $isAuthor = $post->author_id === $user->id && $post->author_type === get_class($user);
+    
+        // Only allow deletion if the user is either an admin or the post's author
+        if (!$isAdmin && !$isAuthor) {
             return response()->json(['error' => 'You are not authorized to delete this post'], 403);
         }
-
-        // Delete the post
+    
+        // Delete the post (cascade delete will handle comments and likes)
         $post->delete();
-
+    
         return response()->json(['message' => 'Post deleted successfully']);
     }
-
-
+    
 }
