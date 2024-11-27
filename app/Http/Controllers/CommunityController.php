@@ -42,11 +42,11 @@ class CommunityController extends Controller
 
         // Save uploaded files if present
         if ($request->hasFile('profile_photo')) {
-            $validated['profile_photo'] = $request->file('profile_photo')->store('profile_photos');
+            $validated['profile_photo'] = $request->file('profile_photo')->store('profile_photos', 'public');
         }
 
         if ($request->hasFile('cover_photo')) {
-            $validated['cover_photo'] = $request->file('cover_photo')->store('cover_photos');
+            $validated['cover_photo'] = $request->file('cover_photo')->store('cover_photos', 'public');
         }
 
         // Create the community
@@ -120,7 +120,7 @@ class CommunityController extends Controller
             }
 
             // Save the new profile photo
-            $community->profile_photo = $request->file('profile_photo')->store('profile_photos');
+            $community->profile_photo = $request->file('profile_photo')->store('profile_photos', 'public');
         }
 
         if ($request->hasFile('cover_photo')) {
@@ -130,7 +130,7 @@ class CommunityController extends Controller
             }
 
             // Save the new cover photo
-            $community->cover_photo = $request->file('cover_photo')->store('cover_photos');
+            $community->cover_photo = $request->file('cover_photo')->store('cover_photos', 'public');
         }
 
         // Save the updated community
@@ -355,7 +355,7 @@ class CommunityController extends Controller
         // Handle content upload if provided
         $contentPath = null;
         if ($request->hasFile('content')) {
-            $contentPath = $request->file('content')->store('posts');
+            $contentPath = $request->file('content')->store('posts', 'public');
         }
 
         // Create the post
