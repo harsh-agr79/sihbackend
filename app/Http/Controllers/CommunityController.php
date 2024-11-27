@@ -75,6 +75,14 @@ class CommunityController extends Controller
         // Format the creator's data
         $creator = $community->creator;
 
+        $joinedAt = $community->members()
+        ->wherePivot('member_id', $creator->id)
+        ->wherePivot('member_type', $community->creator_type)
+        ->first()
+        ->pivot
+        ->joined_at ?? null;
+
+
         // Format the response
         $response = [
             'id' => $community->id,
@@ -89,10 +97,7 @@ class CommunityController extends Controller
                 'type' => class_basename($community->creator_type), // Extract the class name (e.g., 'Student' or 'Mentor')
                 'name' => $creator->name,
                 'email' => $creator->email,
-                'joined_at' => $community->members()
-                    ->where('member_id', $creator->id)
-                    ->where('member_type', $community->creator_type)
-                    ->value('joined_at'),
+                'joined_at' => $joinedAt,
             ],
         ];
 
