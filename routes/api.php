@@ -66,7 +66,7 @@ Route::group(['middleware'=>'api_key'], function () {
             Route::post('/community/{communityId}/post/{postId}/comment', [CommunityController::class, 'commentOnPost']);
 
             Route::get('/community/{communityId}/posts', [CommunityController::class, 'getCommunityPosts']);
-            Route::get('/community/list', [CommunityController::class, 'getCommunityList']);
+            Route::get('/explorecommunity/list', [CommunityController::class, 'getCommunityList']);
         });
     });
     
@@ -106,7 +106,7 @@ Route::group(['middleware'=>'api_key'], function () {
             Route::post('/community/{communityId}/post/{postId}/like', [CommunityController::class, 'toggleLike']);
             Route::post('/community/{communityId}/post/{postId}/comment', [CommunityController::class, 'commentOnPost']);
 
-            Route::get('/community/list', [CommunityController::class, 'getCommunityList']);
+            Route::get('/explorecommunity/list', [CommunityController::class, 'getCommunityList']);
             Route::get('/community/{communityId}/posts', [CommunityController::class, 'getCommunityPosts']);
         });
     });
