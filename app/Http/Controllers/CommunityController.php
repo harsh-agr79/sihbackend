@@ -619,7 +619,6 @@ class CommunityController extends Controller
         $communities = $query->get();
 
         return response()->json($communities);
-
     }
     
 }
