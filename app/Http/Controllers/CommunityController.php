@@ -593,32 +593,49 @@ class CommunityController extends Controller
     }
 
     public function getCommunityList(Request $request){
-
-        // Validate optional filters
-        $validated = $request->validate([
-            'search' => 'nullable|string|max:255', // Search by community name or description
-            'sort_by' => 'nullable|string|in:name,created_at', // Allow sorting by name or creation date
-            'order' => 'nullable|string|in:asc,desc', // Sort order (ascending or descending)
-        ]);
-
-        // Query for communities
-        $query = Community::query();
-
-        // Apply search filter
-        if (!empty($validated['search'])) {
-            $query->where('name', 'like', '%' . $validated['search'] . '%')
-                ->orWhere('description', 'like', '%' . $validated['search'] . '%');
-        }
-
-        // Apply sorting
-        $sortBy = $validated['sort_by'] ?? 'created_at'; // Default sorting by creation date
-        $order = $validated['order'] ?? 'desc'; // Default order descending
-        $query->orderBy($sortBy, $order);
-
-        // Retrieve all communities
-        $communities = $query->get();
-
-        return response()->json($communities);
+            // Validate optional filters
+            $validated = $request->validate([
+                'search' => 'nullable|string|max:255', // Search by community name or description
+                'sort_by' => 'nullable|string|in:name,created_at', // Allow sorting by name or creation date
+                'order' => 'nullable|string|in:asc,desc', // Sort order (ascending or descending)
+                'per_page' => 'nullable|integer|min:1|max:100', // Number of results per page
+            ]);
+        
+            // Query for communities
+            $query = Community::query();
+        
+            // Apply search filter
+            if (!empty($validated['search'])) {
+                $query->where('name', 'like', '%' . $validated['search'] . '%')
+                    ->orWhere('description', 'like', '%' . $validated['search'] . '%');
+            }
+        
+            // Apply sorting
+            $sortBy = $validated['sort_by'] ?? 'created_at'; // Default sorting by creation date
+            $order = $validated['order'] ?? 'desc'; // Default order descending
+            $query->orderBy($sortBy, $order);
+        
+            // Paginate results
+            $perPage = $validated['per_page'] ?? 10; // Default 10 results per page
+            $communities = $query->with('creator')->paginate($perPage);
+        
+            // Format response to include creator name
+            $formattedCommunities = $communities->map(function ($community) {
+                return [
+                    'id' => $community->id,
+                    'name' => $community->name,
+                    'description' => $community->description,
+                    'profile_photo' => $community->profile_photo ? asset('storage/' . $community->profile_photo) : null,
+                    'cover_photo' => $community->cover_photo ? asset('storage/' . $community->cover_photo) : null,
+                    'creator_name' => $community->creator ? $community->creator->name : 'Unknown',
+                    'created_at' => $community->created_at,
+                    'updated_at' => $community->updated_at,
+                ];
+            });
+        
+            return response()->json(
+                $formattedCommunities
+            );
     }
     
 }
