@@ -592,5 +592,34 @@ class CommunityController extends Controller
         ]);
     }
 
+    public function getCommunityList(Request $request){
+
+        // Validate optional filters
+        $validated = $request->validate([
+            'search' => 'nullable|string|max:255', // Search by community name or description
+            'sort_by' => 'nullable|string|in:name,created_at', // Allow sorting by name or creation date
+            'order' => 'nullable|string|in:asc,desc', // Sort order (ascending or descending)
+        ]);
+
+        // Query for communities
+        $query = Community::query();
+
+        // Apply search filter
+        if (!empty($validated['search'])) {
+            $query->where('name', 'like', '%' . $validated['search'] . '%')
+                ->orWhere('description', 'like', '%' . $validated['search'] . '%');
+        }
+
+        // Apply sorting
+        $sortBy = $validated['sort_by'] ?? 'created_at'; // Default sorting by creation date
+        $order = $validated['order'] ?? 'desc'; // Default order descending
+        $query->orderBy($sortBy, $order);
+
+        // Retrieve all communities
+        $communities = $query->get();
+
+        return response()->json($communities);
+
+    }
     
 }
