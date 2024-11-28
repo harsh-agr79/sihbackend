@@ -832,7 +832,7 @@ class CourseController extends Controller {
             $modules = $course->moduleGroups->flatMap(function ($group) {
                 return $group->modules->map(function ($module) use ($group) {
                     return [
-                        'id' => $module->id,
+                        'id' => (string)$module->id,
                         'groupId' => $group->id, // Include group_id
                         'courseId' => $module->course_id,
                         'title' => $module->title,
@@ -846,7 +846,7 @@ class CourseController extends Controller {
             })->merge(
                 $course->ungroupedModules->map(function ($module) {
                     return [
-                        'id' => $module->id,
+                        'id' =>  (string)$module->id,
                         'groupId' => null, // Ungrouped modules have no group_id
                         'courseId' => $module->course_id,
                         'title' => $module->title,
