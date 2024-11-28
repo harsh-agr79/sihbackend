@@ -836,7 +836,7 @@ class CourseController extends Controller {
                         'groupId' => $group->id, // Include group_id
                         'courseId' => $module->course_id,
                         'title' => $module->title,
-                        'video_url' => $module->video_url,
+                        'videoUrl' => $module->video_url,
                         'description' => $module->description,
                         'transcript' => $module->transcript,
                         'materialLinks' => $module->material_links,
