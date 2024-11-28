@@ -898,7 +898,7 @@ class CourseController extends Controller {
                 'completed' => $course->completed,
                 'enrolled' => $course->enrolled,
                 'description' => $course->description,
-                'module_groups' => $moduleGroups, // Separate array for module groups
+                'moduleGroups' => $moduleGroups, // Separate array for module groups
                 'modules' => $modules, // Unified array of modules
                 'assignmentsQuizzes' => $assignmentsQuizzes, // Unified array of assignments/quizzes
             ], 200);
