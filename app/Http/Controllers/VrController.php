@@ -34,13 +34,20 @@ class VrController extends Controller
             return $mentor; // Return the validation error response
         }
     
-        // Validate input
-        $request->validate([
-            'name' => 'required|array',
-            'name.*' => 'required|string',
-            'file' => 'required|array',
-            'file.*' => 'required|file|mimes:obj,fbx,glb,gltf|max:10240',
-        ]);
+        try {
+            $request->validate([
+                'name' => 'required|array',
+                'name.*' => 'required|string',
+                'file' => 'required|array',
+                'file.*' => 'required|file|mimes:obj,fbx,glb,gltf|max:10240',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation errors occurred.',
+                'errors' => $e->errors(),
+            ], 422);
+        }
     
         $savedObjects = [];
     
@@ -63,6 +70,7 @@ class VrController extends Controller
     
         return response()->json(['success' => true, 'data' => $savedObjects], 201);
     }
+    
     
     
 
