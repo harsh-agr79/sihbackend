@@ -17,7 +17,7 @@ class Environment extends Model
 
     public function objects()
     {
-        return $this->hasMany(ThreeDObject::class, 'id', 'object_ids');
+        return $this->hasMany(Object3d::class, 'id', 'object_ids');
     }
 
     public function mentor()
