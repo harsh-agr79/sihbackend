@@ -34,6 +34,7 @@ class VrController extends Controller
             return $mentor; // Return the validation error response
         }
     
+        // Validate inputs
         $request->validate([
             'name' => 'required|array',
             'name.*' => 'required|string',
@@ -41,22 +42,29 @@ class VrController extends Controller
             'file.*' => [
                 'required',
                 'file',
-                'max:10240',
-                'mimetypes:text/plain,application/octet-stream',
-                function ($attribute, $value, $fail) {
-                    $extension = $value->getClientOriginalExtension();
-                    if ($extension !== 'obj') {
-                        $fail("The $attribute must have a valid OBJ file extension.");
-                    }
-                },
+                'max:10240', // Max size: 10 MB
+                'mimetypes:application/octet-stream,text/plain,model/gltf+json,model/gltf-binary', // Add relevant MIME types
             ],
         ]);
     
         $savedObjects = [];
     
         foreach ($request->file('file') as $index => $file) {
-            $filePath = $file->storeAs('3d_objects', uniqid() . '.obj', 'public');
+            // Ensure a corresponding name exists
+            if (!isset($request->name[$index])) {
+                return response()->json(['error' => "Name is missing for file at index $index"], 400);
+            }
     
+            // Extract the original extension
+            $extension = $file->getClientOriginalExtension();
+    
+            // Generate a unique file name while maintaining the original extension
+            $fileName = uniqid() . '.' . $extension;
+    
+            // Store the file
+            $filePath = $file->storeAs('3d_objects', $fileName, 'public');
+    
+            // Save the record in the database
             $savedObjects[] = Object3d::create([
                 'mentor_id' => $mentor->id,
                 'name' => $request->name[$index],
@@ -66,6 +74,7 @@ class VrController extends Controller
     
         return response()->json(['success' => true, 'data' => $savedObjects], 201);
     }
+    
     
 
     // Read All
