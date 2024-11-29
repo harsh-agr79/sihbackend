@@ -11,6 +11,7 @@ use App\Http\Controllers\InstituteController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\CommunityController;
+use App\Http\Controllers\VrController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -108,6 +109,11 @@ Route::group(['middleware'=>'api_key'], function () {
 
             Route::get('/explorecommunity/list', [CommunityController::class, 'getCommunityList']);
             Route::get('/community/{communityId}/posts', [CommunityController::class, 'getCommunityPosts']);
+
+            Route::post('/3d-objects', [VrController::class, 'store']);
+            Route::get('/3d-objects', [VrController::class, 'index']);
+            Route::get('/3d-objects/{id}', [VrController::class, 'show']);
+            Route::delete('/3d-objects/{id}', [VrController::class, 'destroy']);
         });
     });
     
