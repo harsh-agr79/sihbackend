@@ -39,7 +39,7 @@ class VrController extends Controller
                 'name' => 'required|array',
                 'name.*' => 'required|string',
                 'file' => 'required|array',
-                'file.*' => 'required|file|mimes:obj,fbx,glb,gltf|max:10240',
+                'file.*' => 'required|file|max:10240'
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
