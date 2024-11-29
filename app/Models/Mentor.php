@@ -48,4 +48,16 @@ class Mentor extends Authenticatable implements MustVerifyEmail
     {
         return $this->morphMany(Community::class, 'creator');
     }
+
+    public function objects3ds()
+    {
+        return $this->hasMany(Object3d::class);
+    }
+
+    // Relationship with Environment
+    public function environments()
+    {
+        return $this->hasMany(Environment::class);
+    }
+    
 }

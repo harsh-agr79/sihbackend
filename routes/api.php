@@ -114,6 +114,9 @@ Route::group(['middleware'=>'api_key'], function () {
             Route::get('/3d-objects', [VrController::class, 'index']);
             Route::get('/3d-objects/{id}', [VrController::class, 'show']);
             Route::delete('/3d-objects/{id}', [VrController::class, 'destroy']);
+
+            Route::post('/environments', [VrController::class, 'createEnvironment']); 
+            Route::get('/environments/{id}', [VrController::class, 'getEnvironment']);
         });
     });
     

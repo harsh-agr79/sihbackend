@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Object3d;
 use App\Models\Mentor;
+use App\Models\Environment;
 use Illuminate\Support\Facades\Storage;
 
 class VrController extends Controller
@@ -116,4 +117,46 @@ class VrController extends Controller
 
         return response()->json(['success' => true, 'message' => 'Resource deleted']);
     }    
+
+    public function createEnvironment(Request $request)
+    {
+        // Ensure the user is authenticated and is a mentor
+        $mentor = $this->validateMentor($request);
+        if ($mentor instanceof \Illuminate\Http\JsonResponse) {
+            return $mentor; // Return the validation error response
+        }
+
+        // Validate input
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'object_ids' => 'required|array|max:4', // Max 4 objects
+            'object_ids.*' => 'exists:3d_objects,id', // Ensure IDs exist in the 3D objects table
+        ]);
+
+        // Store environment
+        $environment = Environment::create([
+            'title' => $request->title,
+            'mentor_id' => $mentor->id, // Associate the mentor ID
+            'object_ids' => $request->object_ids,
+        ]);
+
+        return response()->json(['success' => true, 'data' => $environment], 201);
+    }
+
+    public function getEnvironment($id)
+    {
+        $environment = Environment::findOrFail($id);
+        $objects = Object3d::whereIn('id', $environment->object_ids)->get();
+
+        return response()->json([
+            'title' => $environment->title,
+            'mentor_id' => $environment->mentor_id,
+            'objects' => $objects->map(fn($object) => [
+                'name' => $object->name,
+                'file_path' => asset('storage/' . $object->file_path), // Generate public URL
+            ]),
+        ]);
+    }
+
+
 }
