@@ -161,23 +161,27 @@ class VrController extends Controller
     public function getMentorEnvironments(Request $request)
     {
         // Fetch the logged-in mentor
-        $mentor = $request->user();
-
-        if (!$mentor) {
-            return response()->json(['error' => 'Unauthorized'], 403);
+        $mentor = $this->validateMentor($request);
+        if ($mentor instanceof \Illuminate\Http\JsonResponse) {
+            return $mentor; // Return the validation error response
         }
-
+    
         // Fetch environments associated with the mentor
-        $environments = $mentor->environments()->with('objects')->get();
-
+        $environments = $mentor->environments()->get();
+    
         // Map the response with environment details and associated 3D objects
         return response()->json([
             'success' => true,
             'data' => $environments->map(function ($environment) {
+                // Decode object_ids to fetch the related objects
+                $objectIds = is_array($environment->object_ids) ? $environment->object_ids : json_decode($environment->object_ids, true);
+    
+                $objects = ThreeDObject::whereIn('id', $objectIds)->get();
+    
                 return [
                     'id' => $environment->id,
                     'title' => $environment->title,
-                    'objects' => $environment->objects->map(function ($object) {
+                    'objects' => $objects->map(function ($object) {
                         return [
                             'id' => $object->id,
                             'name' => $object->name,
@@ -190,6 +194,7 @@ class VrController extends Controller
             }),
         ]);
     }
+    
 
 
 }
