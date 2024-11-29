@@ -26,7 +26,7 @@ use App\Http\Controllers\VrController;
 Route::get('/email/verify/{id}/{type}/{hash}', [AuthController::class, 'verifyEmail'])->name('verification.verify');
 
 
-
+Route::get('/environments/{id}', [VrController::class, 'getEnvironment']);
 
 Route::group(['middleware'=>'api_key'], function () { 
     Route::post('/register', [AuthController::class, 'register']);
