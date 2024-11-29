@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Object3d;
 use App\Models\Mentor;
+use Illuminate\Support\Facades\Storage;
 
 class VrController extends Controller
 {
