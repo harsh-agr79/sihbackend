@@ -176,7 +176,7 @@ class VrController extends Controller
                 // Decode object_ids to fetch the related objects
                 $objectIds = is_array($environment->object_ids) ? $environment->object_ids : json_decode($environment->object_ids, true);
     
-                $objects = ThreeDObject::whereIn('id', $objectIds)->get();
+                $objects = Object3d::whereIn('id', $objectIds)->get();
     
                 return [
                     'id' => $environment->id,
