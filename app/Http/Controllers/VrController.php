@@ -158,5 +158,38 @@ class VrController extends Controller
         ]);
     }
 
+    public function getMentorEnvironments(Request $request)
+    {
+        // Fetch the logged-in mentor
+        $mentor = $request->user();
+
+        if (!$mentor) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        // Fetch environments associated with the mentor
+        $environments = $mentor->environments()->with('objects')->get();
+
+        // Map the response with environment details and associated 3D objects
+        return response()->json([
+            'success' => true,
+            'data' => $environments->map(function ($environment) {
+                return [
+                    'id' => $environment->id,
+                    'title' => $environment->title,
+                    'objects' => $environment->objects->map(function ($object) {
+                        return [
+                            'id' => $object->id,
+                            'name' => $object->name,
+                            'file_path' => asset('storage/' . $object->file_path),
+                        ];
+                    }),
+                    'created_at' => $environment->created_at,
+                    'updated_at' => $environment->updated_at,
+                ];
+            }),
+        ]);
+    }
+
 
 }
