@@ -130,7 +130,7 @@ class VrController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'object_ids' => 'required|array|max:4', // Max 4 objects
-            'object_ids.*' => 'exists:3d_objects,id', // Ensure IDs exist in the 3D objects table
+            'object_ids.*' => 'exists:Object3ds,id', // Ensure IDs exist in the 3D objects table
         ]);
 
         // Store environment
