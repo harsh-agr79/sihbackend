@@ -34,32 +34,28 @@ class VrController extends Controller
             return $mentor; // Return the validation error response
         }
     
-        try {
-            $request->validate([
-                'name' => 'required|array',
-                'name.*' => 'required|string',
-                'file' => 'required|array',
-                'file.*' => 'required|file|max:10240'
-            ]);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation errors occurred.',
-                'errors' => $e->errors(),
-            ], 422);
-        }
+        $request->validate([
+            'name' => 'required|array',
+            'name.*' => 'required|string',
+            'file' => 'required|array',
+            'file.*' => [
+                'required',
+                'file',
+                'max:10240',
+                'mimetypes:text/plain,application/octet-stream',
+                function ($attribute, $value, $fail) {
+                    $extension = $value->getClientOriginalExtension();
+                    if ($extension !== 'obj') {
+                        $fail("The $attribute must have a valid OBJ file extension.");
+                    }
+                },
+            ],
+        ]);
     
         $savedObjects = [];
     
-        // Loop through the name[] and file[] arrays
         foreach ($request->file('file') as $index => $file) {
-            // Ensure a corresponding name exists
-            if (!isset($request->name[$index])) {
-                return response()->json(['error' => "Name is missing for file at index $index"], 400);
-            }
-    
-            // Store file and save object
-            $filePath = $file->store('3d_objects', 'public');
+            $filePath = $file->storeAs('3d_objects', uniqid() . '.obj', 'public');
     
             $savedObjects[] = Object3d::create([
                 'mentor_id' => $mentor->id,
@@ -70,8 +66,6 @@ class VrController extends Controller
     
         return response()->json(['success' => true, 'data' => $savedObjects], 201);
     }
-    
-    
     
 
     // Read All
