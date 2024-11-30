@@ -648,12 +648,33 @@ class CommunityController extends Controller
 
         // Fetch paginated posts, ordered by latest on top
         $posts = $community->posts()
-            ->with(['author', 'comments', 'likes']) // Include relationships as needed
+            ->withCount('likes') // Count likes
+            ->with(['likes' => function ($query) use ($user) {
+                $query->where('liker_id', $user->id)
+                    ->where('liker_type', get_class($user));
+            }]) // Check if the user has liked each post
+            ->with(['comments']) // Include comments as is
             ->orderBy('created_at', 'desc')
-            ->paginate(10); // Paginate with 10 posts per page
+            ->paginate(10);
+
+        // Format the posts
+        $posts->getCollection()->transform(function ($post) use ($user) {
+            return [
+                'id' => $post->id,
+                'community_id' => $post->community_id,
+                'caption' => $post->caption,
+                'content' => $post->content,
+                'like_count' => $post->likes_count, // Total likes count
+                'is_liked_by_user' => $post->likes->isNotEmpty(), // Whether the logged-in user has liked
+                'comments' => $post->comments, // Return comments as is
+                'created_at' => $post->created_at,
+                'updated_at' => $post->updated_at,
+            ];
+        });
 
         return response()->json($posts);
     }
+
 
     public function getCommunityList(Request $request){
             // Validate optional filters
