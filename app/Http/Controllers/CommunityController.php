@@ -439,8 +439,40 @@ class CommunityController extends Controller
             'original_post_id' => $request->input('original_post_id'),
         ]);
 
-        return response()->json(['message' => 'Post created successfully', 'post' => $post]);
+        // Refresh post with necessary relationships
+        $post->load(['author', 'comments.author', 'likes']); // Eager load necessary relationships
+
+        // Format the post for the response
+        $response = [
+            'id' => $post->id,
+            'community_id' => $post->community_id,
+            'caption' => $post->caption,
+            'content' => $post->content,
+            'like_count' => $post->likes->count(), // Total likes count
+            'is_liked_by_user' => $post->likes->contains(function ($like) use ($user) {
+                return $like->liker_id == $user->id && $like->liker_type == get_class($user);
+            }), // Whether the logged-in user has liked
+            'username' => $post->author->name, // Post author's name
+            'comments' => $post->comments->map(function ($comment) {
+                return [
+                    'id' => $comment->id,
+                    'post_id' => $comment->post_id,
+                    'author_type' => $comment->author_type,
+                    'author_id' => $comment->author_id,
+                    'content' => $comment->content,
+                    'parent_comment_id' => $comment->parent_comment_id,
+                    'created_at' => $comment->created_at,
+                    'updated_at' => $comment->updated_at,
+                    'username' => $comment->author->name, // Comment author's name
+                ];
+            }),
+            'created_at' => $post->created_at,
+            'updated_at' => $post->updated_at,
+        ];
+
+        return response()->json(['message' => 'Post created successfully', 'post' => $response]);
     }
+
 
     public function deletePost(Request $request, $communityId, $postId)
     {
