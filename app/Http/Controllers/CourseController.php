@@ -649,21 +649,21 @@ class CourseController extends Controller {
         try {
             // Get the authenticated user (mentor)
             $user = $request->user();
-
+    
             // Ensure the user is authenticated and is a mentor
             if (!$user) {
                 return response()->json(['error' => 'Unauthorized or invalid user type'], 403);
             }
-
+    
             $mentor = Mentor::find($user->id);
-
+    
             if (!$mentor) {
                 return response()->json(['error' => 'Mentor not found'], 404);
             }
-
+    
             // Fetch the courses for the mentor
             $courses = Course::where('mentor_id', $mentor->id)
-                ->with(['domain']) // Assuming the domain relationship is already defined
+                ->with(['domain', 'subdomains']) // Assuming relationships to Domain and Subdomains are defined
                 ->withCount([
                     'enrollments as enrolled' => function ($query) {
                         $query->whereNull('completed_at'); // Count currently enrolled students
@@ -673,24 +673,37 @@ class CourseController extends Controller {
                     },
                 ])
                 ->get();
-
+    
             // Format the data
             $formattedCourses = $courses->map(function ($course) {
                 return [
                     'id' => $course->id,
-                    'courseName' => $course->title,
-                    'courseBy' => $course->mentor->name, // Assuming the mentor name is stored in the related mentor model
+                    'mentor_id' => $course->mentor_id,
+                    'title' => $course->title,
+                    'description' => $course->description,
+                    'verified' => $course->verified,
+                    'level' => $course->level,
+                    'domain_id' => $course->domain_id,
+                    'domain_name' => $course->domain->name ?? null, // Include domain name
+                    'subdomains' => $course->subdomains->map(function ($subdomain) {
+                        return [
+                            'id' => $subdomain->id,
+                            'name' => $subdomain->name,
+                        ];
+                    }),
+                    'created_at' => $course->created_at,
+                    'updated_at' => $course->updated_at,
                     'completed' => $course->completed,
                     'enrolled' => $course->enrolled,
-                    'domainName' => $course->domain->name, // Access domain name from the relationship
                 ];
             });
-
+    
             return response()->json($formattedCourses, 200);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Failed to fetch courses.', 'details' => $e->getMessage()], 500);
         }
     }
+    
 
 
     /**
