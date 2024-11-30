@@ -651,18 +651,19 @@ class CourseController extends Controller {
             $user = $request->user();
 
             // Ensure the user is authenticated and is a mentor
-            if ( !$user ) {
-                return response()->json( [ 'error' => 'Unauthorized or invalid user type' ], 403 );
+            if (!$user) {
+                return response()->json(['error' => 'Unauthorized or invalid user type'], 403);
             }
-    
-            $mentor = Mentor::find( $user->id );
-    
-            if ( !$mentor ) {
-                return response()->json( [ 'error' => 'Mentor not found' ], 404 );
+
+            $mentor = Mentor::find($user->id);
+
+            if (!$mentor) {
+                return response()->json(['error' => 'Mentor not found'], 404);
             }
-    
+
             // Fetch the courses for the mentor
             $courses = Course::where('mentor_id', $mentor->id)
+                ->with(['domain']) // Assuming the domain relationship is already defined
                 ->withCount([
                     'enrollments as enrolled' => function ($query) {
                         $query->whereNull('completed_at'); // Count currently enrolled students
@@ -672,7 +673,7 @@ class CourseController extends Controller {
                     },
                 ])
                 ->get();
-    
+
             // Format the data
             $formattedCourses = $courses->map(function ($course) {
                 return [
@@ -681,14 +682,16 @@ class CourseController extends Controller {
                     'courseBy' => $course->mentor->name, // Assuming the mentor name is stored in the related mentor model
                     'completed' => $course->completed,
                     'enrolled' => $course->enrolled,
+                    'domainName' => $course->domain->name, // Access domain name from the relationship
                 ];
             });
-    
+
             return response()->json($formattedCourses, 200);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Failed to fetch courses.', 'details' => $e->getMessage()], 500);
         }
     }
+
 
     /**
      * Get course details in a detailed format.
