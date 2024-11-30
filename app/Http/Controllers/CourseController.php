@@ -663,7 +663,7 @@ class CourseController extends Controller {
     
             // Fetch the courses for the mentor
             $courses = Course::where('mentor_id', $mentor->id)
-                ->with(['domain', 'subdomains']) // Assuming relationships to Domain and Subdomains are defined
+                ->with(['domain']) // Assuming Domain relationship is defined
                 ->withCount([
                     'enrollments as enrolled' => function ($query) {
                         $query->whereNull('completed_at'); // Count currently enrolled students
@@ -676,6 +676,10 @@ class CourseController extends Controller {
     
             // Format the data
             $formattedCourses = $courses->map(function ($course) {
+                // Fetch subdomain names based on the IDs in the `subdomains` field
+                $subdomainIds = json_decode($course->subdomains, true) ?? [];
+                $subdomainNames = Subdomain::whereIn('id', $subdomainIds)->get(['id', 'name']);
+    
                 return [
                     'id' => $course->id,
                     'mentor_id' => $course->mentor_id,
@@ -685,7 +689,7 @@ class CourseController extends Controller {
                     'level' => $course->level,
                     'domain_id' => $course->domain_id,
                     'domain_name' => $course->domain->name ?? null, // Include domain name
-                    'subdomains' => $course->subdomains->map(function ($subdomain) {
+                    'subdomains' => $subdomainNames->map(function ($subdomain) {
                         return [
                             'id' => $subdomain->id,
                             'name' => $subdomain->name,
