@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Course;
 use App\Models\Mentor;
 use App\Models\Student;
+use App\Models\Domain;
+use App\Models\Subdomain;
 use App\Models\ModuleGroup;
 use App\Models\Module;
 use App\Models\AssignmentQuiz;
