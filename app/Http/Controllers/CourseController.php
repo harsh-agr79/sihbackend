@@ -676,8 +676,8 @@ class CourseController extends Controller {
     
             // Format the data
             $formattedCourses = $courses->map(function ($course) {
-                // Fetch subdomain names based on the IDs in the `subdomains` field
-                $subdomainIds = json_decode($course->subdomains, true) ?? [];
+                // Directly use the subdomains array
+                $subdomainIds = $course->subdomains ?? [];
                 $subdomainNames = Subdomain::whereIn('id', $subdomainIds)->get(['id', 'name']);
     
                 return [
@@ -707,6 +707,7 @@ class CourseController extends Controller {
             return response()->json(['error' => 'Failed to fetch courses.', 'details' => $e->getMessage()], 500);
         }
     }
+    
     
 
 
