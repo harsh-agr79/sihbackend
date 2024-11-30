@@ -652,10 +652,7 @@ class CommunityController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(10); // Paginate with 10 posts per page
 
-        return response()->json([
-            'message' => 'Community posts retrieved successfully',
-            'posts' => $posts
-        ]);
+        return response()->json($posts);
     }
 
     public function getCommunityList(Request $request){
