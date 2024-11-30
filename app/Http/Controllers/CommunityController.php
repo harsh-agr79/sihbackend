@@ -205,6 +205,53 @@ class CommunityController extends Controller
         return response()->json($response);
     }
     
+    public function getSideBarCommunityDetails(Request $request, $id)
+    {
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+        // Fetch the community with its creator, members, and other required data
+        $community = Community::with(['creator', 'students', 'mentors', 'posts'])->find($id);
+
+        if (!$community) {
+            return response()->json(['error' => 'Community not found'], 404);
+        }
+
+        // Count the members, posts, and discussions
+        $membersCount = $community->students->count() + $community->mentors->count();
+        $postsCount = $community->posts->count();
+
+        // For simplicity, discussions are posts that have comments
+        $discussionsCount = $community->posts()->has('comments')->count();
+
+        // Fetch the mentors with their id, name, and profile_image
+        $mentors = $community->mentors->map(function ($mentor) {
+            return [
+                'id' => $mentor->id,
+                'name' => $mentor->name,
+                'profile_image' => $mentor->profile_photo
+                    ? asset('storage/' . $mentor->profile_photo)
+                    : 'https://fortmyersradon.com/wp-content/uploads/2019/12/dummy-user-img-1.png',
+            ];
+        });
+
+        // Format the response
+        $response = [
+            'description' => $community->description,
+            'members_count' => $membersCount . ' Members',
+            'posts_count' => $postsCount . ' Posts',
+            'discussions_count' => $discussionsCount . ' Discussions',
+            'creator' => [
+                'name' => $community->creator->name,
+            ],
+            'mentors' => $mentors,
+        ];
+
+        return response()->json($response);
+    }
+
 
     public function destroy(Request $request, $id)
     {
