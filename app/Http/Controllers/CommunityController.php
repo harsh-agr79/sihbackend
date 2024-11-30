@@ -605,6 +605,7 @@ class CommunityController extends Controller
             return response()->json([
                 'message' => 'Post unliked successfully',
                 'like_count' => $post->likes()->count(),
+                'is_liked_by_user' => false, // User no longer likes the post
             ]);
         } else {
             // Like the post if not already liked
@@ -617,9 +618,11 @@ class CommunityController extends Controller
             return response()->json([
                 'message' => 'Post liked successfully',
                 'like_count' => $post->likes()->count(),
+                'is_liked_by_user' => true, // User now likes the post
             ]);
         }
     }
+    
     
     
     public function getCommunityPosts(Request $request, $communityId)
