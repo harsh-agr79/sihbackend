@@ -103,6 +103,7 @@ Route::group(['middleware'=>'api_key'], function () {
             Route::put('/community/update/{id}', [CommunityController::class, 'UpdateCommunity']);
             Route::delete('/community/delete/{id}', [CommunityController::class, 'destroy']);
             Route::get('/community/{id}', [CommunityController::class, 'getCommunityDetails']);
+            Route::get('/community/sidebar/{id}', [CommunityController::class, 'getSideBarCommunityDetails']);
 
             Route::post('/community/{communityId}/join', [CommunityController::class, 'joinCommunity']);
             Route::delete('/community/{communityId}/leave', [CommunityController::class, 'leaveCommunity']);
