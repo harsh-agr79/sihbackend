@@ -629,35 +629,35 @@ class CommunityController extends Controller
     {
         // Ensure the user is authenticated
         $user = $request->user();
-    
+
         if (!$user) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
-    
+
         // Find the community
         $community = Community::find($communityId);
-    
+
         if (!$community) {
             return response()->json(['error' => 'Community not found'], 404);
         }
-    
+
         // Determine if the user is a Student or Mentor
         $relationship = $user instanceof Student ? 'students' : ($user instanceof Mentor ? 'mentors' : null);
-    
+
         if (!$relationship) {
             return response()->json(['error' => 'User must be a valid Student or Mentor'], 403);
         }
-    
+
         // Check if the user is a member of the community
         $isMember = $community->$relationship()
             ->where('community_users.member_id', $user->id)
             ->where('community_users.member_type', get_class($user))
             ->exists();
-    
+
         if (!$isMember) {
             return response()->json(['error' => 'You are not a member of this community'], 403);
         }
-    
+
         // Fetch paginated posts, ordered by latest on top
         $posts = $community->posts()
             ->withCount('likes') // Count likes
@@ -665,11 +665,10 @@ class CommunityController extends Controller
                 $query->where('liker_id', $user->id)
                     ->where('liker_type', get_class($user));
             }]) // Check if the user has liked each post
-            ->with(['comments.author']) // Include comments and their authors
-            ->with('author') // Include post author
+            ->with(['comments']) // Include comments as is
             ->orderBy('created_at', 'desc')
             ->paginate(10);
-    
+
         // Format the posts
         $posts->getCollection()->transform(function ($post) use ($user) {
             return [
@@ -679,25 +678,14 @@ class CommunityController extends Controller
                 'content' => $post->content,
                 'like_count' => $post->likes_count, // Total likes count
                 'is_liked_by_user' => $post->likes->isNotEmpty(), // Whether the logged-in user has liked
-                'username' => $post->author->name, // Post author's name
-                'comments' => $post->comments->map(function ($comment) {
-                    return [
-                        'id' => $comment->id,
-                        'post_id' => $comment->post_id,
-                        'content' => $comment->content,
-                        'username' => $comment->author->name, // Comment author's name
-                        'created_at' => $comment->created_at,
-                        'updated_at' => $comment->updated_at,
-                    ];
-                }),
+                'comments' => $post->comments, // Return comments as is
                 'created_at' => $post->created_at,
                 'updated_at' => $post->updated_at,
             ];
         });
-    
+
         return response()->json($posts);
     }
-    
 
 
     public function getCommunityList(Request $request){
