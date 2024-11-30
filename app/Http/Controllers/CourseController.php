@@ -1301,4 +1301,37 @@ class CourseController extends Controller {
         ]);
     }
 
+
+    public function getDomains()
+    {
+        try {
+            // Fetch all domains
+            $domains = Domain::all(['id', 'name']);
+
+            return response()->json($domains, 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to fetch domains.', 'details' => $e->getMessage()], 500);
+        }
+    }
+
+    public function getSubdomainsByDomainId($id)
+    {
+        try {
+            // Check if the domain exists
+            $domainExists = Domain::where('id', $id)->exists();
+            if (!$domainExists) {
+                return response()->json(['error' => 'Domain not found.'], 404);
+            }
+
+            // Fetch subdomains for the given domain ID
+            $subdomains = Subdomain::where('domain_id', $id)->get(['id', 'name']);
+
+            return response()->json($subdomains, 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to fetch subdomains.', 'details' => $e->getMessage()], 500);
+        }
+    }
+
+
+
 }

@@ -36,6 +36,9 @@ Route::group(['middleware'=>'api_key'], function () {
     
     Route::post('/forgot-password', [AuthController::class, 'sendResetLinkEmail']);
     Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+
+    Route::get('/subdomains/{id}', [CourseController::class, 'getSubdomainsByDomainId']);
+    Route::get('/domains', [CourseController::class, 'getDomains']);
     
 
     Route::prefix('student')->group(function () {
