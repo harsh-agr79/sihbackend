@@ -961,7 +961,7 @@ class CourseController extends Controller {
             $moduleGroups = $course->moduleGroups->map(function ($group) {
                 return [
                     'id' => $group->id,
-                    'course_id' => $group->course_id,
+                    'courseId' => $group->course_id,
                     'title' => $group->title,
                     'description' => $group->description,
                     'position' => $group->position,
@@ -973,10 +973,10 @@ class CourseController extends Controller {
                 return $group->modules->map(function ($module) use ($group) {
                     return [
                         'id' => $module->id,
-                        'group_id' => $group->id, // Include group_id
-                        'course_id' => $module->course_id,
+                        'groupId' => $group->id, // Include group_id
+                        'courseId' => $module->course_id,
                         'title' => $module->title,
-                        'video_url' => $module->video_url,
+                        'videoUrl' => $module->video_url,
                         'description' => $module->description,
                         'transcript' => $module->transcript,
                         'materialLinks' => $module->material_links,
@@ -987,10 +987,10 @@ class CourseController extends Controller {
                 $course->ungroupedModules->map(function ($module) {
                     return [
                         'id' => $module->id,
-                        'group_id' => null, // Ungrouped modules have no group_id
-                        'course_id' => $module->course_id,
+                        'groupId' => null, // Ungrouped modules have no group_id
+                        'courseId' => $module->course_id,
                         'title' => $module->title,
-                        'video_url' => $module->video_url,
+                        'videoUrl' => $module->video_url,
                         'description' => $module->description,
                         'transcript' => $module->transcript,
                         'materialLinks' => $module->material_links,
@@ -1005,12 +1005,12 @@ class CourseController extends Controller {
                     return $module->assignmentsQuizzes->map(function ($assignment) {
                         return [
                             'id' => $assignment->id,
-                            'module_id' => $assignment->module_id,
+                            'moduleId' => $assignment->module_id,
                             'type' => $assignment->type,
                             'title' => $assignment->title,
                             'description' => $assignment->description,
                             'content' => $assignment->content,
-                            'due_date' => $assignment->due_date,
+                            'dueDate' => $assignment->due_date,
                         ];
                     });
                 });
@@ -1019,12 +1019,12 @@ class CourseController extends Controller {
                     return $module->assignmentsQuizzes->map(function ($assignment) {
                         return [
                             'id' => $assignment->id,
-                            'module_id' => $assignment->module_id,
+                            'moduleId' => $assignment->module_id,
                             'type' => $assignment->type,
                             'title' => $assignment->title,
                             'description' => $assignment->description,
                             'content' => $assignment->content,
-                            'due_date' => $assignment->due_date,
+                            'dueDate' => $assignment->due_date,
                         ];
                     });
                 })
