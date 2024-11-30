@@ -143,20 +143,27 @@ class CommunityController extends Controller
         ]);
     }
     
-    public function getCommunityDetails($id)
+    public function getCommunityDetails(Request $request, $id)
     {
+        // Ensure the user is authenticated
+        $user = $request->user();
+    
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+    
         // Fetch the community with its creator and members
         $community = Community::with('creator')->find($id);
-
+    
         if (!$community) {
             return response()->json(['error' => 'Community not found'], 404);
         }
-
+    
         // Format the creator's data
         $creator = $community->creator;
-
+    
         $relationship = $community->creator_type === Student::class ? 'students' : 'mentors';
-
+    
         // Fetch joined_at from the correct relationship
         $joinedAt = $community->$relationship()
             ->where('community_users.member_id', $community->creator->id)
@@ -164,8 +171,18 @@ class CommunityController extends Controller
             ->first()
             ->pivot
             ->joined_at ?? null;
-
-
+    
+        // Check if the current user is a community member
+        $userRelationship = $user instanceof Student ? 'students' : ($user instanceof Mentor ? 'mentors' : null);
+    
+        $isMember = $userRelationship ? $community->$userRelationship()
+            ->where('community_users.member_id', $user->id)
+            ->where('community_users.member_type', get_class($user))
+            ->exists() : false;
+    
+        // Determine button text based on membership status
+        $buttonText = $isMember ? 'Leave' : 'Join';
+    
         // Format the response
         $response = [
             'id' => $community->id,
@@ -182,10 +199,12 @@ class CommunityController extends Controller
                 'email' => $creator->email,
                 'joined_at' => $joinedAt,
             ],
+            'button_text' => $buttonText,
         ];
-
+    
         return response()->json($response);
     }
+    
 
     public function destroy(Request $request, $id)
     {
