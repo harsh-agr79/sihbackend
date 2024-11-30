@@ -794,4 +794,49 @@ class CommunityController extends Controller
             );
     }
     
+    public function getMyCommunity(Request $request)
+    {
+        // Ensure the user is authenticated
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        // Determine if the user is a Student or Mentor
+        $creatorType = $user instanceof Student ? Student::class : ($user instanceof Mentor ? Mentor::class : null);
+
+        if (!$creatorType) {
+            return response()->json(['error' => 'User must be a valid Student or Mentor'], 403);
+        }
+
+        // Fetch communities created by the user
+        $communities = Community::where('creator_type', $creatorType)
+            ->where('creator_id', $user->id)
+            ->orderBy('created_at', 'desc') // Order by latest
+            ->get();
+
+        // Format the response
+        $response = $communities->map(function ($community) {
+            return [
+                'id' => $community->id,
+                'name' => $community->name,
+                'description' => $community->description,
+                'profile_photo' => $community->profile_photo
+                    ? asset('storage/' . $community->profile_photo)
+                    : null,
+                'cover_photo' => $community->cover_photo
+                    ? asset('storage/' . $community->cover_photo)
+                    : null,
+                'created_at' => $community->created_at,
+                'updated_at' => $community->updated_at,
+            ];
+        });
+
+        return response()->json([
+            'message' => 'User-created communities retrieved successfully',
+            'communities' => $response,
+        ]);
+    }
+
 }

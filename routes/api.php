@@ -99,6 +99,7 @@ Route::group(['middleware'=>'api_key'], function () {
             Route::put('/course/assignment-quizzes/{assignmentQuizId}', [CourseController::class, 'updateAssignmentQuiz']);
             Route::delete('/course/assignment-quizzes/{assignmentQuizId}', [CourseController::class, 'deleteAssignmentQuiz']);
 
+            Route::get('/community', [CommunityController::class, 'getMyCommunity']);
             Route::post('/community/create', [CommunityController::class, 'CreateCommunity']);
             Route::put('/community/update/{id}', [CommunityController::class, 'UpdateCommunity']);
             Route::delete('/community/delete/{id}', [CommunityController::class, 'destroy']);
