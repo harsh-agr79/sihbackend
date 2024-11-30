@@ -979,7 +979,7 @@ class CourseController extends Controller {
                         'video_url' => $module->video_url,
                         'description' => $module->description,
                         'transcript' => $module->transcript,
-                        'material_links' => $module->material_links,
+                        'materialLinks' => $module->material_links,
                         'position' => $module->position,
                     ];
                 });
@@ -993,7 +993,7 @@ class CourseController extends Controller {
                         'video_url' => $module->video_url,
                         'description' => $module->description,
                         'transcript' => $module->transcript,
-                        'material_links' => $module->material_links,
+                        'materialLinks' => $module->material_links,
                         'position' => $module->position,
                     ];
                 })
