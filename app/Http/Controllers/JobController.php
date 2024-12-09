@@ -304,6 +304,38 @@ class JobController extends Controller
             'jobs' => $activeJobs,
         ]);
     }
+
+    public function getAppliedJobs(Request $request)
+    {
+        // Get the authenticated student from the bearer token
+        $student = $request->user();
+
+        // Retrieve the jobs the student has applied for with required fields
+        $appliedJobs = $student->applications()
+            ->with('jobListing') // Load job listing details
+            ->get(['job_listing_id', 'shortlisted', 'final_selected']); // Include status fields
+
+        // Map over the results to calculate the status
+        $appliedJobsData = $appliedJobs->map(function ($application) {
+            $status = 'Applied'; // Default status
+            if ($application->shortlisted && !$application->final_selected) {
+                $status = 'Shortlisted';
+            } elseif ($application->shortlisted && $application->final_selected) {
+                $status = 'Final Selected';
+            }
+
+            return [
+                'job_listing' => $application->jobListing, // Job details
+                'status' => $status, // Computed status
+            ];
+        });
+
+        return response()->json([
+            'message' => 'Applied jobs retrieved successfully',
+            'applied_jobs' => $appliedJobsData,
+        ]);
+    }
+
     
 
     /**
