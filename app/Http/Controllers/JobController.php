@@ -287,16 +287,24 @@ class JobController extends Controller
     {
         // Get the current date
         $today = now()->toDateString();
-
-        // Retrieve job listings where application_deadline is greater than or equal to today
+    
+        // Get the authenticated user from the bearer token
+        $user = $request->user();
+    
+        // Get the IDs of the job listings the user has already applied to
+        $appliedJobIds = $user->applications()->pluck('job_listing_id')->toArray();
+    
+        // Retrieve active job listings where the user has not applied
         $activeJobs = JobListing::where('application_deadline', '>=', $today)
+            ->whereNotIn('id', $appliedJobIds)
             ->get();
-
+    
         return response()->json([
             'message' => 'Active job listings retrieved successfully',
             'jobs' => $activeJobs,
         ]);
     }
+    
 
     /**
      * Get all job listings of the authenticated company sorted by application deadline (latest first).
