@@ -53,4 +53,35 @@ class Student extends Authenticatable implements MustVerifyEmail
     {
         return $this->morphMany(Community::class, 'creator');
     }
+
+    // Relationship with HackathonRegistration
+    public function hackathonRegistrations()
+    {
+        return $this->hasMany(HackathonRegistration::class);
+    }
+
+    // Relationship with HackContests through HackathonRegistration
+    public function hackContests()
+    {
+        return $this->hasManyThrough(
+            HackContest::class,
+            HackathonRegistration::class,
+            'student_id', // Foreign key on hackathon_registrations
+            'id',         // Foreign key on hack_contests
+            'id',         // Local key on students
+            'hack_contest_id' // Local key on hackathon_registrations
+        );
+    }
+
+    // Function to fetch registered HackContests
+    public function getRegisteredHackContests()
+    {
+        return $this->hackContests()->get();
+    }
+
+    public function eventRegistrations()
+    {
+        return $this->hasMany(EventRegistration::class);
+    }
+
 }

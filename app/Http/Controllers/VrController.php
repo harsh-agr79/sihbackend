@@ -44,7 +44,7 @@ class VrController extends Controller
             'file.*' => [
                 'required',
                 'file',
-                'max:10240', // Max size: 10 MB
+                // 'max:10240', // Max size: 10 MB
                 'mimetypes:application/octet-stream,text/plain,model/gltf+json,model/gltf-binary', // Add relevant MIME types
             ],
         ]);

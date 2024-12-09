@@ -12,6 +12,7 @@ use App\Http\Controllers\CourseController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\CommunityController;
 use App\Http\Controllers\VrController;
+use App\Http\Controllers\HackContestController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -72,6 +73,16 @@ Route::group(['middleware'=>'api_key'], function () {
 
             Route::get('/community/{communityId}/posts', [CommunityController::class, 'getCommunityPosts']);
             Route::get('/explorecommunity/list', [CommunityController::class, 'getCommunityList']);
+
+            Route::get('/hack-contests/unregistered', [StudentController::class, 'getUnregisteredHackContests']);
+            Route::get('/hack-contests/registered', [StudentController::class, 'getRegisteredHackContests']);
+            Route::post('/hack-contests/{hackContestId}/register', [HackContestController::class, 'registerForHackathon']);
+            Route::post('/hack-contests/{hackContestId}/submit', [HackContestController::class, 'submitForHackathon']);
+
+            Route::get('/registrations', [EventController::class, 'getStudentRegisteredEvents']);
+            Route::get('/unregistered-events', [EventController::class, 'getStudentUnregisteredEvents']);
+            Route::post('/events/{id}/register', [EventController::class, 'registerStudentForEvent']);
+            Route::delete('/events/{id}/unregister', [EventController::class, 'unregisterStudentFromEvent']);
         });
     });
     
@@ -139,6 +150,20 @@ Route::group(['middleware'=>'api_key'], function () {
             Route::get('/job/{jobListingId}/applicants/unprocessed', [JobController::class, 'getUnprocessedApplicants']);
             Route::get('/job/{jobListingId}/applicants/shortlisted', [JobController::class, 'getShortlistedApplicants']);
             Route::get('/job/{jobListingId}/applicants/final-selected', [JobController::class, 'getFinalSelectedApplicants']);
+
+            Route::get('/hack-contests', [HackContestController::class, 'getCompanyHackContests']);
+            Route::post('/hack-contests', [HackContestController::class, 'createHackContest']);
+            Route::get('/hack-contests/{id}', [HackContestController::class, 'getHackContest']);
+            Route::put('/hack-contests/{id}', [HackContestController::class, 'updateHackContest']);
+            Route::delete('/hack-contests/{id}', [HackContestController::class, 'deleteHackContest']);
+
+            Route::get('/hack-contests/{hackContestId}/submissions', [HackContestController::class, 'getHackathonSubmissions']);
+
+            Route::get('/events', [EventController::class, 'index']);
+            Route::post('/events', [EventController::class, 'store']);
+            Route::get('/events/{id}', [EventController::class, 'show']);
+            Route::put('/events/{id}', [EventController::class, 'update']);
+            Route::delete('/events/{id}', [EventController::class, 'destroy']);
         });
     });
     

@@ -40,4 +40,14 @@ class Company extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(JobListing::class);
     }
+
+    public function hackContests()
+    {
+        return $this->hasMany(HackContest::class);
+    }
+
+    public function events()
+    {
+        return $this->hasMany(Event::class);
+    }
 }
