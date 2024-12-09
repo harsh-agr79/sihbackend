@@ -56,7 +56,7 @@ Route::group(['middleware'=>'api_key'], function () {
             Route::post('/course/assignment/editsubmit', [CourseController::class, 'editSubmission']);
 
             Route::get('/jobs/active', [JobController::class, 'getActiveJobListings']);
-            Route::get('/jobs/applied', [JobController::class, ' getAppliedJobs']);
+            Route::get('/jobs/applied', [JobController::class, 'getAppliedJobs']);
             Route::post('/job/{id}/apply', [JobController::class, 'applyToJobListing']);
 
             Route::post('/community/create', [CommunityController::class, 'CreateCommunity']);
