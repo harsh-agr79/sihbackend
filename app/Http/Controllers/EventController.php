@@ -14,7 +14,7 @@ class EventController extends Controller {
         $user = $request->user();
 
         // Ensure the user is authenticated and their type is 'company'
-        if ( !$user || $user->type !== 'company' ) {
+        if ( !$user ) {
             return response()->json( [ 'error' => 'Unauthorized or invalid user type' ], 403 );
         }
 
@@ -43,7 +43,7 @@ class EventController extends Controller {
         $user = $request->user();
 
         // Ensure the user is authenticated and their type is 'company'
-        if ( !$user || $user->type !== 'company' ) {
+        if ( !$user ) {
             return response()->json( [ 'error' => 'Unauthorized or invalid user type' ], 403 );
         }
 
@@ -80,7 +80,7 @@ class EventController extends Controller {
         $user = $request->user();
 
         // Ensure the user is authenticated and their type is 'company'
-        if ( !$user || $user->type !== 'company' ) {
+        if ( !$user ) {
             return response()->json( [ 'error' => 'Unauthorized or invalid user type' ], 403 );
         }
 
@@ -106,7 +106,7 @@ class EventController extends Controller {
         $user = $request->user();
 
         // Ensure the user is authenticated and their type is 'company'
-        if ( !$user || $user->type !== 'company' ) {
+        if ( !$user ) {
             return response()->json( [ 'error' => 'Unauthorized or invalid user type' ], 403 );
         }
 
@@ -145,7 +145,7 @@ class EventController extends Controller {
         $user = $request->user();
 
         // Ensure the user is authenticated and their type is 'company'
-        if ( !$user || $user->type !== 'company' ) {
+        if ( !$user ) {
             return response()->json( [ 'error' => 'Unauthorized or invalid user type' ], 403 );
         }
 
@@ -167,7 +167,7 @@ class EventController extends Controller {
     public function registerStudentForEvent( Request $request, $eventId ) {
         $user = $request->user();
 
-        if ( !$user || $user->type !== 'student' ) {
+        if ( !$user ) {
             return response()->json( [ 'error' => 'Unauthorized or invalid user type' ], 403 );
         }
 
@@ -207,7 +207,7 @@ class EventController extends Controller {
     public function unregisterStudentFromEvent( Request $request, $eventId ) {
         $user = $request->user();
 
-        if ( !$user || $user->type !== 'student' ) {
+        if ( !$user ) {
             return response()->json( [ 'error' => 'Unauthorized or invalid user type' ], 403 );
         }
 
@@ -233,7 +233,7 @@ class EventController extends Controller {
     public function getStudentUnregisteredEvents( Request $request ) {
         $user = $request->user();
 
-        if ( !$user || $user->type !== 'student' ) {
+        if ( !$user ) {
             return response()->json( [ 'error' => 'Unauthorized or invalid user type' ], 403 );
         }
 
@@ -262,7 +262,7 @@ class EventController extends Controller {
     public function getStudentRegisteredEvents( Request $request ) {
         $user = $request->user();
 
-        if ( !$user || $user->type !== 'student' ) {
+        if ( !$user ) {
             return response()->json( [ 'error' => 'Unauthorized or invalid user type' ], 403 );
         }
 
