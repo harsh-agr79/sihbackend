@@ -80,8 +80,8 @@ Route::group(['middleware'=>'api_key'], function () {
             Route::post('/hack-contests/{hackContestId}/register', [HackContestController::class, 'registerForHackathon']);
             Route::post('/hack-contests/{hackContestId}/submit', [HackContestController::class, 'submitForHackathon']);
 
-            Route::get('/registrations', [EventController::class, 'getStudentRegisteredEvents']);
-            Route::get('/unregistered-events', [EventController::class, 'getStudentUnregisteredEvents']);
+            Route::get('/events/registered', [EventController::class, 'getStudentRegisteredEvents']);
+            Route::get('/events/unregistered', [EventController::class, 'getStudentUnregisteredEvents']);
             Route::post('/events/{id}/register', [EventController::class, 'registerStudentForEvent']);
             Route::delete('/events/{id}/unregister', [EventController::class, 'unregisterStudentFromEvent']);
         });
