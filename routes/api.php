@@ -13,6 +13,7 @@ use App\Http\Controllers\JobController;
 use App\Http\Controllers\CommunityController;
 use App\Http\Controllers\VrController;
 use App\Http\Controllers\HackContestController;
+use App\Http\Controllers\EventController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
