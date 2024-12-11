@@ -52,7 +52,7 @@ class CurriculumController extends Controller
         ]);
     }
 
-    public function getFilteredCourseList(Request $request, $gradeId)
+    public function getFilteredCourses(Request $request, $gradeId)
     {
         try {
             // Get the authenticated user (Institute)
