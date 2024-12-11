@@ -26,7 +26,7 @@ class Community extends Model {
      */
     public function subdomains()
     {
-        return $this->belongsToMany(Subdomain::class, 'community_subdomains', 'community_id', 'subdomain_id');
+        return $this->belongsToMany(Subdomain::class, 'subdomains', 'community_id', 'subdomain_id');
     }
 
     // Creator of the community ( Polymorphic relationship )
