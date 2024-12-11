@@ -38,40 +38,60 @@ class EventController extends Controller {
 
     // Store a new event for the authenticated company
 
-    public function store( Request $request ) {
+    public function store(Request $request) {
         // Retrieve the authenticated user
         $user = $request->user();
-
-        // Ensure the user is authenticated and their type is 'company'
-        if ( !$user ) {
-            return response()->json( [ 'error' => 'Unauthorized or invalid user type' ], 403 );
+    
+        // Ensure the user is authenticated
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
-
+    
+        // Check if the user type is 'company'
+        if ($user->type !== 'company') {
+            return response()->json(['error' => 'User is not authorized to create an event'], 403);
+        }
+    
         // Fetch the company record associated with the authenticated user
-        $company = Company::find( $user->id );
-
-        if ( !$company ) {
-            return response()->json( [ 'error' => 'Company not found' ], 404 );
+        $company = Company::find($user->id);
+    
+        if (!$company) {
+            return response()->json(['error' => 'Company not found'], 404);
         }
-
-        // Validate the request data
-        $validated = $request->validate( [
-            'type' => 'required|string|max:255',
-            'title' => 'required|string|max:255',
-            'link' => 'required|url',
-            'datetime' => 'required|date',
-            'speaker' => 'required|string|max:255',
-            'description' => 'required|string',
-        ] );
-
-        // Create a new event
-        $event = $company->events()->create( $validated );
-
-        return response()->json( [
-            'message' => 'Event created successfully',
-            'event' => $event,
-        ], 201 );
+    
+        try {
+            // Validate the request data
+            $validated = $request->validate([
+                'type' => 'required|string|max:255',
+                'title' => 'required|string|max:255',
+                'link' => 'required|url',
+                'datetime' => 'required|date',
+                'speaker' => 'required|string|max:255',
+                'description' => 'required|string',
+            ]);
+    
+            // Create a new event
+            $event = $company->events()->create($validated);
+    
+            return response()->json([
+                'message' => 'Event created successfully',
+                'event' => $event,
+            ], 201);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Catch validation errors and return them as a response
+            return response()->json([
+                'error' => 'Validation failed',
+                'details' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            // Catch unexpected errors
+            return response()->json([
+                'error' => 'An unexpected error occurred',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
+    
 
     // Retrieve a specific event for the authenticated company
 
