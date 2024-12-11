@@ -11,14 +11,12 @@ class CommunityController extends Controller
 {
     public function CreateCommunity(Request $request)
     {
-        // Ensure the user is authenticated
         $user = $request->user();
 
         if (!$user) {
             return response()->json(['error' => 'Unauthorized or invalid user type'], 403);
         }
 
-        // Determine if the user is a Student or Mentor
         $student = Student::find($user->id);
         $mentor = Mentor::find($user->id);
 
@@ -32,15 +30,16 @@ class CommunityController extends Controller
             return response()->json(['error' => 'User must be a valid Student or Mentor'], 403);
         }
 
-        // Validate the request
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'profile_photo' => 'nullable|image|max:2048',
             'cover_photo' => 'nullable|image|max:2048',
+            'domain_id' => 'required|exists:domains,id',
+            'subdomains' => 'nullable|array',
+            'subdomains.*' => 'exists:subdomains,id',
         ]);
 
-        // Save uploaded files if present
         if ($request->hasFile('profile_photo')) {
             $validated['profile_photo'] = $request->file('profile_photo')->store('profile_photos', 'public');
         }
@@ -49,13 +48,11 @@ class CommunityController extends Controller
             $validated['cover_photo'] = $request->file('cover_photo')->store('cover_photos', 'public');
         }
 
-        // Create the community
         $community = Community::create(array_merge($validated, [
             'creator_type' => get_class($user),
             'creator_id' => $user->id,
         ]));
 
-        // Automatically add the creator as an admin member
         $community->$relationship()->attach($user->id, [
             'member_type' => get_class($user),
             'role' => 'admin',
@@ -63,147 +60,114 @@ class CommunityController extends Controller
         ]);
 
         return response()->json(['message' => 'Community created successfully', 'community' => $community]);
-
     }
 
     public function UpdateCommunity(Request $request, $id)
     {
-         // Find the community
         $community = Community::find($id);
 
         if (!$community) {
             return response()->json(['error' => 'Community not found'], 404);
         }
 
-        // Get the authenticated user
         $user = $request->user();
 
         if (!$user) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
-        // Check if the user is an admin of this community
         $isAdmin = \DB::table('community_users')
-        ->where('community_id', $community->id)
-        ->where('member_id', $user->id)
-        ->where('member_type', get_class($user)) // Dynamically match Student or Mentor
-        ->where('role', 'admin')
-        ->exists();
+            ->where('community_id', $community->id)
+            ->where('member_id', $user->id)
+            ->where('member_type', get_class($user))
+            ->where('role', 'admin')
+            ->exists();
 
         if (!$isAdmin) {
             return response()->json(['error' => 'You are not authorized to update this community'], 403);
         }
 
-        // Validate the incoming request
         $validated = $request->validate([
             'name' => 'sometimes|required|string|max:255',
             'description' => 'nullable|string',
             'profile_photo' => 'nullable|image|max:2048',
             'cover_photo' => 'nullable|image|max:2048',
+            'domain_id' => 'sometimes|required|exists:domains,id',
+            'subdomains' => 'nullable|array',
+            'subdomains.*' => 'exists:subdomains,id',
         ]);
 
-        // return response()->json([ $request->post() ]);
-
-        // Update each field explicitly
         if ($request->has('name')) {
-            $community->name = $request->input('name');
+            $community->name = $validated['name'];
         }
 
         if ($request->has('description')) {
-            $community->description = $request->input('description');
+            $community->description = $validated['description'];
+        }
+
+        if ($request->has('domain_id')) {
+            $community->domain_id = $validated['domain_id'];
+        }
+
+        if ($request->has('subdomains')) {
+            $community->subdomains = $validated['subdomains'];
         }
 
         if ($request->hasFile('profile_photo')) {
-            // Delete the old profile photo if it exists
             if ($community->profile_photo) {
                 \Storage::delete($community->profile_photo);
             }
-
-            // Save the new profile photo
             $community->profile_photo = $request->file('profile_photo')->store('profile_photos', 'public');
         }
 
         if ($request->hasFile('cover_photo')) {
-            // Delete the old cover photo if it exists
             if ($community->cover_photo) {
                 \Storage::delete($community->cover_photo);
             }
-
-            // Save the new cover photo
             $community->cover_photo = $request->file('cover_photo')->store('cover_photos', 'public');
         }
 
-        // Save the updated community
         $community->save();
 
-        // Return the updated community data
-        return response()->json([
-            'message' => 'Community updated successfully',
-            'community' => $community,
-        ]);
+        return response()->json(['message' => 'Community updated successfully', 'community' => $community]);
     }
+
     
     public function getCommunityDetails(Request $request, $id)
     {
-        // Ensure the user is authenticated
         $user = $request->user();
-    
+
         if (!$user) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
-    
-        // Fetch the community with its creator and members
-        $community = Community::with('creator')->find($id);
-    
+
+        $community = Community::with(['creator', 'domain', 'subdomains'])->find($id);
+
         if (!$community) {
             return response()->json(['error' => 'Community not found'], 404);
         }
-    
-        // Format the creator's data
-        $creator = $community->creator;
-    
-        $relationship = $community->creator_type === Student::class ? 'students' : 'mentors';
-    
-        // Fetch joined_at from the correct relationship
-        $joinedAt = $community->$relationship()
-            ->where('community_users.member_id', $community->creator->id)
-            ->where('community_users.member_type', $community->creator_type)
-            ->first()
-            ->pivot
-            ->joined_at ?? null;
-    
-        // Check if the current user is a community member
-        $userRelationship = $user instanceof Student ? 'students' : ($user instanceof Mentor ? 'mentors' : null);
-    
-        $isMember = $userRelationship ? $community->$userRelationship()
-            ->where('community_users.member_id', $user->id)
-            ->where('community_users.member_type', get_class($user))
-            ->exists() : false;
-    
-        // Determine button text based on membership status
-        $buttonText = $isMember ? 'Leave' : 'Join';
-    
-        // Format the response
+
         $response = [
             'id' => $community->id,
             'name' => $community->name,
             'description' => $community->description,
             'profile_photo' => $community->profile_photo,
             'cover_photo' => $community->cover_photo,
+            'domain' => $community->domain->name ?? null,
+            'subdomains' => $community->subdomains,
             'created_at' => $community->created_at,
             'updated_at' => $community->updated_at,
             'creator' => [
-                'id' => $creator->id,
-                'type' => class_basename($community->creator_type), // Extract the class name (e.g., 'Student' or 'Mentor')
-                'name' => $creator->name,
-                'email' => $creator->email,
-                'joined_at' => $joinedAt,
+                'id' => $community->creator->id,
+                'type' => class_basename($community->creator_type),
+                'name' => $community->creator->name,
+                'email' => $community->creator->email,
             ],
-            'button_text' => $buttonText,
         ];
-    
+
         return response()->json($response);
     }
+
     
     public function getSideBarCommunityDetails(Request $request, $id)
     {
@@ -748,50 +712,30 @@ class CommunityController extends Controller
 
 
 
-    public function getCommunityList(Request $request){
-            // Validate optional filters
-            $validated = $request->validate([
-                'search' => 'nullable|string|max:255', // Search by community name or description
-                'sort_by' => 'nullable|string|in:name,created_at', // Allow sorting by name or creation date
-                'order' => 'nullable|string|in:asc,desc', // Sort order (ascending or descending)
-                'per_page' => 'nullable|integer|min:1|max:100', // Number of results per page
-            ]);
-        
-            // Query for communities
-            $query = Community::query();
-        
-            // Apply search filter
-            if (!empty($validated['search'])) {
-                $query->where('name', 'like', '%' . $validated['search'] . '%')
-                    ->orWhere('description', 'like', '%' . $validated['search'] . '%');
-            }
-        
-            // Apply sorting
-            $sortBy = $validated['sort_by'] ?? 'created_at'; // Default sorting by creation date
-            $order = $validated['order'] ?? 'desc'; // Default order descending
-            $query->orderBy($sortBy, $order);
-        
-            // Paginate results
-            $perPage = $validated['per_page'] ?? 10; // Default 10 results per page
-            $communities = $query->with('creator')->paginate($perPage);
-        
-            // Format response to include creator name
-            $formattedCommunities = $communities->map(function ($community) {
-                return [
-                    'id' => $community->id,
-                    'name' => $community->name,
-                    'description' => $community->description,
-                    'profile_photo' => $community->profile_photo,
-                    'cover_photo' => $community->cover_photo,
-                    'creator_name' => $community->creator ? $community->creator->name : 'Unknown',
-                    'created_at' => $community->created_at,
-                    'updated_at' => $community->updated_at,
-                ];
-            });
-        
-            return response()->json(
-                $formattedCommunities
-            );
+    public function getCommunityList(Request $request)
+    {
+        $validated = $request->validate([
+            'search' => 'nullable|string|max:255',
+            'sort_by' => 'nullable|string|in:name,created_at',
+            'order' => 'nullable|string|in:asc,desc',
+            'per_page' => 'nullable|integer|min:1|max:100',
+        ]);
+
+        $query = Community::with(['creator', 'domain']);
+
+        if (!empty($validated['search'])) {
+            $query->where('name', 'like', '%' . $validated['search'] . '%')
+                ->orWhere('description', 'like', '%' . $validated['search'] . '%');
+        }
+
+        $sortBy = $validated['sort_by'] ?? 'created_at';
+        $order = $validated['order'] ?? 'desc';
+        $query->orderBy($sortBy, $order);
+
+        $perPage = $validated['per_page'] ?? 10;
+        $communities = $query->paginate($perPage);
+
+        return response()->json($communities);
     }
     
     public function getMyCommunity(Request $request)
