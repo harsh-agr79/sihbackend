@@ -15,6 +15,7 @@ use App\Http\Controllers\VrController;
 use App\Http\Controllers\HackContestController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\VideoUploadController;
+use App\Http\Controllers\CurriculumController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
