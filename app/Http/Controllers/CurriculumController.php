@@ -132,7 +132,7 @@ class CurriculumController extends Controller
     }
     
     
-    public function toggleApprovedCourse(Request $request, $gradeId)
+    public function toggleCourseSelection(Request $request, $gradeId)
     {
         try {
             // Get the authenticated user (Institute)
