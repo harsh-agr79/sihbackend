@@ -18,6 +18,6 @@ class Subdomain extends Model
 
     public function communities()
     {
-        return $this->belongsToMany(Community::class, 'community_subdomains', 'subdomain_id', 'community_id');
+        return $this->belongsToMany(Community::class, 'subdomains', 'subdomain_id', 'community_id');
     }
 }
