@@ -43,7 +43,7 @@ class CurriculumController extends Controller
     public function getCurriculum($institutionId)
     {
         // Find the institution by ID
-        $institution = Institution::findOrFail($institutionId);
+        $institution = Institute::findOrFail($institutionId);
 
         // Return the curriculum field
         return response()->json([
