@@ -76,8 +76,8 @@ Route::group(['middleware'=>'api_key'], function () {
             Route::get('/community/{communityId}/posts', [CommunityController::class, 'getCommunityPosts']);
             Route::get('/explorecommunity/list', [CommunityController::class, 'getCommunityList']);
 
-            Route::get('/hack-contests/unregistered', [StudentController::class, 'getUnregisteredHackContests']);
-            Route::get('/hack-contests/registered', [StudentController::class, 'getRegisteredHackContests']);
+            Route::get('/hack-contests/unregistered', [HackContestController::class, 'getUnregisteredHackContests']);
+            Route::get('/hack-contests/registered', [HackContestController::class, 'getRegisteredHackContests']);
             Route::post('/hack-contests/{hackContestId}/register', [HackContestController::class, 'registerForHackathon']);
             Route::post('/hack-contests/{hackContestId}/submit', [HackContestController::class, 'submitForHackathon']);
 
