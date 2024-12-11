@@ -143,7 +143,7 @@ class CommunityController extends Controller
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
-        $community = Community::with(['creator', 'domain', 'subdomains'])->find($id);
+        $community = Community::with(['creator', 'domain'])->find($id);
 
         if (!$community) {
             return response()->json(['error' => 'Community not found'], 404);
