@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Institute;
 use App\Models\Course;
+use App\Models\Subdomain;
 
 class CurriculumController extends Controller
 {
