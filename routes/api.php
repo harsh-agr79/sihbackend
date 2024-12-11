@@ -14,6 +14,7 @@ use App\Http\Controllers\CommunityController;
 use App\Http\Controllers\VrController;
 use App\Http\Controllers\HackContestController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\VideoUploadController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
