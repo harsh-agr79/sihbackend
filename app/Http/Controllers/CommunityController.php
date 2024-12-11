@@ -156,7 +156,7 @@ class CommunityController extends Controller
             'profile_photo' => $community->profile_photo,
             'cover_photo' => $community->cover_photo,
             'domain' => $community->domain->name ?? null,
-            'subdomains' => $community->subdomains,
+            // 'subdomains' => $community->subdomains,
             'created_at' => $community->created_at,
             'updated_at' => $community->updated_at,
             'creator' => [
