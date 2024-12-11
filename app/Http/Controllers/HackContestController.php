@@ -261,9 +261,9 @@ class HackContestController extends Controller {
             return response()->json( [ 'error' => 'Student not found' ], 404 );
         }
 
-        // Fetch registered hack contests with company details
+        // Fetch registered hack contests with company details and check for submissions
         $hackContests = HackathonRegistration::where( 'student_id', $user->id )
-        ->with( [ 'hackContest.company' ] ) // Include hack contest and company details
+        ->with( [ 'hackContest.company', 'submission' ] ) // Include submission status
         ->get();
 
         return response()->json( [
