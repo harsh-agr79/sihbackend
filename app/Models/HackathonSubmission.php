@@ -9,7 +9,7 @@ class HackathonSubmission extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['hackathon_registration_id', 'description', 'link'];
+    protected $fillable = ['hackathon_registration_id', 'description', 'link', 'marks'];
 
     public function hackathonRegistration()
     {
