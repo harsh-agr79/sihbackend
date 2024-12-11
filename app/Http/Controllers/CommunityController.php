@@ -711,6 +711,7 @@ class CommunityController extends Controller
             return [
                 'id' => $post->id,
                 'community_id' => $post->community_id,
+                'domain'=>$post->community->domain->name,
                 'caption' => $post->caption,
                 'content' => $post->content,
                 'like_count' => $post->likes_count, // Total likes count
