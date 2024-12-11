@@ -27,6 +27,7 @@ use App\Http\Controllers\EventController;
 
 Route::get('/email/verify/{id}/{type}/{hash}', [AuthController::class, 'verifyEmail'])->name('verification.verify');
 
+Route::post('/upload-video', [VideoUploadController::class, 'upload']);
 
 Route::get('/environments/{id}', [VrController::class, 'getEnvironment']);
 
