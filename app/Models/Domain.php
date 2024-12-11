@@ -15,4 +15,9 @@ class Domain extends Model
     {
         return $this->hasMany(Subdomain::class);
     }
+
+    public function communities()
+    {
+        return $this->hasMany(Community::class, 'domain_id');
+    }
 }

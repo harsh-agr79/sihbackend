@@ -16,6 +16,19 @@ class Community extends Model {
         'subdomains' => 'array',
     ];
 
+    public function domain()
+    {
+        return $this->belongsTo(Domain::class, 'domain_id');
+    }
+
+    /**
+     * Get the subdomains associated with the community.
+     */
+    public function subdomains()
+    {
+        return $this->belongsToMany(Subdomain::class, 'community_subdomains', 'community_id', 'subdomain_id');
+    }
+
     // Creator of the community ( Polymorphic relationship )
 
     public function creator() {
