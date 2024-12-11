@@ -30,8 +30,6 @@ class CommunityController extends Controller
             return response()->json(['error' => 'User must be a valid Student or Mentor'], 403);
         }
 
-        // return response()->json($request->post());
-
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -137,39 +135,66 @@ class CommunityController extends Controller
     
     public function getCommunityDetails(Request $request, $id)
     {
+        // Ensure the user is authenticated
         $user = $request->user();
-
+    
         if (!$user) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
-
-        $community = Community::with(['creator', 'domain'])->find($id);
-
+    
+        // Fetch the community with its creator and members
+        $community = Community::with('creator')->find($id);
+    
         if (!$community) {
             return response()->json(['error' => 'Community not found'], 404);
         }
-
+    
+        // Format the creator's data
+        $creator = $community->creator;
+    
+        $relationship = $community->creator_type === Student::class ? 'students' : 'mentors';
+    
+        // Fetch joined_at from the correct relationship
+        $joinedAt = $community->$relationship()
+            ->where('community_users.member_id', $community->creator->id)
+            ->where('community_users.member_type', $community->creator_type)
+            ->first()
+            ->pivot
+            ->joined_at ?? null;
+    
+        // Check if the current user is a community member
+        $userRelationship = $user instanceof Student ? 'students' : ($user instanceof Mentor ? 'mentors' : null);
+    
+        $isMember = $userRelationship ? $community->$userRelationship()
+            ->where('community_users.member_id', $user->id)
+            ->where('community_users.member_type', get_class($user))
+            ->exists() : false;
+    
+        // Determine button text based on membership status
+        $buttonText = $isMember ? 'Leave' : 'Join';
+    
+        // Format the response
         $response = [
             'id' => $community->id,
             'name' => $community->name,
             'description' => $community->description,
             'profile_photo' => $community->profile_photo,
             'cover_photo' => $community->cover_photo,
-            'domain' => $community->domain->name ?? null,
-            // 'subdomains' => $community->subdomains,
             'created_at' => $community->created_at,
+            'domains'=>$community->domain->name,
             'updated_at' => $community->updated_at,
             'creator' => [
-                'id' => $community->creator->id,
-                'type' => class_basename($community->creator_type),
-                'name' => $community->creator->name,
-                'email' => $community->creator->email,
+                'id' => $creator->id,
+                'type' => class_basename($community->creator_type), // Extract the class name (e.g., 'Student' or 'Mentor')
+                'name' => $creator->name,
+                'email' => $creator->email,
+                'joined_at' => $joinedAt,
             ],
+            'button_text' => $buttonText,
         ];
-
+    
         return response()->json($response);
     }
-
     
     public function getSideBarCommunityDetails(Request $request, $id)
     {
@@ -714,30 +739,51 @@ class CommunityController extends Controller
 
 
 
-    public function getCommunityList(Request $request)
-    {
-        $validated = $request->validate([
-            'search' => 'nullable|string|max:255',
-            'sort_by' => 'nullable|string|in:name,created_at',
-            'order' => 'nullable|string|in:asc,desc',
-            'per_page' => 'nullable|integer|min:1|max:100',
-        ]);
-
-        $query = Community::with(['creator', 'domain']);
-
-        if (!empty($validated['search'])) {
-            $query->where('name', 'like', '%' . $validated['search'] . '%')
-                ->orWhere('description', 'like', '%' . $validated['search'] . '%');
-        }
-
-        $sortBy = $validated['sort_by'] ?? 'created_at';
-        $order = $validated['order'] ?? 'desc';
-        $query->orderBy($sortBy, $order);
-
-        $perPage = $validated['per_page'] ?? 10;
-        $communities = $query->paginate($perPage);
-
-        return response()->json($communities);
+    public function getCommunityList(Request $request){
+            // Validate optional filters
+            $validated = $request->validate([
+                'search' => 'nullable|string|max:255', // Search by community name or description
+                'sort_by' => 'nullable|string|in:name,created_at', // Allow sorting by name or creation date
+                'order' => 'nullable|string|in:asc,desc', // Sort order (ascending or descending)
+                'per_page' => 'nullable|integer|min:1|max:100', // Number of results per page
+            ]);
+        
+            // Query for communities
+            $query = Community::query();
+        
+            // Apply search filter
+            if (!empty($validated['search'])) {
+                $query->where('name', 'like', '%' . $validated['search'] . '%')
+                    ->orWhere('description', 'like', '%' . $validated['search'] . '%');
+            }
+        
+            // Apply sorting
+            $sortBy = $validated['sort_by'] ?? 'created_at'; // Default sorting by creation date
+            $order = $validated['order'] ?? 'desc'; // Default order descending
+            $query->orderBy($sortBy, $order);
+        
+            // Paginate results
+            $perPage = $validated['per_page'] ?? 10; // Default 10 results per page
+            $communities = $query->with('creator')->paginate($perPage);
+        
+            // Format response to include creator name
+            $formattedCommunities = $communities->map(function ($community) {
+                return [
+                    'id' => $community->id,
+                    'name' => $community->name,
+                    'description' => $community->description,
+                    'domain'=>$community->domain->name,
+                    'profile_photo' => $community->profile_photo,
+                    'cover_photo' => $community->cover_photo,
+                    'creator_name' => $community->creator ? $community->creator->name : 'Unknown',
+                    'created_at' => $community->created_at,
+                    'updated_at' => $community->updated_at,
+                ];
+            });
+        
+            return response()->json(
+                $formattedCommunities
+            );
     }
     
     public function getMyCommunity(Request $request)
