@@ -347,7 +347,7 @@ class HackContestController extends Controller {
         // Ensure the submission belongs to a hack contest created by this company
         $hackContest = $submission->hackathonRegistration->hackContest;
 
-        if (!$hackContest || $hackContest->company_id !== $company->id) {
+        if (!$hackContest || (int)$hackContest->company_id !== (int)$company->id) {
             return response()->json(['error' => 'You do not have permission to evaluate this submission'], 403);
         }
 
