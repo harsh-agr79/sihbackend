@@ -14,7 +14,7 @@ class Institute extends Authenticatable implements MustVerifyEmail
     use HasApiTokens, Notifiable;
 
     protected $fillable = [
-        'name', 'email', 'password','verification_token','email_verified_at',
+        'name', 'email', 'password','verification_token','email_verified_at', 'curriculum'
     ];
 
     protected $hidden = [
@@ -24,6 +24,7 @@ class Institute extends Authenticatable implements MustVerifyEmail
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'curriculum' => 'array',
     ];
 
     public function sendPasswordResetNotification($token)

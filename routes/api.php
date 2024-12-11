@@ -183,6 +183,9 @@ Route::group(['middleware'=>'api_key'], function () {
         Route::middleware(['auth:institute', 'verified'])->group(function () {
             Route::get('/profile', [InstituteController::class, 'profile']);
             Route::post('/logout', [InstituteController::class, 'logout']);
+
+            Route::get('/{institutionId}/curriculum', [CurriculumController::class, 'getCurriculum']);
+            Route::post('/institutionId}/curriculum', [CurriculumController::class, 'saveCurriculum']);
         });
     });
 });
