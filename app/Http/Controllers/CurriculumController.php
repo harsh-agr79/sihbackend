@@ -52,4 +52,78 @@ class CurriculumController extends Controller
         ]);
     }
 
+    public function getFilteredCourseList(Request $request, $gradeId)
+    {
+        try {
+            // Get the authenticated user (Institute)
+            $user = $request->user();
+    
+            // Ensure the user is authenticated and is an Institute
+            if (!$user || !$user instanceof Institute) {
+                return response()->json(['error' => 'Unauthorized or invalid user type'], 403);
+            }
+    
+            // Retrieve the curriculum for the specified grade
+            $curriculum = $user->curriculum[$gradeId] ?? null;
+    
+            if (!$curriculum) {
+                return response()->json(['error' => 'No curriculum data found for this grade'], 404);
+            }
+    
+            $domains = $curriculum['domains'];
+            $level = $curriculum['level'];
+    
+            // Fetch courses filtered by domains and level
+            $courses = Course::whereIn('domain_id', $domains)
+                ->where('level', $level)
+                ->with(['domain']) // Assuming Domain relationship is defined
+                ->withCount([
+                    'enrollments as enrolled' => function ($query) {
+                        $query->whereNull('completed_at'); // Count currently enrolled students
+                    },
+                    'enrollments as completed' => function ($query) {
+                        $query->whereNotNull('completed_at'); // Count completed students
+                    },
+                ])
+                ->get();
+    
+            // Format the data
+            $formattedCourses = $courses->map(function ($course) {
+                // Get subdomain data
+                $subdomainIds = $course->subdomains ?? [];
+                $subdomainNames = Subdomain::whereIn('id', $subdomainIds)->get(['id', 'name']);
+    
+                return [
+                    'id' => $course->id,
+                    'title' => $course->title,
+                    'description' => $course->description,
+                    'verified' => $course->verified,
+                    'level' => $course->level,
+                    'domain_id' => $course->domain_id,
+                    'domain_name' => $course->domain->name ?? null, // Include domain name
+                    'subdomains' => $subdomainNames->map(function ($subdomain) {
+                        return [
+                            'id' => $subdomain->id,
+                            'name' => $subdomain->name,
+                        ];
+                    }),
+                    'created_at' => $course->created_at,
+                    'updated_at' => $course->updated_at,
+                    'completed' => $course->completed,
+                    'enrolled' => $course->enrolled,
+                ];
+            });
+    
+            return response()->json([
+                'message' => 'Filtered courses retrieved successfully',
+                'courses' => $formattedCourses,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Failed to fetch courses.',
+                'details' => $e->getMessage(),
+            ], 500);
+        }
+    }
+    
 }
