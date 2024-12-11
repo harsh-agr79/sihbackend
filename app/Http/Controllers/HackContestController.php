@@ -215,37 +215,56 @@ class HackContestController extends Controller {
         ] );
     }
 
-    public function getHackathonSubmissions( $hackContestId, Request $request ) {
+    public function getHackathonSubmissions($hackContestId, Request $request)
+    {
         $user = $request->user();
-
-        if ( !$user ) {
-            return response()->json( [ 'error' => 'Unauthorized or invalid user type' ], 403 );
+    
+        // Check if the user is authenticated
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized or invalid user type'], 403);
         }
-
-        $company = Company::find( $user->id );
-
-        if ( !$company ) {
-            return response()->json( [ 'error' => 'Company not found' ], 404 );
+    
+        // Ensure the user is a company
+        $company = Company::find($user->id);
+        if (!$company) {
+            return response()->json(['error' => 'Company not found'], 404);
         }
-
-        $hackContest = HackContest::where( [
-            [ 'id', '=', $hackContestId ],
-            [ 'company_id', '=', $user->id ],
-        ] )->first();
-
-        if ( !$hackContest ) {
-            return response()->json( [ 'error' => 'Hack contest not found or unauthorized' ], 404 );
+    
+        // Validate if the hack contest belongs to the company
+        $hackContest = HackContest::where([
+            ['id', '=', $hackContestId],
+            ['company_id', '=', $user->id],
+        ])->first();
+    
+        if (!$hackContest) {
+            return response()->json(['error' => 'Hack contest not found or unauthorized'], 404);
         }
-
-        $submissions = HackathonRegistration::where( 'hack_contest_id', $hackContestId )
-        ->with( 'submissions' )
-        ->get();
-
-        return response()->json( [
+    
+        // Fetch submissions in a flat format
+        $submissions = HackathonRegistration::where('hack_contest_id', $hackContestId)
+            ->with(['student', 'submissions'])
+            ->get()
+            ->flatMap(function ($registration) {
+                return $registration->submissions->map(function ($submission) use ($registration) {
+                    return [
+                        'submission_id' => $submission->id,
+                        'student_id' => $registration->student_id,
+                        'student_name' => $registration->student->name ?? 'Unknown', // Ensure name is available
+                        'description' => $submission->description,
+                        'link' => $submission->link,
+                        'marks' => $submission->marks,
+                        'created_at' => $submission->created_at,
+                        'updated_at' => $submission->updated_at,
+                    ];
+                });
+            });
+    
+        return response()->json([
             'message' => 'Submissions retrieved successfully',
             'submissions' => $submissions,
-        ] );
+        ]);
     }
+    
 
     public function getRegisteredHackContests(Request $request)
     {
