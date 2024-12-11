@@ -247,32 +247,30 @@ class HackContestController extends Controller {
         ] );
     }
 
-    public function getRegisteredHackContests(Request $request)
-    {
+    public function getRegisteredHackContests( Request $request ) {
         $user = $request->user();
-    
+
         // Ensure the user is authenticated
-        if (!$user) {
-            return response()->json(['error' => 'Unauthorized or invalid user type'], 403);
+        if ( !$user ) {
+            return response()->json( [ 'error' => 'Unauthorized or invalid user type' ], 403 );
         }
-    
-        $student = Student::find($user->id);
-    
-        if (!$student) {
-            return response()->json(['error' => 'Student not found'], 404);
+
+        $student = Student::find( $user->id );
+
+        if ( !$student ) {
+            return response()->json( [ 'error' => 'Student not found' ], 404 );
         }
-    
-        // Fetch registered hack contests with company details and check for submissions
-        $hackContests = HackathonRegistration::where('student_id', $user->id)
-            ->with(['hackContest.company', 'submission']) // Include submission status
-            ->get();
-    
-        return response()->json([
+
+        // Fetch registered hack contests with company details and associated submissions
+        $hackContests = HackathonRegistration::where( 'student_id', $user->id )
+        ->with( [ 'hackContest.company', 'submissions' ] ) // Include company details and submissions
+        ->get();
+
+        return response()->json( [
             'message' => 'Registered hack contests retrieved successfully',
             'hack_contests' => $hackContests,
-        ]);
+        ] );
     }
-    
 
     public function getUnregisteredHackContests( Request $request ) {
         $user = $request->user();
