@@ -250,7 +250,7 @@ class HackContestController extends Controller {
     public function getRegisteredHackContests( Request $request ) {
         $user = $request->user();
 
-        // Ensure the user is authenticated and is a mentor
+        // Ensure the user is authenticated
         if ( !$user ) {
             return response()->json( [ 'error' => 'Unauthorized or invalid user type' ], 403 );
         }
@@ -261,7 +261,10 @@ class HackContestController extends Controller {
             return response()->json( [ 'error' => 'Student not found' ], 404 );
         }
 
-        $hackContests = $user->getRegisteredHackContests();
+        // Fetch registered hack contests with company details
+        $hackContests = HackathonRegistration::where( 'student_id', $user->id )
+        ->with( [ 'hackContest.company' ] ) // Include hack contest and company details
+        ->get();
 
         return response()->json( [
             'message' => 'Registered hack contests retrieved successfully',
@@ -272,7 +275,7 @@ class HackContestController extends Controller {
     public function getUnregisteredHackContests( Request $request ) {
         $user = $request->user();
 
-        // Ensure the user is authenticated and is a mentor
+        // Ensure the user is authenticated
         if ( !$user ) {
             return response()->json( [ 'error' => 'Unauthorized or invalid user type' ], 403 );
         }
@@ -283,13 +286,14 @@ class HackContestController extends Controller {
             return response()->json( [ 'error' => 'Student not found' ], 404 );
         }
 
-        // Fetch hack contests the student has registered for
+        // Fetch IDs of hack contests the student has registered for
         $registeredHackContestIds = HackathonRegistration::where( 'student_id', $user->id )
         ->pluck( 'hack_contest_id' )
         ->toArray();
 
-        // Fetch hack contests the student has not registered for
+        // Fetch unregistered hack contests with company details
         $unregisteredHackContests = HackContest::whereNotIn( 'id', $registeredHackContestIds )
+        ->with( 'company' ) // Include company details
         ->orderBy( 'created_at', 'desc' )
         ->get();
 
