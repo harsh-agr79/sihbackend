@@ -30,7 +30,7 @@ class CommunityController extends Controller
             return response()->json(['error' => 'User must be a valid Student or Mentor'], 403);
         }
 
-        return response()->json($request->post());
+        // return response()->json($request->post());
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
