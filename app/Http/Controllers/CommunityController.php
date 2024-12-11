@@ -763,8 +763,8 @@ class CommunityController extends Controller
             $query->orderBy($sortBy, $order);
         
             // Paginate results
-            $perPage = $validated['per_page'] ?? 10; // Default 10 results per page
-            $communities = $query->with('creator')->paginate($perPage);
+            // $perPage = $validated['per_page'] ?? 10; // Default 10 results per page
+            $communities = $query->with('creator')->get();
         
             // Format response to include creator name
             $formattedCommunities = $communities->map(function ($community) {
