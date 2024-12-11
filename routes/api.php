@@ -189,6 +189,7 @@ Route::group(['middleware'=>'api_key'], function () {
             Route::post('/{institutionId}/curriculum/update', [CurriculumController::class, 'saveCurriculum']);
 
             Route::get('/courses/filtered/{grade}', [CurriculumController::class, 'getFilteredCourses']);
+            Route::post('/courses/toggle-approved/{gradeId}', [CourseController::class, 'toggleCourseSelection']);
         });
     });
 });
