@@ -160,7 +160,7 @@ Route::group(['middleware'=>'api_key'], function () {
             Route::delete('/hack-contests/{id}', [HackContestController::class, 'deleteHackContest']);
 
             Route::get('/hack-contests/{hackContestId}/submissions', [HackContestController::class, 'getHackathonSubmissions']);
-            Route::post('/hack-contests/submissions/{submissionId}/evaluate', [HackathonController::class, 'evaluateSubmission']);
+            Route::post('/hack-contests/submissions/{submissionId}/evaluate', [HackContestController::class, 'evaluateSubmission']);
 
             Route::get('/events', [EventController::class, 'index']);
             Route::post('/events', [EventController::class, 'store']);
