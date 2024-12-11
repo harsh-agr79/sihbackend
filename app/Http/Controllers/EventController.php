@@ -42,50 +42,33 @@ class EventController extends Controller {
         // Retrieve the authenticated user
         $user = $request->user();
     
-        // Ensure the user is authenticated
-        if (!$user) {
-            return response()->json(['error' => 'Unauthorized'], 401);
-        }
-
-        // Fetch the company record associated with the authenticated user
-        $company = Company::find($user->id);
-    
-        if (!$company) {
-            return response()->json(['error' => 'Company not found'], 404);
+        // Ensure the user is authenticated and associated with a company
+        if (!$user || !$company = Company::find($user->id)) {
+            return response()->json(['error' => 'Unauthorized or company not found'], 403);
         }
     
-        try {
-            // Validate the request data
-            $validated = $request->validate([
-                'type' => 'required|string|max:255',
-                'title' => 'required|string|max:255',
-                'link' => 'required|url',
-                'datetime' => 'required|date',
-                'speaker' => 'required|string|max:255',
-                'description' => 'required|string',
-            ]);
+        // Validate the request data
+        $validated = $request->validate([
+            'type' => 'required|string|max:255',
+            'title' => 'required|string|max:255',
+            'link' => 'required|url',
+            'datetime' => 'required|date',
+            'speaker' => 'required|string|max:255',
+            'description' => 'required|string',
+        ]);
     
-            // Create a new event
-            $event = $company->events()->create($validated);
+        // Attempt to create a new event
+        $event = $company->events()->create($validated);
     
-            return response()->json([
-                'message' => 'Event created successfully',
-                'event' => $event,
-            ], 201);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            // Catch validation errors and return them as a response
-            return response()->json([
-                'error' => 'Validation failed',
-                'details' => $e->errors(),
-            ], 422);
-        } catch (\Exception $e) {
-            // Catch unexpected errors
-            return response()->json([
-                'error' => 'An unexpected error occurred',
-                'message' => $e->getMessage(),
-            ], 500);
+        // Check if event creation was successful
+        if ($event) {
+            return response()->json(['message' => 'Event created successfully', 'event' => $event], 201);
         }
+    
+        // Return a generic error if creation fails
+        return response()->json(['error' => 'Failed to create event'], 500);
     }
+    
     
 
     // Retrieve a specific event for the authenticated company
