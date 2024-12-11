@@ -186,7 +186,7 @@ Route::group(['middleware'=>'api_key'], function () {
             Route::post('/logout', [InstituteController::class, 'logout']);
 
             Route::get('/{institutionId}/curriculum', [CurriculumController::class, 'getCurriculum']);
-            Route::post('/institutionId}/curriculum', [CurriculumController::class, 'saveCurriculum']);
+            Route::post('/institutionId}/curriculum/update', [CurriculumController::class, 'saveCurriculum']);
         });
     });
 });
