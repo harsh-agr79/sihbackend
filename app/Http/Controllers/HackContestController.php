@@ -6,7 +6,7 @@ use App\Models\HackContest;
 use App\Models\Company;
 use App\Models\Student;
 use App\Models\HackathonRegistration;
-use App\Models\HackathonSubmissions;
+use App\Models\HackathonSubmission;
 use Illuminate\Http\Request;
 
 class HackContestController extends Controller {
@@ -338,7 +338,7 @@ class HackContestController extends Controller {
         ]);
 
         // Find the submission
-        $submission = HackathonSubmissions::find($submissionId);
+        $submission = HackathonSubmission::find($submissionId);
 
         if (!$submission) {
             return response()->json(['error' => 'Submission not found'], 404);
