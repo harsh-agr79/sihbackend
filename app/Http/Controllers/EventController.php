@@ -257,24 +257,27 @@ class EventController extends Controller {
 
     // Fetch all events registered by the authenticated student
 
-    public function getStudentRegisteredEvents( Request $request ) {
+    public function getStudentRegisteredEvents(Request $request)
+    {
         $user = $request->user();
-
-        if ( !$user ) {
-            return response()->json( [ 'error' => 'Unauthorized or invalid user type' ], 403 );
+    
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized or invalid user type'], 403);
         }
-
-        $student = Student::find( $user->id );
-
-        if ( !$student ) {
-            return response()->json( [ 'error' => 'Student not found' ], 404 );
+    
+        $student = Student::find($user->id);
+    
+        if (!$student) {
+            return response()->json(['error' => 'Student not found'], 404);
         }
-
-        $registrations = $student->eventRegistrations()->with( 'event' )->get();
-
-        return response()->json( [
+    
+        // Include the 'event' and its 'company' relationship
+        $registrations = $student->eventRegistrations()->with(['event.company'])->get();
+    
+        return response()->json([
             'message' => 'Registered events retrieved successfully',
             'registrations' => $registrations,
-        ] );
+        ]);
     }
+    
 }
