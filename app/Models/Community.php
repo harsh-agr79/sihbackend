@@ -9,7 +9,11 @@ class Community extends Model {
     use HasFactory;
 
     protected $fillable = [
-        'name', 'description', 'profile_photo', 'cover_photo', 'creator_type', 'creator_id'
+        'name', 'description', 'profile_photo', 'cover_photo', 'creator_type', 'creator_id', 'domain_id', 'subdomains'
+    ];
+
+    protected $casts = [
+        'subdomains' => 'array',
     ];
 
     // Creator of the community ( Polymorphic relationship )
