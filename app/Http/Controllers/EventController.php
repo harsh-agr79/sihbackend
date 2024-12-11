@@ -38,38 +38,36 @@ class EventController extends Controller {
 
     // Store a new event for the authenticated company
 
-    public function store(Request $request) {
+    public function store( Request $request ) {
         // Retrieve the authenticated user
         $user = $request->user();
-    
+
         // Ensure the user is authenticated and associated with a company
-        if (!$user || !$company = Company::find($user->id)) {
-            return response()->json(['error' => 'Unauthorized or company not found'], 403);
+        if ( !$user || !$company = Company::find( $user->id ) ) {
+            return response()->json( [ 'error' => 'Unauthorized or company not found' ], 403 );
         }
-    
+
         // Validate the request data
-        $validated = $request->validate([
+        $validated = $request->validate( [
             'type' => 'required|string|max:255',
             'title' => 'required|string|max:255',
             'link' => 'required|url',
             'datetime' => 'required|date',
             'speaker' => 'required|string|max:255',
             'description' => 'required|string',
-        ]);
-    
+        ] );
+
         // Attempt to create a new event
-        $event = $company->events()->create($validated);
-    
+        $event = $company->events()->create( $validated );
+
         // Check if event creation was successful
-        if ($event) {
-            return response()->json(['message' => 'Event created successfully', 'event' => $event], 201);
+        if ( $event ) {
+            return response()->json( [ 'message' => 'Event created successfully', 'event' => $event ], 201 );
         }
-    
+
         // Return a generic error if creation fails
-        return response()->json(['error' => 'Failed to create event'], 500);
+        return response()->json( [ 'error' => 'Failed to create event' ], 500 );
     }
-    
-    
 
     // Retrieve a specific event for the authenticated company
 
@@ -228,6 +226,8 @@ class EventController extends Controller {
         return response()->json( [ 'message' => 'Successfully unregistered from the event' ] );
     }
 
+    // Fetch events the student has not registered for
+
     public function getStudentUnregisteredEvents( Request $request ) {
         $user = $request->user();
 
@@ -244,8 +244,9 @@ class EventController extends Controller {
         // Get IDs of events the student has already registered for
         $registeredEventIds = $student->eventRegistrations()->pluck( 'event_id' );
 
-        // Fetch events the student has not registered for
+        // Fetch events the student has not registered for and include the company details
         $unregisteredEvents = Event::whereNotIn( 'id', $registeredEventIds )
+        ->with( 'company' ) // Eager load the company details
         ->orderBy( 'datetime', 'asc' )
         ->get();
 
@@ -257,27 +258,26 @@ class EventController extends Controller {
 
     // Fetch all events registered by the authenticated student
 
-    public function getStudentRegisteredEvents(Request $request)
-    {
+    public function getStudentRegisteredEvents( Request $request ) {
         $user = $request->user();
-    
-        if (!$user) {
-            return response()->json(['error' => 'Unauthorized or invalid user type'], 403);
+
+        if ( !$user ) {
+            return response()->json( [ 'error' => 'Unauthorized or invalid user type' ], 403 );
         }
-    
-        $student = Student::find($user->id);
-    
-        if (!$student) {
-            return response()->json(['error' => 'Student not found'], 404);
+
+        $student = Student::find( $user->id );
+
+        if ( !$student ) {
+            return response()->json( [ 'error' => 'Student not found' ], 404 );
         }
-    
+
         // Include the 'event' and its 'company' relationship
-        $registrations = $student->eventRegistrations()->with(['event.company'])->get();
-    
-        return response()->json([
+        $registrations = $student->eventRegistrations()->with( [ 'event.company' ] )->get();
+
+        return response()->json( [
             'message' => 'Registered events retrieved successfully',
             'registrations' => $registrations,
-        ]);
+        ] );
     }
-    
+
 }
