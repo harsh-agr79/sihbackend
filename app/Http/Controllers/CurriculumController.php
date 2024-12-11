@@ -78,6 +78,7 @@ class CurriculumController extends Controller
             // Fetch courses filtered by domains and level
             $courses = Course::whereIn('domain_id', $domains)
                 ->where('level', $level)
+                ->where('verified', 1)
                 ->with(['domain']) // Assuming Domain relationship is defined
                 ->withCount([
                     'enrollments as enrolled' => function ($query) {
