@@ -1067,8 +1067,9 @@ class CourseController extends Controller {
         }
 
         $student = Student::find( $user->id );
+        $teacher = Teacher::find( $user->id );
 
-        if ( !$student ) {
+        if ( !$student || !$teacher ) {
             return response()->json( [ 'error' => 'Student not found' ], 404 );
         }
     
@@ -1115,8 +1116,9 @@ class CourseController extends Controller {
             }
     
             $student = Student::find( $user->id );
-    
-            if ( !$student ) {
+            $teacher = Teacher::find( $user->id );
+
+            if ( !$student || !$teacher ) {
                 return response()->json( [ 'error' => 'Student not found' ], 404 );
             }
 
@@ -1165,10 +1167,11 @@ class CourseController extends Controller {
         ]);
 
         // Get the authenticated student
-        $student = $request->user();
+        $student = Student::find( $user->id );
+        $teacher = Teacher::find( $user->id );
 
-        if (!$student) {
-            return response()->json(['error' => 'Unauthorized access.'], 401);
+        if ( !$student || !$teacher ) {
+            return response()->json( [ 'error' => 'Student not found' ], 404 );
         }
 
         // Fetch the assignment or quiz
@@ -1241,10 +1244,11 @@ class CourseController extends Controller {
 
        
 
-        $student = $request->user();
+        $student = Student::find( $user->id );
+        $teacher = Teacher::find( $user->id );
 
-        if (!$student) {
-            return response()->json(['error' => 'Unauthorized access.'], 401);
+        if ( !$student || !$teacher ) {
+            return response()->json( [ 'error' => 'Student not found' ], 404 );
         }
 
        

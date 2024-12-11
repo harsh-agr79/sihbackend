@@ -177,6 +177,14 @@ Route::group(['middleware'=>'api_key'], function () {
         Route::middleware(['auth:teacher', 'verified'])->group(function () {
             Route::get('/profile', [TeacherController::class, 'profile']);
             Route::post('/logout', [TeacherController::class, 'logout']);
+
+            Route::get('/getcourses', [CourseController::class, 'getCourses']);
+            Route::get('/courses/details/{courseId}', [CourseController::class, 'getCourseDetails']);
+            Route::get('/mycourses/details/{courseId}', [CourseController::class, 'getMyCourseDetails']);
+            Route::get('/mycourses', [CourseController::class, 'getStudentEnrolledCourses']);
+            Route::post('/courses/enroll', [CourseController::class, 'enrollStudent']);
+            Route::post('/course/assignment/submit', [CourseController::class, 'submitAssignment']);
+            Route::post('/course/assignment/editsubmit', [CourseController::class, 'editSubmission']);
         });
     });
     
