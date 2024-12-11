@@ -338,7 +338,7 @@ class HackContestController extends Controller {
         ]);
 
         // Find the submission
-        $submission = HackathonSubmission::find($submissionId);
+        $submission = HackathonSubmissions::find($submissionId);
 
         if (!$submission) {
             return response()->json(['error' => 'Submission not found'], 404);
