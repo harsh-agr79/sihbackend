@@ -46,12 +46,7 @@ class EventController extends Controller {
         if (!$user) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
-    
-        // Check if the user type is 'company'
-        if ($user->type !== 'company') {
-            return response()->json(['error' => 'User is not authorized to create an event'], 403);
-        }
-    
+
         // Fetch the company record associated with the authenticated user
         $company = Company::find($user->id);
     
