@@ -317,4 +317,48 @@ class HackContestController extends Controller {
         ] );
     }
 
+    public function evaluateSubmission(Request $request, $submissionId)
+    {
+        $user = $request->user();
+
+        // Ensure the user is authenticated and is part of a company
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized or invalid user type'], 403);
+        }
+
+        $company = Company::find($user->id);
+
+        if (!$company) {
+            return response()->json(['error' => 'Company not found'], 404);
+        }
+
+        // Validate marks
+        $validated = $request->validate([
+            'marks' => 'required|integer|min:0|max:100', // Marks should be between 0 and 100
+        ]);
+
+        // Find the submission
+        $submission = HackathonSubmission::find($submissionId);
+
+        if (!$submission) {
+            return response()->json(['error' => 'Submission not found'], 404);
+        }
+
+        // Ensure the submission belongs to a hack contest created by this company
+        $hackContest = $submission->hackathonRegistration->hackContest;
+
+        if (!$hackContest || $hackContest->company_id !== $company->id) {
+            return response()->json(['error' => 'You do not have permission to evaluate this submission'], 403);
+        }
+
+        // Update the marks
+        $submission->marks = $validated['marks'];
+        $submission->save();
+
+        return response()->json([
+            'message' => 'Submission evaluated successfully',
+            'submission' => $submission,
+        ]);
+    }
+
 }
