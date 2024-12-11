@@ -247,31 +247,45 @@ class HackContestController extends Controller {
         ] );
     }
 
-    public function getRegisteredHackContests( Request $request ) {
+    public function getRegisteredHackContests(Request $request)
+    {
         $user = $request->user();
-
+    
         // Ensure the user is authenticated
-        if ( !$user ) {
-            return response()->json( [ 'error' => 'Unauthorized or invalid user type' ], 403 );
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized or invalid user type'], 403);
         }
-
-        $student = Student::find( $user->id );
-
-        if ( !$student ) {
-            return response()->json( [ 'error' => 'Student not found' ], 404 );
+    
+        $student = Student::find($user->id);
+    
+        if (!$student) {
+            return response()->json(['error' => 'Student not found'], 404);
         }
-
-        // Fetch registered hack contests with company details and associated submissions
-        $hackContests = HackathonRegistration::where( 'student_id', $user->id )
-        ->with( [ 'hackContest.company', 'submissions' ] ) // Include company details and submissions
-        ->get();
-
-        return response()->json( [
+    
+        // Fetch registered hack contests with company details
+        $hackContests = HackathonRegistration::where('student_id', $user->id)
+            ->with(['hackContest.company']) // Include hack contest and company details
+            ->get()
+            ->map(function ($registration) {
+                // Check if a submission exists for this registration
+                $hasSubmitted = $registration->submissions()->exists();
+                return [
+                    'id' => $registration->id,
+                    'hack_contest_id' => $registration->hack_contest_id,
+                    'student_id' => $registration->student_id,
+                    'created_at' => $registration->created_at,
+                    'updated_at' => $registration->updated_at,
+                    'hack_contest' => $registration->hackContest,
+                    'has_submitted' => $hasSubmitted, // Include submission status as boolean
+                ];
+            });
+    
+        return response()->json([
             'message' => 'Registered hack contests retrieved successfully',
             'hack_contests' => $hackContests,
-        ] );
+        ]);
     }
-
+    
     public function getUnregisteredHackContests( Request $request ) {
         $user = $request->user();
 
