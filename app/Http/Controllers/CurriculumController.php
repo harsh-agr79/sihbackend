@@ -133,56 +133,58 @@ class CurriculumController extends Controller
     
     
     public function toggleCourseSelection(Request $request, $gradeId)
-    {
-        try {
-            // Get the authenticated user (Institute)
-            $user = $request->user();
+   {
+    try {
+        // Get the authenticated user (Institute)
+        $user = $request->user();
 
-            // Ensure the user is authenticated and is an Institute
-            if (!$user || !$user instanceof Institute) {
-                return response()->json(['error' => 'Unauthorized or invalid user type'], 403);
-            }
-
-            // Validate the course ID
-            $validated = $request->validate([
-                'course_id' => 'required|exists:courses,id',
-            ]);
-
-            $courseId = $validated['course_id'];
-
-            // Retrieve the curriculum for the specified grade
-            $curriculum = $user->curriculum[$gradeId] ?? null;
-
-            if (!$curriculum) {
-                return response()->json(['error' => 'No curriculum data found for this grade'], 404);
-            }
-
-            // Get approved courses, or initialize as an empty array
-            $approvedCourses = $curriculum['approved_courses'] ?? [];
-
-            if (in_array($courseId, $approvedCourses)) {
-                // If already approved, remove the course
-                $approvedCourses = array_filter($approvedCourses, fn($id) => $id != $courseId);
-            } else {
-                // Otherwise, add the course
-                $approvedCourses[] = $courseId;
-            }
-
-            // Update the curriculum
-            $curriculum['approved_courses'] = $approvedCourses;
-            $user->curriculum[$gradeId] = $curriculum;
-            $user->save();
-
-            return response()->json([
-                'message' => 'Course approval toggled successfully.',
-                'approved_courses' => $approvedCourses,
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'error' => 'Failed to toggle course approval.',
-                'details' => $e->getMessage(),
-            ], 500);
+        // Ensure the user is authenticated and is an Institute
+        if (!$user || !$user instanceof Institute) {
+            return response()->json(['error' => 'Unauthorized or invalid user type'], 403);
         }
+
+        // Validate the course ID
+        $validated = $request->validate([
+            'course_id' => 'required|exists:courses,id',
+        ]);
+
+        $courseId = $validated['course_id'];
+
+        // Retrieve the curriculum for the specified grade
+        $curriculum = $user->curriculum;
+
+        if (!isset($curriculum[$gradeId])) {
+            return response()->json(['error' => 'No curriculum data found for this grade'], 404);
+        }
+
+        // Get approved courses, or initialize as an empty array
+        $approvedCourses = $curriculum[$gradeId]['approved_courses'] ?? [];
+
+        if (in_array($courseId, $approvedCourses)) {
+            // If already approved, remove the course
+            $approvedCourses = array_filter($approvedCourses, fn($id) => $id != $courseId);
+        } else {
+            // Otherwise, add the course
+            $approvedCourses[] = $courseId;
+        }
+
+        // Update the approved courses in the curriculum
+        $curriculum[$gradeId]['approved_courses'] = array_values($approvedCourses); // Reset array keys
+
+        // Save the updated curriculum back to the database
+        $user->curriculum = $curriculum;
+        $user->save();
+
+        return response()->json([
+            'message' => 'Course approval toggled successfully.',
+            'approved_courses' => $approvedCourses,
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => 'Failed to toggle course approval.',
+            'details' => $e->getMessage(),
+        ], 500);
     }
+   }
 
 }
