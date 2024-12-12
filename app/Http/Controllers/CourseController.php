@@ -624,7 +624,9 @@ class CourseController extends Controller {
             $student = Student::where('email',$user->email)->first();
 
             if (!$student) {
-                $courses = Course::with([
+                $courses = Course::whereHas('enrollments', function ($query) use ($student) {
+                    $query->whereNot('student_id', $user->id);
+                })->with([
                     'mentor:id,name', // Fetch mentor details
                 ])
                 ->withCount([
@@ -654,7 +656,10 @@ class CourseController extends Controller {
                 $institute = $student->teacher->institute;
                 $curriculum = $institute->curriculum[$user->grade];
                 $approvedCourses = $curriculum['approved_courses'] ?? [];
-                $courses = Course::whereIn('id',  $approvedCourses)
+                $courses = Course::whereHas('enrollments', function ($query) use ($student) {
+                    $query->whereNot('student_id', $user->id);
+                })
+                ->whereIn('id',  $approvedCourses)
                 ->with([
                     'mentor:id,name', // Fetch mentor details
                 ])
