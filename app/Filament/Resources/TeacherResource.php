@@ -28,7 +28,7 @@ class TeacherResource extends Resource
                 ->required()
                 ->maxLength(255),
             Forms\Components\Select::make('institute_id')
-                ->relationship('institute', 'id')
+                ->relationship('institute', 'name')
                 ->required()
                 ->label('Institute'),
             Forms\Components\TextInput::make('email')
