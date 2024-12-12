@@ -185,6 +185,8 @@ Route::group(['middleware'=>'api_key'], function () {
             Route::post('/courses/enroll', [CourseController::class, 'enrollStudent']);
             Route::post('/course/assignment/submit', [CourseController::class, 'submitAssignment']);
             Route::post('/course/assignment/editsubmit', [CourseController::class, 'editSubmission']);
+
+            Route::post('/createStudent', [TeacherController::class , 'createStudent']);
         });
     });
     
@@ -198,6 +200,9 @@ Route::group(['middleware'=>'api_key'], function () {
 
             Route::get('/courses/filtered/{grade}', [CurriculumController::class, 'getFilteredCourses']);
             Route::post('/courses/toggle-approved/{gradeId}', [CurriculumController::class, 'toggleCourseSelection']);
+
+            Route::post('/createTeacher', [TeacherController::class , 'createTeacher']);
+
         });
     });
 });
