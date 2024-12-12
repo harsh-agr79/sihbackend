@@ -650,7 +650,7 @@ class CourseController extends Controller {
                 return response()->json($formattedCourses, 200);
             }
             else{
-                $institute = $student->institute;
+                $institute = $student->teacher->institute;
                 $curriculum = $institute->curriculum[$user->grade];
                 $approvedCourses = $curriculum['approved_courses'] ?? [];
                 $courses = Course::whereIn('domain_id', $domains)
