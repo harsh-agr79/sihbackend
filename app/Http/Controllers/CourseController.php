@@ -1169,7 +1169,7 @@ class CourseController extends Controller {
             }
 
             // Fetch courses the student is enrolled in
-            $enrolledCourses = Course::whereHas('enrollments', function ($query) use ($student) {
+            $enrolledCourses = Course::whereHas('enrollments', function ($query) use ($user) {
                 $query->where('student_id', $student->id);
             })
             ->withCount([
