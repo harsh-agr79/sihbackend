@@ -202,8 +202,8 @@ Route::group(['middleware'=>'api_key'], function () {
             Route::get('/courses/filtered/{grade}', [CurriculumController::class, 'getFilteredCourses']);
             Route::post('/courses/toggle-approved/{gradeId}', [CurriculumController::class, 'toggleCourseSelection']);
 
-            Route::post('/createTeacher', [TeacherController::class , 'createTeacher']);
-
+            Route::post('/createTeacher', [InstituteController::class , 'createTeacher']);
+            Route::get('/teachers', [InstituteController::class, 'getTeachers']);
         });
     });
 });
