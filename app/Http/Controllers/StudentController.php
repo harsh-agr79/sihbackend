@@ -40,7 +40,7 @@ class StudentController extends Controller
         ]);
     
         if ($request->hasFile('profile_image')) {
-            $path = $request->file('profile_image')->store('profiles', 'public');
+            $path = $request->file('profile_student_image')->store('profiles', 'public');
             $student->image = $path;
         }
     
