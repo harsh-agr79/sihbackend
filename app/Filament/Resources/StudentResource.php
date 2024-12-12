@@ -33,6 +33,7 @@ class StudentResource extends Resource
                 ->maxLength(255),
             Forms\Components\TextInput::make('grade')
                 ->required()
+                ->integer()
                 ->maxLength(255),
             Forms\Components\Select::make('teacher_id')
                 ->relationship('teacher', 'name')
