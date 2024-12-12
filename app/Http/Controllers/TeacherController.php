@@ -37,4 +37,13 @@ class TeacherController extends Controller {
 
         return response()->json( [ 'message' => "Student added ask student to verify their email and reset the password." ], 201 );
     }
+
+    public function getStudents(Request $request) {
+        $user = $request->user();
+
+        // Fetch students associated with the teacher
+        $students = Student::where('teacher_id', $user->id)->get();
+
+        return response()->json($students, 200);
+    }   
 }

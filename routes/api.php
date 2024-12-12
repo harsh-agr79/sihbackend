@@ -187,6 +187,7 @@ Route::group(['middleware'=>'api_key'], function () {
             Route::post('/course/assignment/editsubmit', [CourseController::class, 'editSubmission']);
 
             Route::post('/createStudent', [TeacherController::class , 'createStudent']);
+            Route::get('/students', [TeacherController::class, 'getStudents']);
         });
     });
     
