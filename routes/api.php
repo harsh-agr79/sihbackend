@@ -51,6 +51,9 @@ Route::group(['middleware'=>'api_key'], function () {
             Route::get('/profile', [StudentController::class, 'profile']);
             Route::post('/logout', [StudentController::class, 'logout']);
 
+            Route::get('/profile/{id}', [StudentController::class, 'getProfile']);
+            Route::post('/profile/{id}', [StudentController::class, 'updateProfile']);
+
             Route::get('/getcourses', [CourseController::class, 'getCourses']);
             Route::get('/courses/details/{courseId}', [CourseController::class, 'getCourseDetails']);
             Route::get('/mycourses/details/{courseId}', [CourseController::class, 'getMyCourseDetails']);
