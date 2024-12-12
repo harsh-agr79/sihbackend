@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Model\Mentor;
+use App\Models\Mentor;
 
 class MentorController extends Controller
 {
