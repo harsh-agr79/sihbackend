@@ -104,13 +104,13 @@ Route::group(['middleware'=>'api_key'], function () {
             Route::get('/profile', [MentorController::class, 'profile']);
             Route::post('/logout', [MentorController::class, 'logout']);
 
-            Route::get('/profile/{id}', [StudentController::class, 'getProfile']);
-            Route::post('/profile/update', [StudentController::class, 'updateProfile']);
-            Route::post('/education/update', [StudentController::class, 'updateEducation']);
-            Route::post('/experience/update', [StudentController::class, 'updateExperience']);
-            Route::post('/skills/update', [StudentController::class, 'updateSkills']);
-            Route::post('/hobbies/update', [StudentController::class, 'updateHobbies']);
-            Route::post('/domains/update', [StudentController::class, 'updateDomains']);
+            Route::get('/profile/{id}', [MentorController::class, 'getProfile']);
+            Route::post('/profile/update', [MentorController::class, 'updateProfile']);
+            Route::post('/education/update', [MentorController::class, 'updateEducation']);
+            Route::post('/experience/update', [MentorController::class, 'updateExperience']);
+            Route::post('/skills/update', [MentorController::class, 'updateSkills']);
+            Route::post('/hobbies/update', [MentorController::class, 'updateHobbies']);
+            Route::post('/domains/update', [MentorController::class, 'updateDomains']);
 
             Route::get('/course', [CourseController::Class, 'getCourseList']);
             Route::get('/course/{courseid}', [CourseController::Class, 'manageCourseDetails']);

@@ -21,18 +21,18 @@ class MentorController extends Controller
 
     public function getProfile($id)
     {
-        $student = Student::find($id);
+        $mentor = Mentorfind($id);
 
-        if (!$student) {
-            return response()->json(['error' => 'Student not found'], 404);
+        if (!$mentor) {
+            return response()->json(['error' => 'Mentor not found'], 404);
         }
 
-        return response()->json($student);
+        return response()->json($mentor);
     }
 
     public function updateProfile(Request $request)
     {
-        $student =  $request->user();
+        $mentor =  $request->user();
     
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -40,64 +40,64 @@ class MentorController extends Controller
         ]);
     
         if ($request->hasFile('profile_image')) {
-            $path = $request->file('profile_student_image')->store('profiles', 'public');
-            $student->image = $path;
+            $path = $request->file('profile_mentor_image')->store('profiles', 'public');
+            $mentor->image = $path;
         }
     
-        $student->name = $validated['name'];
-        $student->save();
+        $mentor->name = $validated['name'];
+        $mentor->save();
     
-        return response()->json($student);
+        return response()->json($mentor);
     }
     
     public function updateEducation(Request $request)
     {
-        $student =  $request->user();
+        $mentor =  $request->user();
     
         $validated = $request->validate([
             'education' => 'required|array',
         ]);
     
-        $student->education = $validated['education'];
-        $student->save();
+        $mentor->education = $validated['education'];
+        $mentor->save();
     
-        return response()->json($student);
+        return response()->json($mentor);
     }
     
     // Similar functions for Experience, Skills, Hobbies, and Domains
     public function updateExperience(Request $request)
     {
-        $student =  $request->user();
+        $mentor =  $request->user();
         $validated = $request->validate(['experience' => 'required|array']);
-        $student->experience = $validated['experience'];
-        $student->save();
-        return response()->json($student);
+        $mentor->experience = $validated['experience'];
+        $mentor->save();
+        return response()->json($mentor);
     }
     
     public function updateSkills(Request $request)
     {
-        $student =  $request->user();
+        $mentor =  $request->user();
         $validated = $request->validate(['skills' => 'required|array']);
-        $student->skills = $validated['skills'];
-        $student->save();
-        return response()->json($student);
+        $mentor->skills = $validated['skills'];
+        $mentor->save();
+        return response()->json($mentor);
     }
     
     public function updateHobbies(Request $request)
     {
-        $student =  $request->user();
+        $mentor =  $request->user();
         $validated = $request->validate(['hobbies' => 'required|array']);
-        $student->hobbies = $validated['hobbies'];
-        $student->save();
-        return response()->json($student);
+        $mentor->hobbies = $validated['hobbies'];
+        $mentor->save();
+        return response()->json($mentor);
     }
     
     public function updateDomains(Request $request)
     {
-        $student =  $request->user();
+        $mentor =  $request->user();
         $validated = $request->validate(['domains' => 'required|array|max:5']);
-        $student->domains = $validated['domains'];
-        $student->save();
-        return response()->json($student);
+        $mentor->domains = $validated['domains'];
+        $mentor->save();
+        return response()->json($mentor);
     }
 }
