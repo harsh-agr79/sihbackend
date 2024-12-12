@@ -21,7 +21,7 @@ class MentorController extends Controller
 
     public function getProfile($id)
     {
-        $mentor = Mentorfind($id);
+        $mentor = Mentor::find($id);
 
         if (!$mentor) {
             return response()->json(['error' => 'Mentor not found'], 404);
