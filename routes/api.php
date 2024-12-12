@@ -52,7 +52,12 @@ Route::group(['middleware'=>'api_key'], function () {
             Route::post('/logout', [StudentController::class, 'logout']);
 
             Route::get('/profile/{id}', [StudentController::class, 'getProfile']);
-            Route::post('/profile/{id}', [StudentController::class, 'updateProfile']);
+            Route::post('/profile/update', [StudentController::class, 'updateProfile']);
+            Route::post('/education/update', [StudentController::class, 'updateEducation']);
+            Route::post('/experience/update', [StudentController::class, 'updateExperience']);
+            Route::post('/skills/update', [StudentController::class, 'updateSkills']);
+            Route::post('/hobbies/update', [StudentController::class, 'updateHobbies']);
+            Route::post('/domains/update', [StudentController::class, 'updateDomains']);
 
             Route::get('/getcourses', [CourseController::class, 'getCourses']);
             Route::get('/courses/details/{courseId}', [CourseController::class, 'getCourseDetails']);

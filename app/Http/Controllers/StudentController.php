@@ -30,37 +30,77 @@ class StudentController extends Controller
         return response()->json($student);
     }
 
-    /**
-     * Update the profile data of a student.
-     */
-    public function updateProfile(Request $request, $id)
+    public function updateProfile(Request $request)
     {
-        $student = Student::find($id);
-
-        if (!$student) {
-            return response()->json(['error' => 'Student not found'], 404);
-        }
-
-        // Validate incoming request
-        $validatedData = $request->validate([
-            'education' => 'nullable|array',
-            'experience' => 'nullable|array',
-            'skills' => 'nullable|array',
-            'hobbies' => 'nullable|array',
-            'domains' => 'nullable|array|max:5', // Max 5 domains
+        $student =  $request->user();
+    
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'profile_image' => 'nullable|image|max:2048',
         ]);
-
-        // Update fields if provided
-        $student->education = $validatedData['education'] ?? $student->education;
-        $student->experience = $validatedData['experience'] ?? $student->experience;
-        $student->skills = $validatedData['skills'] ?? $student->skills;
-        $student->hobbies = $validatedData['hobbies'] ?? $student->hobbies;
-        $student->domains = $validatedData['domains'] ?? $student->domains;
-
-        // Save changes
+    
+        if ($request->hasFile('profile_image')) {
+            $path = $request->file('profile_image')->store('profiles', 'public');
+            $student->image = $path;
+        }
+    
+        $student->name = $validated['name'];
         $student->save();
-
-        return response()->json(['message' => 'Profile updated successfully', 'student' => $student]);
+    
+        return response()->json($student);
     }
+    
+    public function updateEducation(Request $request)
+    {
+        $student =  $request->user();
+    
+        $validated = $request->validate([
+            'education' => 'required|array',
+        ]);
+    
+        $student->education = $validated['education'];
+        $student->save();
+    
+        return response()->json($student);
+    }
+    
+    // Similar functions for Experience, Skills, Hobbies, and Domains
+    public function updateExperience(Request $request)
+    {
+        $student =  $request->user();
+        $validated = $request->validate(['experience' => 'required|array']);
+        $student->experience = $validated['experience'];
+        $student->save();
+        return response()->json($student);
+    }
+    
+    public function updateSkills(Request $request)
+    {
+        $student =  $request->user();
+        $validated = $request->validate(['skills' => 'required|array']);
+        $student->skills = $validated['skills'];
+        $student->save();
+        return response()->json($student);
+    }
+    
+    public function updateHobbies(Request $request)
+    {
+        $student =  $request->user();
+        $validated = $request->validate(['hobbies' => 'required|array']);
+        $student->hobbies = $validated['hobbies'];
+        $student->save();
+        return response()->json($student);
+    }
+    
+    public function updateDomains(Request $request)
+    {
+        $student =  $request->user();
+        $validated = $request->validate(['domains' => 'required|array|max:5']);
+        $student->domains = $validated['domains'];
+        $student->save();
+        return response()->json($student);
+    }
+    
+   
     
 }
