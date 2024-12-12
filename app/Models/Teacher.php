@@ -14,7 +14,7 @@ class Teacher extends Authenticatable implements MustVerifyEmail
     use HasApiTokens, Notifiable;
 
     protected $fillable = [
-        'name', 'email', 'password','verification_token','email_verified_at',
+        'name', 'email', 'password','verification_token','email_verified_at','institute_id'
     ];
 
     protected $hidden = [
@@ -34,5 +34,15 @@ class Teacher extends Authenticatable implements MustVerifyEmail
     public function sendEmailVerificationNotifications($token)
     {
         $this->notify(new VerifyEmailNotification($token));
+    }
+
+    public function institute()
+    {
+        return $this->belongsTo(Institute::class);
+    }
+
+    public function students()
+    {
+        return $this->hasMany(Student::class);
     }
 }
