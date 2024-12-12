@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Models\Teacher;
+use Illuminate\Support\Facades\Hash;
 
 class InstituteController extends Controller
 {

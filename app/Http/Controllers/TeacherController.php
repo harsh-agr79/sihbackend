@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Models\Student;
+use Illuminate\Support\Facades\Hash;
 
 class TeacherController extends Controller {
     public function profile( Request $request ) {
