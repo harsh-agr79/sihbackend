@@ -625,7 +625,7 @@ class CourseController extends Controller {
 
             if (!$student) {
                 $courses = Course::whereHas('enrollments', function ($query) use ($user) {
-                    $query->whereNot('student_id', $user->id);
+                    $query->where('student_id' ,'<>', $user->id);
                 })->with([
                     'mentor:id,name', // Fetch mentor details
                 ])
@@ -657,7 +657,7 @@ class CourseController extends Controller {
                 $curriculum = $institute->curriculum[$user->grade];
                 $approvedCourses = $curriculum['approved_courses'] ?? [];
                 $courses = Course::whereHas('enrollments', function ($query) use ($user) {
-                    $query->whereNot('student_id', $user->id);
+                    $query->where('student_id' ,'<>', $user->id);
                 })
                 ->whereIn('id',  $approvedCourses)
                 ->with([
