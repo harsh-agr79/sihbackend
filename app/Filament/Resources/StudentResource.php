@@ -31,6 +31,10 @@ class StudentResource extends Resource
                 ->email()
                 ->required()
                 ->maxLength(255),
+            Forms\Components\Select::make('teacher_id')
+                ->relationship('teacher', 'name')
+                ->required()
+                ->label('Teacher'),
             Forms\Components\DateTimePicker::make('email_verified_at'),
             Forms\Components\TextInput::make('password')
                 ->password()
