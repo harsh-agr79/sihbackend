@@ -39,4 +39,13 @@ class InstituteController extends Controller
 
         return response()->json( [ 'message' => "Teacher added ask student to verify their email and reset the password." ], 201 );
     }
+
+    public function getTeachers(Request $request) {
+        $user = $request->user();
+
+        // Fetch students associated with the teacher
+        $teachers = Teacher::where('institute_id', $user->id)->get();
+
+        return response()->json($teachers, 200);
+    }   
 }
