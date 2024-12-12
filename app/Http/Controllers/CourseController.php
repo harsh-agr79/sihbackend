@@ -653,7 +653,7 @@ class CourseController extends Controller {
                 $institute = $student->teacher->institute;
                 $curriculum = $institute->curriculum[$user->grade];
                 $approvedCourses = $curriculum['approved_courses'] ?? [];
-                $courses = Course::whereIn('domain_id', $domains)
+                $courses = Course::whereIn('id',  $approvedCourses)
                 ->with([
                     'mentor:id,name', // Fetch mentor details
                 ])
