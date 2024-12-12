@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('mentors', function (Blueprint $table) {
             // Adding JSON columns for profile data
-            $table->json('education')->nullable()->after('grade'); // Store education details
+            $table->json('education')->nullable()->after('verification_token'); // Store education details
             $table->json('experience')->nullable()->after('education'); // Store work experience
             $table->json('skills')->nullable()->after('experience'); // Store skills
             $table->json('hobbies')->nullable()->after('skills'); // Store hobbies
