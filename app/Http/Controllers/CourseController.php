@@ -1110,7 +1110,7 @@ class CourseController extends Controller {
         $student = Student::find( $user->id );
         $teacher = Teacher::find( $user->id );
 
-        if ( !$student || !$teacher ) {
+        if ( !$student && !$teacher ) {
             return response()->json( [ 'error' => 'Student not found' ], 404 );
         }
     
@@ -1159,7 +1159,7 @@ class CourseController extends Controller {
             $student = Student::find( $user->id );
             $teacher = Teacher::find( $user->id );
 
-            if ( !$student || !$teacher ) {
+            if ( !$student && !$teacher ) {
                 return response()->json( [ 'error' => 'Student not found' ], 404 );
             }
 
@@ -1211,7 +1211,7 @@ class CourseController extends Controller {
         $student = Student::find( $user->id );
         $teacher = Teacher::find( $user->id );
 
-        if ( !$student || !$teacher ) {
+        if ( !$student && !$teacher ) {
             return response()->json( [ 'error' => 'Student not found' ], 404 );
         }
 
@@ -1288,7 +1288,7 @@ class CourseController extends Controller {
         $student = Student::find( $user->id );
         $teacher = Teacher::find( $user->id );
 
-        if ( !$student || !$teacher ) {
+        if ( !$student && !$teacher ) {
             return response()->json( [ 'error' => 'Student not found' ], 404 );
         }
 
